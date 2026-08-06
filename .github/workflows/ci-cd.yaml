@@ -6,7 +6,22 @@ on:
   pull_request:
     branches: [dev,main]
   workflow_dispatch:
-
+    inputs:
+      service:
+        description: 'Service to build'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - http-server
+          - ws-server
+          - game-server
+          - sync-worker
+          - notification-worker
+          - matchmaker
+          - cdc
+          - web
 env:
   REGISTRY: docker.io
 
@@ -154,6 +169,18 @@ jobs:
         run: |
           ALL_SERVICES='["http-server","ws-server","game-server","sync-worker","notification-worker","matchmaker","cdc","web"]'
 
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ inputs.service }}" = "all" ]; then
+              echo "Manual trigger: rebuilding all services"
+              echo "services=$ALL_SERVICES" >> "$GITHUB_OUTPUT"
+            else
+              echo "Manual trigger: rebuilding ${{ inputs.service }}"
+              json=$(printf '%s\n' "${{ inputs.service }}" | jq -R . | jq -s -c .)
+              echo "services=$json" >> "$GITHUB_OUTPUT"
+            fi
+            exit 0
+          fi
+
           # If the CI/CD pipeline file itself changed → rebuild every service
           if [ "${{ steps.filter.outputs.ci }}" = "true" ]; then
             echo "CI pipeline changed: rebuilding all services"
@@ -187,7 +214,7 @@ jobs:
     # Build on push to dev or main when at least one service was affected.
     # Pull requests do not push images — validation only.
     if: |
-      github.event_name == 'push' &&
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
       (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') &&
       needs.detect-changes.outputs.services != '[]' &&
       needs.detect-changes.outputs.services != ''
@@ -242,7 +269,7 @@ jobs:
   update-gitops-tags:
     name: Update ArgoCD GitOps Manifests
     needs: [build-and-push, detect-changes]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && needs.detect-changes.outputs.services != '[]' && needs.detect-changes.outputs.services != ''
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main') && needs.detect-changes.outputs.services != '[]' && needs.detect-changes.outputs.services != ''
     runs-on: ubuntu-22.04
     environment: production   # Required to access environment-scoped secrets (e.g. GITOPS_TOKEN)
     steps:
