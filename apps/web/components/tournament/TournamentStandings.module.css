@@ -1,0 +1,235 @@
+.wrap { display: flex; flex-direction: column; }
+
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3.5rem 1.5rem;
+  color: rgba(255,255,255,0.25);
+  font-size: 0.85rem;
+}
+
+/* ── Round tabs ──────────────────────────────────────────────────────────── */
+.roundTabs {
+  display: flex;
+  gap: 0;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  overflow-x: auto;
+}
+
+.roundTab {
+  padding: 0.75rem 1.1rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s;
+  margin-bottom: -1px;
+}
+.roundTab:hover { color: rgba(255,255,255,0.6); }
+.roundTabActive { color: #f28b38; }
+
+/* ── Layout ──────────────────────────────────────────────────────────────── */
+.content { display: flex; flex-direction: column; gap: 1.5rem; padding: 1.25rem 1.5rem; }
+
+.groupsWrap {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.leaderboardWrap { display: flex; flex-direction: column; gap: 0.75rem; }
+.leaderboardTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+}
+
+/* ── Group block ─────────────────────────────────────────────────────────── */
+.groupBlock {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.groupHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+}
+
+.groupHeadLabel {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+}
+.groupHeadCount { font-size: 0.65rem; color: rgba(255,255,255,0.22); }
+
+/* ── Table ───────────────────────────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.table thead tr {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.table th {
+  padding: 0.45rem 0.5rem;
+  font-size: 0.63rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+  text-align: left;
+}
+
+.thRank  { width: 32px; text-align: center; padding-left: 0.75rem; }
+.thPlayer { }
+.thNum   { width: 36px; text-align: center; }
+.thScore { width: 44px; }
+.thBar   { width: 80px; padding-right: 0.75rem; }
+
+/* Rows */
+.tr {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  transition: background 0.12s;
+}
+.tr:last-child { border-bottom: none; }
+.tr:hover { background: rgba(255,255,255,0.03); }
+
+/* My row */
+.trMe {
+  background: rgba(var(--ac, 242,139,56), 0.06) !important;
+  border-left: 3px solid;
+  border-left-color: var(--ac, #f28b38);
+}
+
+.tdRank { padding: 0.6rem 0.5rem 0.6rem 0.75rem; text-align: center; }
+.tdPlayer { padding: 0.6rem 0.5rem; }
+.tdNum { padding: 0.6rem 0.25rem; text-align: center; color: rgba(255,255,255,0.55); }
+.tdScore { font-weight: 700; font-size: 0.88rem; color: rgba(255,255,255,0.82); }
+.tdBar { padding: 0.6rem 0.75rem 0.6rem 0.25rem; }
+
+/* Rank cell */
+.medal { font-size: 0.9rem; line-height: 1; }
+.rankNum { font-size: 0.72rem; font-weight: 700; color: rgba(255,255,255,0.28); }
+
+/* Player cell */
+.playerInfo { display: flex; align-items: center; gap: 0.5rem; }
+.playerName {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.82);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.byePill {
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.1rem 0.35rem;
+  border-radius: 99px;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: #f59e0b;
+}
+
+.tdW { color: #3ecf8e; }
+.tdD { color: rgba(245,158,11,0.8); }
+.tdL { color: rgba(232,93,93,0.7); }
+
+/* Score bar */
+.barTrack {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.barFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+  opacity: 0.7;
+}
+
+.emptyCell {
+  padding: 1.5rem;
+  text-align: center;
+  color: rgba(255,255,255,0.2);
+  font-size: 0.78rem;
+}
+
+/* Avatar */
+.avatar {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 700;
+  color: rgba(255,255,255,0.6);
+  overflow: hidden; flex-shrink: 0;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .roundTabs { border-bottom-color: var(--card-border); }
+:global(body:not(.dark-ui)) .empty { color: var(--text-faint); }
+
+/* ── Light mode — icon + text alignment ────────────────────────────────── */
+:global(body:not(.dark-ui)) .roundTab:hover { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .groupHead {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .groupHeadTitle { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .groupHeadCount { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .thead { color: var(--text-muted); border-bottom-color: var(--card-border); }
+:global(body:not(.dark-ui)) .tr { border-bottom-color: var(--card-border); }
+:global(body:not(.dark-ui)) .tr:hover { background: rgba(0,0,0,0.02); }
+:global(body:not(.dark-ui)) .tdNum { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .tdScore { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .rankNum { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .playerName { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .expandBtn {
+  background: rgba(0,0,0,0.05);
+  border-color: var(--card-border);
+  color: var(--text-muted);
+}
+:global(body:not(.dark-ui)) .expandBtn:hover { background: rgba(0,0,0,0.08); color: var(--text-primary); }
+
+/* ── Light mode — remaining text ─────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .leaderboardTitle { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .groupHeadLabel { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .emptyCell { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .avatar {
+  background: rgba(0,0,0,0.08);
+  border-color: var(--card-border);
+  color: var(--text-muted);
+}
+
+:global(body:not(.dark-ui)) .groupBlock { background: var(--card-bg); border-color: var(--card-border); }
+:global(body:not(.dark-ui)) .barTrack   { background: rgba(0,0,0,0.1); }
+:global(body:not(.dark-ui)) .tr         { border-bottom-color: var(--card-border); }
+:global(body:not(.dark-ui)) .tr:hover   { background: rgba(0,0,0,0.02); }

@@ -1,0 +1,589 @@
+/* ── Base ──────────────────────────────────────────────────────────────────── */
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 100vh;
+  background: #1a1a1a;
+  color: rgba(255, 255, 255, 0.72);
+  font-family: var(--font-sans, system-ui, sans-serif);
+  overflow: hidden;
+}
+
+/* ── Header ────────────────────────────────────────────────────────────────── */
+.header {
+  display: flex;
+  align-items: center;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(30,30,30,1) 0%, #1a1a1a 100%);
+  flex-shrink: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.trophy {
+  font-size: 1.35rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(242,139,56,0.3));
+}
+
+.title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+  letter-spacing: -0.015em;
+  line-height: 1;
+}
+
+.headerMeta {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.28);
+  margin-left: 0.35rem;
+}
+
+/* ── Tab bar ───────────────────────────────────────────────────────────────── */
+.tabBar {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #1a1a1a;
+  flex-shrink: 0;
+  padding: 0 0.5rem;
+  gap: 0;
+}
+
+.tabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.38);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  position: relative;
+}
+
+.tabBtn:hover {
+  color: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tabActive {
+  color: #f28b38;
+  border-bottom-color: #f28b38;
+  text-shadow: 0 0 12px rgba(242,139,56,0.25);
+}
+
+.tabIcon {
+  font-size: 0.82rem;
+}
+
+/* ── Filter bar ────────────────────────────────────────────────────────────── */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(22,22,22,0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  flex-shrink: 0;
+}
+
+.searchWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(0, 0, 0, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 4px;
+  padding: 0.32rem 0.65rem;
+  flex: 0 1 210px;
+  transition: border-color 0.15s;
+}
+
+.searchWrap:focus-within {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.searchIcon {
+  width: 13px;
+  height: 13px;
+  color: rgba(255, 255, 255, 0.28);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  background: none;
+  border: none;
+  outline: none;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 0.8rem;
+  font-family: inherit;
+  width: 100%;
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.20);
+}
+
+.filterSelect {
+  background: rgba(0, 0, 0, 0.30);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.8rem;
+  font-family: inherit;
+  padding: 0.32rem 1.8rem 0.32rem 0.65rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='rgba(255,255,255,0.28)' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.55rem center;
+  transition: border-color 0.15s;
+}
+
+.filterSelect option {
+  background: #1a1a1a;
+}
+
+.filterSelect:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: #f28b38;
+}
+
+/* ── Content ───────────────────────────────────────────────────────────────── */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.content::-webkit-scrollbar { width: 6px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.10); border-radius: 3px; }
+.content::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.20); }
+
+/* ── Schedule View (time-slot list) ────────────────────────────────────────── */
+.scheduleList {
+  padding: 1rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.scheduleListEmpty {
+  padding: 3rem 1.25rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.18);
+}
+
+/* Day section */
+.slotDay {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.slotDayHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  padding-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.slotDayLabel {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: -0.01em;
+}
+
+.slotDayDate {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+/* Hour-slot group */
+.slotGroup {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  min-height: 40px;
+}
+
+.slotTime {
+  width: 70px;
+  flex-shrink: 0;
+  padding-top: 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.30);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.slotCards {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0.25rem 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  padding-left: 0.9rem;
+}
+
+/* Individual tournament card in a slot */
+.slotCard {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.slotCard:hover {
+  background: rgba(255, 255, 255, 0.065);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateX(3px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+}
+
+.slotCardIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+}
+
+.slotCardBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.slotCardName {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.slotCardMeta {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.30);
+}
+
+.slotLiveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #81b64c;
+  box-shadow: 0 0 5px #81b64c;
+  flex-shrink: 0;
+  animation: livePulse 1.4s ease-in-out infinite;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.45; }
+}
+
+.slotCardStatus {
+  font-size: 0.7rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  text-transform: capitalize;
+}
+
+.scheduleEmpty {
+  padding: 3rem 1.25rem;
+  text-align: center;
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.18);
+}
+
+/* ── Create View ───────────────────────────────────────────────────────────── */
+.createView {
+  padding: 2rem 1.5rem;
+  max-width: 700px;
+}
+
+.createPrompt {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 1.75rem;
+  text-align: center;
+}
+
+.createGroups {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.createGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.createGroupHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding-left: 0.75rem;
+  border-left: 3px solid;
+  margin-bottom: 0.2rem;
+}
+
+.createGroupLabel {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.createGroupSub {
+  font-size: 0.73rem;
+  color: rgba(255, 255, 255, 0.28);
+}
+
+.createOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.createOption {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-align: left;
+  font-family: inherit;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.createOption::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--opt-color, rgba(255, 255, 255, 0.28));
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.createOption:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.createOption:hover::before {
+  opacity: 1;
+}
+
+.createOptionIcon {
+  font-size: 1.25rem;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.30);
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.createOptionBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+}
+
+.createOptionLabel {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.createOptionDesc {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.45;
+}
+
+.createOptionArrow {
+  font-size: 1.3rem;
+  color: rgba(255, 255, 255, 0.20);
+  flex-shrink: 0;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.createOption:hover .createOptionArrow {
+  color: var(--opt-color, rgba(255, 255, 255, 0.55));
+}
+
+/* ── Toast ─────────────────────────────────────────────────────────────────── */
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 300;
+  padding: 0.6rem 1.3rem;
+  border-radius: 99px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
+  font-family: inherit;
+}
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.toast_success {
+  background: rgba(129, 182, 76, 0.12);
+  border: 1px solid rgba(129, 182, 76, 0.40);
+  color: #81b64c;
+}
+
+.toast_error {
+  background: rgba(239, 68, 68, 0.10);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #ef4444;
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .page {
+  background: var(--page-bg);
+  color: var(--text-primary);
+}
+:global(body:not(.dark-ui)) .title { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .subtitle { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .header { border-bottom-color: var(--card-border); }
+:global(body:not(.dark-ui)) .tabBtn { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .tabBtn:hover { color: var(--text-primary); background: var(--card-bg); }
+:global(body:not(.dark-ui)) .tabActive { color: #81b64c; border-bottom-color: #81b64c; }
+:global(body:not(.dark-ui)) .searchInput {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+
+/* ── Light mode — icon + text alignment ────────────────────────────────── */
+:global(body:not(.dark-ui)) .filterBar {
+  background: var(--page-bg);
+  border-bottom-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .searchWrap {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+}
+:global(body:not(.dark-ui)) .searchWrap:focus-within { border-color: rgba(0,0,0,0.28); }
+:global(body:not(.dark-ui)) .searchIcon { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .searchInput { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .searchInput::placeholder { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .filterSelect {
+  background-color: var(--input-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='rgba(0,0,0,0.32)' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+:global(body:not(.dark-ui)) .filterSelect option { background: #fff; }
+:global(body:not(.dark-ui)) .createOption {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .createOption:hover {
+  background: rgba(255,255,255,0.96);
+  border-color: rgba(0,0,0,0.14);
+}
+:global(body:not(.dark-ui)) .createOptionIcon { background: rgba(0,0,0,0.05); }
+:global(body:not(.dark-ui)) .createOptionLabel { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .createOptionDesc { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .createOptionArrow { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .createPrompt { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .createGroupSub { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .scheduleEmpty { color: var(--text-faint); }
+
+/* ── Light mode — remaining gaps ────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .header {
+  background: var(--page-bg);
+  border-bottom-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .headerMeta { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .title { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .tabBar {
+  background: var(--page-bg);
+  border-bottom-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .tabBtn { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .tabBtn:hover { color: var(--text-primary); }
+
+/* ── Light mode — schedule list ──────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .scheduleListEmpty { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .slotDayLabel { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .slotDayDate { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .slotDayHeader { border-bottom-color: var(--card-border); }
+:global(body:not(.dark-ui)) .slotTime { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .slotCards { border-left-color: var(--card-border); }
+:global(body:not(.dark-ui)) .slotCard {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .slotCard:hover {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+:global(body:not(.dark-ui)) .slotCardName { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .slotCardMeta { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .scheduleEmpty { color: var(--text-faint); }

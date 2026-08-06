@@ -1,0 +1,16 @@
+[package]
+name = "metrics-rustclient"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+prometheus = "0.13"
+sysinfo = "0.30"
+tokio = { version = "1.0", features = ["full"] }
+lazy_static = "1.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[lib]
+name = "metrics_rustclient"
+path = "src/lib.rs"

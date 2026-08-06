@@ -1,0 +1,29 @@
+{
+  "name": "@repo/grpc-connection",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "check-types": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@grpc/grpc-js": "^1.11.0",
+    "@grpc/proto-loader": "^0.7.13",
+    "@repo/redis-client": "workspace:*",
+    "chess.js": "^1.4.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "typescript": "5.9.2"
+  }
+}

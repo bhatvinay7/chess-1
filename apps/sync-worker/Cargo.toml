@@ -1,0 +1,36 @@
+[package]
+name = "sync-worker"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+rustls = { version = "0.23", default-features = false, features = ["ring"] }
+rabbitmq-rustclient = { path = "../../packages/rabbitmq-rustclient" }
+# Redis
+redis      = { version = "0.27", features = ["tokio-comp", "tokio-rustls-comp", "aio"] }
+bb8-redis  = "0.17"
+bb8        = "0.8"
+
+# Postgres / SQLx
+sqlx = { version = "0.8", features = [
+    "runtime-tokio-rustls",
+    "postgres",
+    "uuid",
+    "chrono",
+] }
+
+# Serialisation
+serde      = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+
+# Utilities
+dotenvy = "0.15"
+uuid    = { version = "1.0", features = ["v4"] }
+chrono  = { version = "0.4", features = ["serde"] }
+
+# Tournament pairing — Edmonds' blossom MWPM (same version as matchmaker)
+fusion-blossom = "0.2.12"
+metrics-rustclient = { path = "../../packages/metrics-rustclient" }

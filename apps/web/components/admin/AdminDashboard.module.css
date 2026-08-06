@@ -1,0 +1,70 @@
+.container {
+  min-height: 100vh;
+  padding: 5rem 1rem;
+}
+
+.centerLoader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.spinner {
+  color: var(--primary, #f28b38);
+}
+
+.wrapper {
+  max-width: 42rem;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  color: var(--muted, rgba(255, 255, 255, 0.6));
+}
+
+.subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--muted, rgba(255, 255, 255, 0.6));
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.cardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.125rem;
+  color: var(--foreground, #ffffff);
+  transition: color 0.2s;
+}
+
+.cardDesc {
+  font-size: 0.875rem;
+  color: var(--muted, rgba(255, 255, 255, 0.6));
+}

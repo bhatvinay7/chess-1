@@ -1,0 +1,536 @@
+/* ── Page shell ─────────────────────────────────────────────────────────────── */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(130, 180, 90, 0.07), transparent 38%),
+    linear-gradient(160deg, #1a1a1a 0%, #1c1c1c 60%, #151515 100%);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 2rem 2rem 3.5rem;
+  gap: 3.5rem;
+}
+
+/* ── Hero ───────────────────────────────────────────────────────────────────── */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(290px, 420px);
+  gap: 3rem;
+  align-items: center;
+  padding-top: 1.5rem;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  align-items: flex-start;
+}
+
+.kicker {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #81b64c;
+  opacity: 0.9;
+}
+
+.title {
+  font-size: clamp(2.4rem, 4.5vw, 3.75rem);
+  font-weight: 850;
+  line-height: 1.07;
+  letter-spacing: -0.01em;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.subtitle {
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.48);
+  max-width: 540px;
+  line-height: 1.72;
+}
+
+.ctaGroup {
+  display: flex;
+  gap: 0.875rem;
+  flex-wrap: wrap;
+}
+
+/* Hero chess board */
+.heroBoard {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: 6px solid rgba(90, 58, 24, 0.8);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow:
+    0 28px 80px rgba(0, 0, 0, 0.55),
+    0 2px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.heroBoard span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1a110a;
+  font-size: clamp(1rem, 3vw, 2rem);
+  line-height: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.heroBoard span:nth-child(16n + 1),
+.heroBoard span:nth-child(16n + 3),
+.heroBoard span:nth-child(16n + 5),
+.heroBoard span:nth-child(16n + 7),
+.heroBoard span:nth-child(16n + 10),
+.heroBoard span:nth-child(16n + 12),
+.heroBoard span:nth-child(16n + 14),
+.heroBoard span:nth-child(16n + 16) {
+  background: #f6e7bd;
+}
+
+.heroBoard span:nth-child(16n + 2),
+.heroBoard span:nth-child(16n + 4),
+.heroBoard span:nth-child(16n + 6),
+.heroBoard span:nth-child(16n + 8),
+.heroBoard span:nth-child(16n + 9),
+.heroBoard span:nth-child(16n + 11),
+.heroBoard span:nth-child(16n + 13),
+.heroBoard span:nth-child(16n + 15) {
+  background: #7ca35f;
+}
+
+/* ── Stats bar ──────────────────────────────────────────────────────────────── */
+.statsBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1.4rem 2rem;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  flex-wrap: wrap;
+  row-gap: 1.25rem;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  flex: 1;
+  min-width: 110px;
+}
+
+.stat strong {
+  font-size: 1.9rem;
+  font-weight: 850;
+  color: #f28b38;
+  line-height: 1;
+}
+
+.stat span {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.38);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.statDivider {
+  width: 1px;
+  height: 2.25rem;
+  background: rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+/* ── Features ───────────────────────────────────────────────────────────────── */
+.featuresSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.2;
+}
+
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.featureCard {
+  padding: 1.35rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.featureCard:hover {
+  background: var(--glass-bg-light);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.iconWrapper {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(242, 139, 56, 0.12);
+  color: #f28b38;
+  flex-shrink: 0;
+}
+
+.featureCard h3 {
+  font-size: 1rem;
+  font-weight: 750;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.featureCard p {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.44);
+  line-height: 1.65;
+}
+
+/* ── How it works ───────────────────────────────────────────────────────────── */
+.howSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+
+.step {
+  padding: 1.4rem 1.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+.stepTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.2rem;
+}
+
+.stepNum {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #f28b38;
+  letter-spacing: 0.1em;
+  font-family: monospace;
+  opacity: 0.6;
+}
+
+.stepIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(129, 182, 76, 0.12);
+  color: #81b64c;
+}
+
+.stepTitle {
+  font-size: 1rem;
+  font-weight: 750;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.3;
+}
+
+.stepDesc {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.44);
+  line-height: 1.65;
+}
+
+/* ── Coach callout ──────────────────────────────────────────────────────────── */
+.coachBanner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.5rem 2rem;
+  flex-wrap: wrap;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+.coachText {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.coachIcon {
+  color: #81b64c;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.coachText h3 {
+  font-size: 1.05rem;
+  font-weight: 750;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.3rem;
+}
+
+.coachText p {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.44);
+  line-height: 1.65;
+  max-width: 540px;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────────────────── */
+.footer {
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.32);
+  font-size: 0.85rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.footerLinks {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.footerLinks a:hover {
+  color: #f28b38;
+}
+
+/* ── Dark-UI toggle — already dark, provide a subtle lift ───────────────────── */
+:global(body.dark-ui) .page {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(100, 150, 60, 0.09), transparent 38%),
+    linear-gradient(160deg, #151515 0%, #1a1a1a 60%, #101010 100%);
+}
+
+:global(body.dark-ui) .featureCard,
+:global(body.dark-ui) .step,
+:global(body.dark-ui) .statsBar,
+:global(body.dark-ui) .coachBanner {
+  background: rgba(42, 42, 42, 0.88);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ── Light mode ──────────────────────────────────────────────────────────────── */
+
+/* Page shell — clean light gray background */
+:global(body:not(.dark-ui)) .page {
+  background: #f0f2f5;
+  color: var(--text-primary);
+}
+
+/* Hero text */
+:global(body:not(.dark-ui)) .kicker {
+  color: #5a8a2a;
+  opacity: 1;
+}
+
+:global(body:not(.dark-ui)) .title {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .subtitle {
+  color: #4a5e3a;
+}
+
+/* Stats bar */
+:global(body:not(.dark-ui)) .statsBar {
+  background: #ffffff;
+  border-color: #dde1e7;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+:global(body:not(.dark-ui)) .stat span {
+  color: #64748b;
+}
+
+:global(body:not(.dark-ui)) .statDivider {
+  background: #dde1e7;
+}
+
+/* Section headings */
+:global(body:not(.dark-ui)) .sectionTitle {
+  color: #1a2416;
+}
+
+/* Feature cards */
+:global(body:not(.dark-ui)) .featureCard {
+  background: #ffffff;
+  border-color: #dde1e7;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+:global(body:not(.dark-ui)) .featureCard:hover {
+  background: #ffffff;
+  border-color: rgba(242, 139, 56, 0.35);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.09);
+}
+
+:global(body:not(.dark-ui)) .featureCard h3 {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .featureCard p {
+  color: #4a5e3a;
+}
+
+/* How it works steps */
+:global(body:not(.dark-ui)) .step {
+  background: #ffffff;
+  border-color: #dde1e7;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+:global(body:not(.dark-ui)) .stepTitle {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .stepDesc {
+  color: #4a5e3a;
+}
+
+/* Coach banner */
+:global(body:not(.dark-ui)) .coachBanner {
+  background: #ffffff;
+  border-color: #dde1e7;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+:global(body:not(.dark-ui)) .coachText h3 {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .coachText p {
+  color: #4a5e3a;
+}
+
+/* Footer */
+:global(body:not(.dark-ui)) .footer {
+  border-top-color: #dde1e7;
+  color: #64748b;
+}
+
+:global(body:not(.dark-ui)) .footerLinks a {
+  color: #64748b;
+}
+
+:global(body:not(.dark-ui)) .footerLinks a:hover {
+  color: #f28b38;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────────── */
+@media (max-width: 1000px) {
+  .features,
+  .steps {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 820px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .heroBoard {
+    max-width: 380px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .main {
+    padding: 1rem 1rem 2rem;
+    gap: 2.5rem;
+  }
+
+  .features,
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .statsBar {
+    padding: 1.25rem 1rem;
+  }
+
+  .statDivider {
+    display: none;
+  }
+
+  .coachBanner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.25rem;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.25rem 1rem;
+  }
+}

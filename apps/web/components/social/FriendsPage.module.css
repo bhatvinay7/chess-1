@@ -1,0 +1,132 @@
+/* ── FriendsPage layout ────────────────────────────────────────────────────
+   Styles for: app/friends/page.tsx → components/social/FriendsPage.tsx
+   ──────────────────────────────────────────────────────────────────────── */
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 0;
+}
+
+.kicker {
+  color: #a8b4c0;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0.2rem 0 0;
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.summary {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 1rem;
+}
+
+/* ── Search box ─────────────────────────────────────────────────────────── */
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.62rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.searchBox svg {
+  color: #a8b4c0;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.92);
+  font: inherit;
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .summary {
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    padding: 1rem;
+  }
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .container {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .kicker {
+  color: #5a6e50;
+}
+
+:global(body:not(.dark-ui)) .title {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .summary {
+  color: #64748b;
+}
+
+:global(body:not(.dark-ui)) .searchBox {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #dde1e7;
+}
+
+:global(body:not(.dark-ui)) .searchBox svg {
+  color: #5a6e50;
+}
+
+:global(body:not(.dark-ui)) .searchInput {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .searchInput::placeholder {
+  color: rgba(0, 0, 0, 0.32);
+}

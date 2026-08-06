@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  server:
+    image: rancher/k3s:latest
+    command: server --disable traefik --disable metrics-server --service-node-port-range=3000-32767
+    tmpfs:
+      - /run
+      - /var/run
+    privileged: true
+    restart: always
+    environment:
+      - K3S_KUBECONFIG_OUTPUT=/output/kubeconfig.yaml
+      - K3S_KUBECONFIG_MODE=666
+    volumes:
+      - k3s-server:/var/lib/rancher/k3s
+      # This binds the kubeconfig so you can use it locally
+      - ./.kube:/output
+      # Mount workspace for local manifest access
+      - .:/workspace
+    ports:
+      - "80:80"       # Ingress HTTP
+      - "443:443"     # Ingress HTTPS
+      - "6443:6443"   # Kubernetes API Server
+      - "50051:30051" # gRPC Game Server NodePort (30051 inside K3s -> 50051 on host)
+      - "5432:30542"  # Local Dev Postgres NodePort
+      - "6379:30637"  # Local Dev Redis NodePort
+      - "27017:30270" # Local Dev MongoDB NodePort
+      - "5672:30567"  # Local Dev RabbitMQ NodePort
+
+  agent:
+    image: rancher/k3s:latest
+    tmpfs:
+      - /run
+      - /var/run
+    privileged: true
+    restart: always
+    environment:
+      - K3S_URL=https://server:6443
+    # Override K3s entrypoint so /bin/sh can execute token wait script
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        until [ -f /var/lib/rancher/k3s/server/node-token ]; do sleep 1; done
+        export K3S_TOKEN=$$(cat /var/lib/rancher/k3s/server/node-token)
+        exec k3s agent
+    volumes:
+      # Mount only the server folder read-only so the agent can read node-token
+      - k3s-server:/var/lib/rancher/k3s/server:ro
+      # Use a writeable volume for the agent's own state and load balancer config
+      - k3s-agent:/var/lib/rancher/k3s/agent
+    depends_on:
+      - server
+
+volumes:
+  k3s-server: {}
+  k3s-agent: {}

@@ -1,0 +1,6 @@
+.page {
+  width: 100%;
+  min-height: 100vh;
+  padding: clamp(1rem, 3vw, 2rem);
+  background: var(--page-bg);
+}

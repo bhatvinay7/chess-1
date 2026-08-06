@@ -1,0 +1,359 @@
+/* ═══════════════════════════════════════════════════════════════
+   GameOverModal — modular CSS
+   ═══════════════════════════════════════════════════════════════ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+/* ── Modal card ──────────────────────────────────────────────── */
+.modal {
+  width: 420px;
+  max-width: 100%;
+  background: #ececec;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35);
+  position: relative;
+}
+
+/* ── Close button ────────────────────────────────────────────── */
+.closeBtn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+/* ── Header band ─────────────────────────────────────────────── */
+.header {
+  height: 110px;
+  background: linear-gradient(to bottom, #6b6b6b, #575757);
+  border-bottom-left-radius: 50% 30px;
+  border-bottom-right-radius: 50% 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 46px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.headerSub {
+  opacity: 0.9;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+/* ── Body ────────────────────────────────────────────────────── */
+.body {
+  padding: 22px 28px 20px;
+}
+
+/* ── Players row ─────────────────────────────────────────────── */
+.playersRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ── Avatar card ─────────────────────────────────────────────── */
+.avatarCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-width: 100px;
+}
+
+.avatarWrap {
+  position: relative;
+}
+
+.avatarImg {
+  width: 82px;
+  height: 82px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #d9d9d9;
+  background: #fff;
+  display: block;
+}
+
+.avatarImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatarImgWinner {
+  border: 4px solid #84c441;
+  box-shadow: 0 0 0 3px rgba(132, 196, 65, 0.15);
+}
+
+.crownDot {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #84c441;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+}
+
+.playerName {
+  margin-top: 8px;
+  font-size: 15px;
+  color: #6b6b6b;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* ── Center score ────────────────────────────────────────────── */
+.scoreCenter {
+  text-align: center;
+  min-width: 90px;
+}
+
+.scoreText {
+  font-size: 28px;
+  font-weight: 700;
+  color: #4b4b4b;
+}
+
+.winnerInfo {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #777;
+  font-size: 13px;
+}
+
+/* ── Action buttons ──────────────────────────────────────────── */
+.actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 10px;
+}
+
+.btnRematch {
+  flex: 1;
+  height: 42px;
+  border-radius: 6px;
+  border: none;
+  background: #84c441;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.btnRematch:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.btnNewGame {
+  flex: 1;
+  height: 42px;
+  border-radius: 6px;
+  border: none;
+  background: #5f5f5f;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.btnNewGame:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+
+/* ── Rematch button states ───────────────────────────────────── */
+.btnRematchExpired {
+  flex: 1;
+  height: 42px;
+  border-radius: 6px;
+  border: none;
+  background: #b5b5b5;
+  color: #fff;
+  font-weight: 700;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.timerBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.18);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.btnWaiting {
+  flex: 1;
+  height: 42px;
+  border-radius: 6px;
+  border: none;
+  background: #b5c4a0;
+  color: #fff;
+  font-weight: 700;
+  cursor: not-allowed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.spinnerIcon {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Incoming rematch ────────────────────────────────────────── */
+.incomingBanner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.incomingText {
+  font-size: 12px;
+  color: #555;
+  font-weight: 600;
+  text-align: center;
+}
+
+.incomingBtns {
+  display: flex;
+  gap: 6px;
+}
+
+.btnAccept {
+  flex: 1;
+  height: 42px;
+  border-radius: 6px;
+  border: none;
+  background: #84c441;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 14px;
+  transition: filter 0.15s ease;
+}
+
+.btnAccept:hover {
+  filter: brightness(1.08);
+}
+
+.btnDecline {
+  flex: 1;
+  height: 42px;
+  border-radius: 6px;
+  border: none;
+  background: #c44141;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: filter 0.15s ease;
+}
+
+.btnDecline:hover {
+  filter: brightness(1.1);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .modal {
+    width: 100%;
+  }
+
+  .headerTitle {
+    font-size: 36px;
+  }
+
+  .body {
+    padding: 18px 18px 16px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .avatarImg {
+    width: 68px;
+    height: 68px;
+  }
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .overlay { background: rgba(0,0,0,0.55); }
+:global(body:not(.dark-ui)) .card {
+  background: rgba(255,255,255,0.97);
+  border-color: var(--card-border);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.15);
+  color: var(--text-primary);
+}

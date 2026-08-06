@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+.gitmodules
+
+# Node / Bun dependencies (will be cleanly re-installed in Docker)
+**/node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp*
+
+# Rust build target artifacts (HUGE: 10GB+!)
+**/target
+target
+
+# Next.js / Web build outputs
+**/.next
+**/dist
+**/build
+**/out
+
+# Caches and CI/CD tools
+**/.turbo
+**/.vercel
+.turbo
+coverage
+
+# IDE, OS, and local agent files
+.gemini
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+
+# Kubernetes and local dev config
+.kube
+k8s
+docker-compose*.yml
+README.md
+*.md
+
+# Local environment secrets
+# .env*

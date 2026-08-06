@@ -1,0 +1,13 @@
+[workspace]
+members = [
+  "apps/cdc",
+  "apps/game-server",
+  "apps/matchmaker",
+  "apps/notification-worker",
+  "apps/sync-worker",
+  "packages/metrics-rustclient",
+  "packages/postgres-rustclient",
+  "packages/rabbitmq-rustclient",
+  "packages/redis-rustclient",
+]
+resolver = "2"

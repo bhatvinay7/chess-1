@@ -1,0 +1,28 @@
+{
+  "name": "chess",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "lint:rust": "for dir in apps/sync-worker apps/cdc apps/notification-worker apps/matchmaker packages/postgres-rustclient packages/redis-rustclient packages/rabbitmq-rustclient packages/metrics-rustclient; do echo \"=== Linting $dir ===\" && (cd $dir && cargo clippy -- -D warnings) || exit 1; done",
+    "lint:all": "turbo run lint && pnpm run lint:rust",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types",
+    "check-types:rust": "for dir in apps/sync-worker apps/cdc apps/notification-worker apps/matchmaker packages/postgres-rustclient packages/redis-rustclient packages/rabbitmq-rustclient packages/metrics-rustclient; do echo \"=== Checking $dir ===\" && (cd $dir && cargo check) || exit 1; done",
+    "check-types:all": "turbo run check-types && pnpm run check-types:rust"
+  },
+  "devDependencies": {
+    "prettier": "^3.7.4",
+    "turbo": "^2.9.7",
+    "typescript": "5.9.2"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

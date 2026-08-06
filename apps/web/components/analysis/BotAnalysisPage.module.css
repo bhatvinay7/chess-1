@@ -1,0 +1,45 @@
+.errorContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--background, #161512);
+  color: #e84040;
+  gap: 1rem;
+}
+
+.playButton {
+  padding: 0.5rem 1.2rem;
+  background: rgba(129, 182, 76, 0.15);
+  border: 1px solid rgba(124, 163, 95, 0.3);
+  border-radius: 8px;
+  color: #81b64c;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.playButton:hover {
+  background: rgba(129, 182, 76, 0.25);
+}
+
+.loadingContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background, #161512);
+  color: #6a8a58;
+  gap: 0.6rem;
+}
+
+.spinner {
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

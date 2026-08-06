@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package chess;
+
+service ChessMoveService {
+  // Validate and apply a chess move.
+  // On success: updates Redis state, appends to history stream, publishes game:move:processed:*
+  // On failure: publishes game:move:invalid:* and returns valid=false
+  rpc ProcessMove (MoveRequest) returns (MoveResponse);
+
+  // Called by ws-server when the first spectator joins a game.
+  // Immediately adds game_id to the server's in-memory watched-games set so
+  // spectator events are published without waiting for the 10-second background poll.
+  rpc RegisterSpectatedGame (SpectateRequest) returns (SpectateResponse);
+}
+
+message MoveRequest {
+  string game_id   = 1; // UUID of the game
+  string user_id   = 2; // UUID of the player making the move
+  string from      = 3; // Source square, e.g. "e2"
+  string to        = 4; // Target square, e.g. "e4"
+  string promotion = 5; // Promotion piece type: "q"|"r"|"b"|"n" (empty if none)
+}
+
+// ── Response ─────────────────────────────────────────────────────────────────
+
+message MoveResponse {
+  // Whether the move was legal
+  bool   valid             = 1;
+
+  // Updated board state (empty when valid=false)
+  string new_fen           = 2;
+
+  // "IN_PROGRESS" | "CHECKMATE" | "DRAW" | "GAME_OVER"
+  string game_status       = 3;
+
+  // "WHITE_TO_MOVE" | "BLACK_TO_MOVE"
+  string turn              = 4;
+
+  bool   is_game_over      = 5;
+
+  // Clock state after the move (seconds remaining)
+  int32  black_player_left_time = 6;
+  int32  white_player_left_time = 7;
+
+  // Set only when valid=false
+  string error_reason      = 8;
+
+  // Echo of request fields — allows stateless handling on the caller side
+  string game_id           = 9;
+  string user_id           = 10;
+  string move_from         = 11;
+  string move_to           = 12;
+  string move_promotion    = 13;
+  string game_mode         = 14;
+}
+
+// ── Spectator ─────────────────────────────────────────────────────────────────
+
+message SpectateRequest {
+  string game_id = 1;
+}
+
+message SpectateResponse {
+  bool success = 1;
+}

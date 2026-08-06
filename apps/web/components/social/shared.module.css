@@ -1,0 +1,183 @@
+/* ── Shared social component styles ────────────────────────────────────────
+   Used by: FriendsPage, FriendsPanel, PublicUserProfilePage,
+            FriendActionButton, UserMiniCard
+   ──────────────────────────────────────────────────────────────────────── */
+
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.section {
+  padding: 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18), var(--glass-inset-sm);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.count {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────── */
+.primaryBtn,
+.secondaryBtn,
+.ghostBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 34px;
+  padding: 0.42rem 0.72rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 850;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.primaryBtn {
+  border: 1px solid rgba(155, 170, 185, 0.38);
+  background: rgba(155, 170, 185, 0.16);
+  color: #d5dee7;
+}
+
+.secondaryBtn {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.ghostBtn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.44);
+}
+
+.primaryBtn:hover,
+.secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.primaryBtn:disabled,
+.secondaryBtn:disabled,
+.ghostBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* ── Status pill ──────────────────────────────────────────────────────── */
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 30px;
+  padding: 0.32rem 0.64rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+/* ── Empty state ──────────────────────────────────────────────────────── */
+.empty {
+  padding: 1.25rem;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.38);
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+/* ── Light mode ───────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .section {
+  background: #ffffff;
+  border-color: #dde1e7;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+:global(body:not(.dark-ui)) .sectionTitle {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .count {
+  color: #64748b;
+}
+
+:global(body:not(.dark-ui)) .primaryBtn {
+  background: rgba(242, 139, 56, 0.10);
+  border-color: rgba(242, 139, 56, 0.35);
+  color: #b85e10;
+}
+
+:global(body:not(.dark-ui)) .primaryBtn:hover:not(:disabled) {
+  background: rgba(242, 139, 56, 0.18);
+  border-color: rgba(242, 139, 56, 0.55);
+  color: #a0500a;
+}
+
+:global(body:not(.dark-ui)) .secondaryBtn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #dde1e7;
+  color: #5a6e50;
+}
+
+:global(body:not(.dark-ui)) .secondaryBtn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.08);
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .ghostBtn {
+  color: rgba(0, 0, 0, 0.32);
+}
+
+:global(body:not(.dark-ui)) .ghostBtn:hover:not(:disabled) {
+  color: #5a6e50;
+}
+
+:global(body:not(.dark-ui)) .statusPill {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #dde1e7;
+  color: #5a6e50;
+}
+
+:global(body:not(.dark-ui)) .empty {
+  border-color: #dde1e7;
+  color: #64748b;
+}

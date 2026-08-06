@@ -1,0 +1,480 @@
+/* ─── Bot setup — light-gray glassmorphism theme ──────────────────────────── */
+
+.root {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.75rem 1.25rem 2rem;
+  color: #e8f5e8;
+  overflow-y: auto;
+}
+
+.inner {
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* ─── Page header ────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding-bottom: 0.5rem;
+  text-align: center;
+}
+
+.headerTitle {
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  text-shadow:
+    0 0 24px rgba(255, 255, 255, 0.18),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.headerSub {
+  font-size: 0.72rem;
+  color: rgba(200, 230, 200, 0.55);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ─── Two-column body ────────────────────────────────────────────────────── */
+
+.body {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+/* ─── Left: hero + roster ────────────────────────────────────────────────── */
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+/* ─── Bot hero card — glass panel ────────────────────────────────────────── */
+
+.heroCard {
+  position: relative;
+  border-radius: 16px;
+  padding: 1.5rem 1.6rem;
+  overflow: hidden;
+  /* light gray glass base */
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  /* white shadow: outer glow + inner top-edge highlight */
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.22),
+    0 1px 0 rgba(255, 255, 255, 0.18) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+.heroGlow {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  pointer-events: none;
+  /* top-edge shimmer line */
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+}
+
+.heroBody {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.heroAvatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  flex-shrink: 0;
+  position: relative;
+  /* white inner rim */
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+    0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.heroInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.heroName {
+  font-size: 1.45rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  margin-bottom: 0.2rem;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+
+.heroBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.heroTitleBadge {
+  padding: 0.18rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  /* glass badge */
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset;
+}
+
+.heroEloBadge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: rgba(220, 240, 220, 0.75);
+  font-family: monospace;
+}
+
+.heroDesc {
+  font-size: 0.8rem;
+  color: rgba(210, 235, 210, 0.65);
+  line-height: 1.55;
+  margin-bottom: 0.7rem;
+}
+
+/* Difficulty row */
+.difficultyRow {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.difficultyLabel {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(200, 220, 200, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.difficultyBar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
+  overflow: hidden;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+.difficultyFill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.difficultyStars {
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-shadow: 0 0 8px currentColor;
+}
+
+/* ─── Roster section ─────────────────────────────────────────────────────── */
+
+.rosterSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sectionLabel {
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: rgba(200, 230, 200, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.rosterGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+}
+
+/* ─── Right: settings panel (dark glass, collapsible) ────────────────────── */
+
+.settingsPanel {
+  position: relative;
+  /* dark glass */
+  background: rgba(6, 10, 5, 0.90);
+  border: 1px solid var(--glass-border-light);
+  border-radius: 16px;
+  overflow: hidden;
+  flex-shrink: 0;
+  min-height: 80px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+
+/* Toggle button — floats at top-right */
+.settingsToggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid var(--glass-border);
+  color: rgba(200, 230, 200, 0.7);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+.settingsToggle:hover {
+  background: rgba(255, 255, 255, 0.13);
+  color: #fff;
+}
+
+/* Collapsed: vertical label */
+.settingsCollapsedLabel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settingsCollapsedLabel span {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: rgba(200, 230, 200, 0.3);
+  text-transform: uppercase;
+}
+
+/* Inner content wrapper */
+.settingsInner {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.4rem 1.25rem;
+  padding-top: 2.8rem;
+  width: 320px;
+}
+
+.settingSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.settingsDivider {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1) 30%,
+    rgba(255, 255, 255, 0.1) 70%,
+    transparent
+  );
+}
+
+/* Match summary */
+.matchSummary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--glass-bg-light);
+  border: 1px solid var(--glass-border-light);
+  border-radius: 9px;
+  font-size: 0.74rem;
+  color: rgba(200, 230, 200, 0.6);
+  flex-wrap: wrap;
+  text-align: center;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+.matchSummaryAccent {
+  font-weight: 700;
+  color: rgba(220, 250, 200, 0.9);
+}
+
+/* Start button */
+.startBtn {
+  width: 100%;
+  padding: 0.9rem;
+  background: linear-gradient(160deg, #5ab04a, #3a8a2a);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 900;
+  font-size: 1rem;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow:
+    0 6px 24px rgba(80, 180, 60, 0.3),
+    0 1px 0 rgba(255, 255, 255, 0.22) inset;
+  transition: filter 0.15s ease, transform 0.12s ease, box-shadow 0.15s ease;
+}
+.startBtn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow:
+    0 12px 36px rgba(80, 180, 60, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.22) inset;
+}
+.startBtn:active { transform: translateY(0); }
+
+/* ─── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 700px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+
+  .rosterGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .heroBody {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  /* On mobile, settings panel is full-width and always expanded */
+  .settingsPanel {
+    width: 100% !important;
+    order: -1;
+  }
+
+  .settingsToggle {
+    display: none;
+  }
+
+  .settingsInner {
+    width: 100%;
+    padding-top: 1.4rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .headerTitle { font-size: 1.3rem; }
+  .heroName    { font-size: 1.2rem; }
+  .heroAvatar  { width: 72px; height: 72px; font-size: 2.4rem; }
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .root {
+  background: var(--page-bg);
+  color: var(--text-primary);
+}
+:global(body:not(.dark-ui)) .headerTitle {
+  color: var(--text-primary);
+  text-shadow: none;
+}
+:global(body:not(.dark-ui)) .headerSub { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .heroCard {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+:global(body:not(.dark-ui)) .heroName {
+  color: var(--text-primary);
+  text-shadow: none;
+}
+:global(body:not(.dark-ui)) .heroEloBadge { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .heroDesc { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .difficultyLabel { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .difficultyBar { background: rgba(0,0,0,0.08); }
+:global(body:not(.dark-ui)) .sectionLabel { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .settingsPanel {
+  background: rgba(255,255,255,0.92);
+  border-color: var(--card-border);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+:global(body:not(.dark-ui)) .settingsToggle {
+  background: rgba(0,0,0,0.06);
+  border-color: var(--card-border);
+  color: var(--text-muted);
+}
+:global(body:not(.dark-ui)) .settingsToggle:hover {
+  background: rgba(0,0,0,0.1);
+  color: var(--text-primary);
+}
+:global(body:not(.dark-ui)) .settingsCollapsedLabel span { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .matchSummary {
+  background: rgba(0,0,0,0.04);
+  border-color: var(--card-border);
+  color: var(--text-muted);
+}
+:global(body:not(.dark-ui)) .matchSummaryAccent { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .settingsDivider {
+  background: var(--card-border);
+}
+:global(body:not(.dark-ui)) .difficultyStars {
+  text-shadow: none;
+}
+
+/* ── Dark mode: deep dark background + dark glass vars ──────────────────── */
+:global(body.dark-ui) .root {
+  background:
+    radial-gradient(circle at 18% 10%, rgba(80,80,80,0.05), transparent 35%),
+    linear-gradient(160deg, #151515 0%, #1a1a1a 60%, #101010 100%);
+  --glass-bg:          rgba(255, 255, 255, 0.06);
+  --glass-bg-light:    rgba(255, 255, 255, 0.04);
+  --glass-border:      rgba(255, 255, 255, 0.12);
+  --glass-border-light:rgba(255, 255, 255, 0.08);
+  --text-primary:      rgba(255, 255, 255, 0.92);
+  --text-muted:        rgba(255, 255, 255, 0.44);
+  --text-faint:        rgba(255, 255, 255, 0.24);
+  --card-bg:           rgba(255, 255, 255, 0.06);
+  --card-border:       rgba(255, 255, 255, 0.12);
+}
+/* Light mode: white background — vars already set by the earlier override at line ~419 */

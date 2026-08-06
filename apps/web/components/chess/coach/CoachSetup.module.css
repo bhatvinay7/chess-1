@@ -1,0 +1,259 @@
+/* ── page ──────────────────────────────────────────────────────────── */
+.page {
+  height: 100%;
+  overflow-y: auto;
+  background: var(--app-bg, #1a1a1a);
+  color: rgba(255,255,255,0.92);
+  display: flex;
+  flex-direction: column;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+
+/* ── coach intro ───────────────────────────────────────────────────── */
+.intro {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem 2rem 1.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: rgba(255,255,255,0.025);
+}
+
+.coachAvatar {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2a3d28, #1a2416);
+  border: 2px solid rgba(129,182,76,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  flex-shrink: 0;
+  box-shadow: 0 0 20px rgba(129,182,76,0.2);
+}
+
+.introText { flex: 1; }
+
+.coachName {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #81b64c;
+  margin: 0 0 0.3rem;
+}
+
+.coachTagline {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 560px;
+}
+
+/* ── content area ──────────────────────────────────────────────────── */
+.content {
+  padding: 1.5rem 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  flex: 1;
+}
+
+/* ── group ─────────────────────────────────────────────────────────── */
+.group {}
+
+.groupTitle {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.3);
+  margin: 0 0 0.85rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── grid ───────────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+/* ── card ───────────────────────────────────────────────────────────── */
+.card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.9rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  width: 100%;
+}
+
+.card:hover {
+  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.15);
+  transform: translateY(-1px);
+}
+
+.cardSelected {
+  background: rgba(var(--accent, 129 182 76) / 0.1) !important;
+  border-color: var(--accent, #81b64c) !important;
+  box-shadow: 0 0 0 1px var(--accent, #81b64c),
+              0 4px 16px rgba(0,0,0,0.3);
+}
+
+.cardEmoji {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  line-height: 1;
+  margin-top: 0.1rem;
+}
+
+.cardBody { flex: 1; min-width: 0; }
+
+.cardTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.cardName {
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: rgba(255,255,255,0.9);
+}
+
+.cardEco {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.06);
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  flex-shrink: 0;
+}
+
+.cardDesc {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+}
+
+.colorPill {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 20px;
+}
+
+.colorPill[data-color="white"] {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.7);
+}
+
+.colorPill[data-color="black"] {
+  background: rgba(0,0,0,0.4);
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ── sticky start bar ───────────────────────────────────────────────── */
+.startBar {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  margin-top: auto;
+  background: rgba(20,20,20,0.97);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 0.85rem 2rem;
+}
+
+.startBarInner {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.startBarInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.startBarName {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: rgba(255,255,255,0.9);
+}
+
+.startBarSide {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.45);
+  margin-top: 0.1rem;
+}
+
+.startBtn {
+  padding: 0.65rem 1.75rem;
+  background: linear-gradient(135deg, #81b64c, #5a8a2a);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: filter 0.15s;
+  box-shadow: 0 4px 16px rgba(100,180,40,0.3);
+  white-space: nowrap;
+}
+
+.startBtn:hover { filter: brightness(1.12); }
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .page {
+  background: var(--page-bg);
+  color: var(--text-primary);
+}
+:global(body:not(.dark-ui)) .intro {
+  background: rgba(129,182,76,0.05);
+  border-bottom-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .coachTagline { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .groupTitle {
+  color: var(--text-muted);
+  border-bottom-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .card {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .card:hover {
+  background: rgba(255,255,255,0.96);
+  border-color: rgba(129,182,76,0.3);
+}
+:global(body:not(.dark-ui)) .cardName { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .cardEco {
+  background: rgba(0,0,0,0.06);
+  color: var(--text-muted);
+}
+:global(body:not(.dark-ui)) .cardDesc { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .startBar {
+  background: rgba(242,245,239,0.97);
+  border-top-color: var(--card-border);
+}
+:global(body:not(.dark-ui)) .startBarName { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .startBarSide { color: var(--text-muted); }

@@ -1,0 +1,363 @@
+/* ── Spectator board shell ──────────────────────────────────────────────── */
+.outer {
+  --glass-bg:          rgba(255, 255, 255, 0.06);
+  --glass-bg-light:    rgba(255, 255, 255, 0.04);
+  --glass-border:      rgba(255, 255, 255, 0.12);
+  --glass-border-light:rgba(255, 255, 255, 0.08);
+  --glass-inset:       0 1px 0 rgba(255, 255, 255, 0.16) inset;
+  --glass-inset-sm:    0 1px 0 rgba(255, 255, 255, 0.10) inset;
+
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(120, 120, 120, 0.06), transparent 30%),
+    linear-gradient(160deg, #1a1a1a 0%, #1c1c1c 60%, #151515 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(0.75rem, 1.5vw, 2rem);
+  padding: clamp(0.75rem, 1.5vh, 1.5rem);
+  width: 100%;
+  height: 100%;
+  max-width: 1600px;
+}
+
+/* ── Board column ──────────────────────────────────────────────────────── */
+.boardColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 0 1 auto;
+  height: 100%;
+}
+
+.boardWrapper {
+  position: relative;
+  width: min(84vh, 860px);
+  display: flex;
+  flex-direction: column;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.45));
+}
+
+/* ── Spectator badge ───────────────────────────────────────────────────── */
+.spectateBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  width: fit-content;
+  align-self: flex-start;
+}
+
+.spectateDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #7ca35f;
+  animation: pulse 1.8s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1);   }
+  50%       { opacity: 0.45; transform: scale(0.75); }
+}
+
+/* ── Player bars (reused from main arena) ─────────────────────────────── */
+.playerBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0.6rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  min-height: 52px;
+}
+
+.playerBarTop    { border-radius: 10px 10px 0 0; }
+.playerBarBottom { border-radius: 0 0 10px 10px; }
+
+.playerLeft   { display: flex; align-items: center; gap: 0.55rem; }
+.playerMiddle { display: flex; flex-direction: column; gap: 0.1rem; }
+
+.playerName {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.playerRatingInline {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 400;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+
+.timer {
+  font-family: "SF Mono", "Fira Code", monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.25rem 0.6rem;
+  border-radius: 7px;
+  letter-spacing: 0.04em;
+  transition: color 0.2s, background 0.2s;
+}
+
+.timerActive {
+  color: #c8f5a0;
+  background: rgba(124, 163, 95, 0.18);
+}
+
+/* ── Right panel ───────────────────────────────────────────────────────── */
+.rightPanel {
+  display: flex;
+  flex-direction: column;
+  width: clamp(200px, 22vw, 280px);
+  height: min(80vh, 680px);
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.panelHeader {
+  padding: 0.8rem 1rem 0.5rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.35);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ── Loading / connecting ──────────────────────────────────────────────── */
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  height: 100%;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #7ca35f;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .container    { flex-direction: column; gap: 0.5rem; }
+  .rightPanel   { width: 100%; height: 220px; }
+  .boardWrapper { width: min(92vw, 560px); }
+}
+
+/* ── Game-over overlay ───────────────────────────────────────────────────── */
+.gameOverOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 0;
+}
+
+.gameOverCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.75rem 2.25rem;
+  background: rgba(18, 22, 16, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(255, 255, 255, 0.1) inset;
+  min-width: 260px;
+  text-align: center;
+}
+
+.gameOverEmoji {
+  font-size: 2.8rem;
+  line-height: 1;
+}
+
+.gameOverTitle {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.gameOverBy {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.gameOverWinner {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.9rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.gameOverWinnerAvatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.gameOverWinnerAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.gameOverActions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+}
+
+.gameOverAnalyse {
+  padding: 0.5rem 1.25rem;
+  background: linear-gradient(160deg, #5ab04a, #3a8a2a);
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 14px rgba(80, 180, 60, 0.28);
+  transition: filter 0.15s, transform 0.1s;
+}
+.gameOverAnalyse:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+
+.gameOverDismiss {
+  padding: 0.5rem 1.1rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+}
+.gameOverDismiss:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.88);
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .outer {
+  background: var(--page-bg);
+}
+
+:global(body:not(.dark-ui)) .spectateBadge {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--text-muted);
+}
+
+:global(body:not(.dark-ui)) .playerBar {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global(body:not(.dark-ui)) .playerName {
+  color: var(--text-primary);
+}
+
+:global(body:not(.dark-ui)) .playerRatingInline {
+  color: var(--text-muted);
+}
+
+:global(body:not(.dark-ui)) .avatar {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+:global(body:not(.dark-ui)) .timer {
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.06);
+}
+
+:global(body:not(.dark-ui)) .timerActive {
+  color: #3d6b1e;
+  background: rgba(100, 160, 60, 0.12);
+}
+
+:global(body:not(.dark-ui)) .rightPanel {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+:global(body:not(.dark-ui)) .panelHeader {
+  color: var(--text-muted);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+:global(body:not(.dark-ui)) .loading {
+  color: var(--text-muted);
+}
+
+:global(body:not(.dark-ui)) .spinner {
+  border-color: rgba(0, 0, 0, 0.08);
+  border-top-color: #7ca35f;
+}

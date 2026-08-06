@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../node_modules/@prisma/mongo/client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGO_DB_URL")
+}
+
+model UserRef {
+  id                  String         @id @map("_id") // Map to PostgreSQL UUID
+  notifications       Notification[]
+  sentInvitations     Invitation[]   @relation("SentInvitations")
+  receivedInvitations Invitation[]   @relation("ReceivedInvitations")
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String
+  type      String   // e.g. "GAME_INVITATION", "GAME_START"
+  message   String
+  metadata  Json?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user UserRef @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  // TTL index is managed programmatically in src/index.ts (30 days)
+}
+
+model Invitation {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  senderId      String
+  receiverId    String
+  status        String   @default("PENDING") // PENDING, ACCEPTED, REJECTED, PROCESSED
+  
+  // Encrypted Payload (time control, game mode, scheduled start time)
+  encryptedData String
+  iv            String
+  
+  expiresAt     DateTime // For UI level validity (e.g. 1 hour)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  sender        UserRef  @relation("SentInvitations", fields: [senderId], references: [id])
+  receiver      UserRef  @relation("ReceivedInvitations", fields: [receiverId], references: [id])
+
+  @@index([senderId])
+  @@index([receiverId])
+  // TTL index on createdAt is managed programmatically in src/index.ts (30 days)
+}

@@ -1,0 +1,172 @@
+/* ── PublicUserProfilePage styles ─────────────────────────────────────────
+   Styles for: components/social/PublicUserProfilePage.tsx
+   Imports shared panel/button styles from shared.module.css
+   ──────────────────────────────────────────────────────────────────────── */
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+/* ── Profile hero banner ────────────────────────────────────────────────── */
+.profileHero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18), var(--glass-inset-sm);
+}
+
+.profileMain {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.profileAvatar {
+  width: 86px;
+  height: 86px;
+  flex-shrink: 0;
+  border: 3px solid rgba(155, 170, 185, 0.35);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.kicker {
+  color: #a8b4c0;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.profileName {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 950;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 0.82rem;
+}
+
+/* ── Stats grid ─────────────────────────────────────────────────────────── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.stat {
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.stat span {
+  display: block;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 1.15rem;
+  font-weight: 950;
+}
+
+/* ── Message (loading / error) ──────────────────────────────────────────── */
+.message {
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .profileHero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .profileMain {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .container {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .profileHero {
+  background: #ffffff;
+  border-color: #dde1e7;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07);
+}
+
+:global(body:not(.dark-ui)) .profileAvatar {
+  border-color: rgba(242, 139, 56, 0.30);
+}
+
+:global(body:not(.dark-ui)) .kicker {
+  color: #5a6e50;
+}
+
+:global(body:not(.dark-ui)) .profileName {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .metaRow {
+  color: #64748b;
+}
+
+:global(body:not(.dark-ui)) .stat {
+  background: #ffffff;
+  border-color: #dde1e7;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+:global(body:not(.dark-ui)) .stat span {
+  color: #64748b;
+}
+
+:global(body:not(.dark-ui)) .stat strong {
+  color: #1a2416;
+}
+
+:global(body:not(.dark-ui)) .message {
+  color: #64748b;
+}

@@ -1,0 +1,17 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.markAllBtn {
+  margin-left: auto;
+}
+
+.loadingText {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.msgText {
+  transition: color 0.2s;
+}

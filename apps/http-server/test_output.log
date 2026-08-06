@@ -1,0 +1,45 @@
+
+> http-server@1.0.0 test
+> NODE_OPTIONS=--experimental-vm-modules jest --runInBand --detectOpenHandles
+
+(node:147823) ExperimentalWarning: VM Modules is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+PASS test/controllers/game.test.ts (9.681 s)
+PASS test/controllers/users.test.ts (5.552 s)
+PASS test/controllers/userAuth.test.ts
+  ● Console
+
+    console.error
+      Error sending OTP email: The client is closed
+
+      25 |     res.json({ message: "OTP sent to your email" });
+      26 |   } catch (error) {
+    > 27 |     console.error("Error sending OTP email:", error instanceof Error ? error.message : error);
+         |             ^
+      28 |     res.status(500).json({ message: "Failed to send OTP. Please try again." });
+      29 |   }
+      30 | }
+
+      at requestOtp (src/controllers/userAuth/userAuthController.ts:27:13)
+
+    console.log
+      prisma:query db.UserRef.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $and: [ { $eq: [ "$_id", { $literal: "aa2613d1-a577-4baa-a86f-247836e044a3", }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, { }, ], }, }, }, { $project: { _id: 1, }, }, ])
+
+      at Object.zc (../../packages/node_modules/@prisma/mongo/client/runtime/library.js:16:432)
+
+    console.log
+      prisma:query db.UserRef.insertOne({ _id: "aa2613d1-a577-4baa-a86f-247836e044a3", createdAt: DateTime("2026-06-26 14:46:00.812 +00:00:00"), updatedAt: DateTime("2026-06-26 14:46:00.812 +00:00:00"), })
+
+      at Object.zc (../../packages/node_modules/@prisma/mongo/client/runtime/library.js:16:432)
+
+    console.log
+      prisma:query db.UserRef.aggregate([ { $match: { $expr: { $and: [ { $and: [ { $eq: [ "$_id", { $literal: "aa2613d1-a577-4baa-a86f-247836e044a3", }, ], }, { $ne: [ "$_id", "$$REMOVE", ], }, ], }, ], }, }, }, { $project: { _id: 1, createdAt: 1, updatedAt: 1, }, }, ])
+
+      at Object.zc (../../packages/node_modules/@prisma/mongo/client/runtime/library.js:16:432)
+
+
+Test Suites: 3 passed, 3 total
+Tests:       11 passed, 11 total
+Snapshots:   0 total
+Time:        19.682 s, estimated 20 s
+Ran all test suites.

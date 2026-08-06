@@ -1,0 +1,524 @@
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem 0;
+}
+
+.kicker {
+  color: #a8b4c0;
+  font-size: 0.78rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin: 0.2rem 0 0;
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 1.1;
+}
+
+.summary {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(300px, 0.8fr);
+  gap: 1rem;
+}
+
+.stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.section {
+  padding: 1rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18), var(--glass-inset-sm);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.count {
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.62rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.searchBox svg {
+  color: #a8b4c0;
+  flex-shrink: 0;
+}
+
+.searchInput {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.92);
+  font: inherit;
+}
+
+.searchInput::placeholder {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.list {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.userCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.userLink {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+  color: inherit;
+  text-decoration: none;
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  object-fit: cover;
+  background: #222;
+}
+
+.userMeta {
+  min-width: 0;
+}
+
+.userName {
+  display: block;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.92rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.userStats {
+  display: block;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.78rem;
+  margin-top: 0.15rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.primaryBtn,
+.secondaryBtn,
+.ghostBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 34px;
+  padding: 0.42rem 0.72rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 850;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.primaryBtn {
+  border: 1px solid rgba(155, 170, 185, 0.38);
+  background: rgba(155, 170, 185, 0.16);
+  color: #d5dee7;
+}
+
+.secondaryBtn {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.ghostBtn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.44);
+}
+
+.primaryBtn:hover,
+.secondaryBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.primaryBtn:disabled,
+.secondaryBtn:disabled,
+.ghostBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 30px;
+  padding: 0.32rem 0.64rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.76rem;
+  font-weight: 850;
+}
+
+.empty {
+  padding: 1.25rem;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.38);
+  text-align: center;
+  font-size: 0.85rem;
+}
+
+.profileHero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18), var(--glass-inset-sm);
+}
+
+.profileMain {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.profileAvatar {
+  width: 86px;
+  height: 86px;
+  flex-shrink: 0;
+  border: 3px solid rgba(155, 170, 185, 0.35);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profileName {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 950;
+}
+
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 0.82rem;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 1rem 0;
+}
+
+.stat {
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.stat span {
+  display: block;
+  color: rgba(255, 255, 255, 0.42);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: rgba(255, 255, 255, 0.94);
+  font-size: 1.15rem;
+  font-weight: 950;
+}
+
+.message {
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+@media (max-width: 860px) {
+  .grid,
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .header,
+  .profileHero {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .summary {
+    text-align: left;
+  }
+}
+
+@media (max-width: 560px) {
+  .container {
+    padding: 1rem;
+  }
+
+  .userCard,
+  .profileMain {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .primaryBtn,
+  .secondaryBtn,
+  .ghostBtn {
+    flex: 1;
+  }
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+
+/* Container & page background */
+:global(body:not(.dark-ui)) .container {
+  color: var(--text-primary);
+}
+
+/* Header */
+:global(body:not(.dark-ui)) .kicker {
+  color: var(--text-muted);
+}
+
+:global(body:not(.dark-ui)) .title {
+  color: var(--text-primary);
+}
+
+:global(body:not(.dark-ui)) .summary {
+  color: var(--text-muted);
+}
+
+/* Section panels */
+:global(body:not(.dark-ui)) .section {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06), var(--glass-inset-sm);
+}
+
+/* Section titles & counts */
+:global(body:not(.dark-ui)) .sectionTitle {
+  color: var(--text-primary);
+}
+
+:global(body:not(.dark-ui)) .count {
+  color: var(--text-muted);
+}
+
+/* Search box */
+:global(body:not(.dark-ui)) .searchBox {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+}
+
+:global(body:not(.dark-ui)) .searchBox svg {
+  color: var(--text-muted);
+}
+
+:global(body:not(.dark-ui)) .searchInput {
+  color: var(--text-primary);
+}
+
+:global(body:not(.dark-ui)) .searchInput::placeholder {
+  color: var(--text-faint);
+}
+
+/* User cards */
+:global(body:not(.dark-ui)) .userCard {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: var(--card-border);
+}
+
+:global(body:not(.dark-ui)) .avatar {
+  border-color: var(--card-border);
+  background: #e8eee4;
+}
+
+:global(body:not(.dark-ui)) .userName {
+  color: var(--text-primary);
+}
+
+:global(body:not(.dark-ui)) .userStats {
+  color: var(--text-muted);
+}
+
+/* Buttons */
+:global(body:not(.dark-ui)) .primaryBtn {
+  background: rgba(242, 139, 56, 0.1);
+  border-color: rgba(242, 139, 56, 0.35);
+  color: #b85e10;
+}
+
+:global(body:not(.dark-ui)) .primaryBtn:hover:not(:disabled) {
+  background: rgba(242, 139, 56, 0.18);
+  border-color: rgba(242, 139, 56, 0.55);
+  color: #a0500a;
+}
+
+:global(body:not(.dark-ui)) .secondaryBtn {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: var(--card-border);
+  color: var(--text-muted);
+}
+
+:global(body:not(.dark-ui)) .secondaryBtn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-primary);
+}
+
+:global(body:not(.dark-ui)) .ghostBtn {
+  color: var(--text-faint);
+}
+
+:global(body:not(.dark-ui)) .ghostBtn:hover:not(:disabled) {
+  color: var(--text-muted);
+}
+
+/* Status pill */
+:global(body:not(.dark-ui)) .statusPill {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: var(--card-border);
+  color: var(--text-muted);
+}
+
+/* Empty state */
+:global(body:not(.dark-ui)) .empty {
+  border-color: var(--card-border);
+  color: var(--text-muted);
+}
+
+/* ── Public profile page — light mode ─────────────────────────────────── */
+
+/* Profile hero card */
+:global(body:not(.dark-ui)) .profileHero {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.07), var(--glass-inset-sm);
+}
+
+:global(body:not(.dark-ui)) .profileAvatar {
+  border-color: rgba(242, 139, 56, 0.30);
+}
+
+:global(body:not(.dark-ui)) .profileName {
+  color: var(--text-primary);
+}
+
+:global(body:not(.dark-ui)) .metaRow {
+  color: var(--text-muted);
+}
+
+/* Stats grid */
+:global(body:not(.dark-ui)) .statsGrid {
+  /* grid stays the same, child overrides below */
+}
+
+:global(body:not(.dark-ui)) .stat {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+:global(body:not(.dark-ui)) .stat span {
+  color: var(--text-muted);
+}
+
+:global(body:not(.dark-ui)) .stat strong {
+  color: var(--text-primary);
+}
+
+/* Loading / error message */
+:global(body:not(.dark-ui)) .message {
+  color: var(--text-muted);
+}

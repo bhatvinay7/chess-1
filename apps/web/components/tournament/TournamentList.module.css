@@ -1,0 +1,402 @@
+/* ── Wrapper ───────────────────────────────────────────────────────────────── */
+.wrap {
+  padding-bottom: 2rem;
+}
+
+/* ── Table ─────────────────────────────────────────────────────────────────── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Column widths */
+.colTime    { width: 58px; }
+.colType    { width: 40px; }
+.colGameTime { width: 100px; }
+.colDuration { width: 90px; }
+.colStatus  { width: 148px; }
+.colPlayers { width: 90px; }
+.colAction  { width: 80px; }
+
+/* ── Thead ─────────────────────────────────────────────────────────────────── */
+.theadRow { background: #1a1a1a; }
+
+.th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #1a1a1a;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
+  padding: 0.5rem 0.5rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  white-space: nowrap;
+}
+
+.thTime { padding-left: 1rem; }
+.thType { text-align: center; }
+
+/* ── Body rows ─────────────────────────────────────────────────────────────── */
+.row {
+  cursor: pointer;
+  transition: background 0.1s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.row:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.row:hover .name {
+  color: #ffffff;
+}
+
+.rowMine {
+  background: rgba(242, 139, 56, 0.05);
+}
+
+.rowMine:hover {
+  background: rgba(242, 139, 56, 0.09);
+}
+
+/* ── Cells ─────────────────────────────────────────────────────────────────── */
+.tdTime {
+  padding: 0.6rem 0.5rem 0.6rem 1rem;
+  vertical-align: middle;
+}
+
+.timeLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.32);
+  white-space: nowrap;
+}
+
+.tdType {
+  padding: 0.6rem 0.25rem;
+  vertical-align: middle;
+  text-align: center;
+}
+
+.typeIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+}
+
+.tdName {
+  padding: 0.6rem 0.5rem;
+  vertical-align: middle;
+  min-width: 0;
+}
+
+.name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+}
+
+.rated {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #81b64c;
+  flex-shrink: 0;
+}
+
+.tdMeta {
+  padding: 0.6rem 0.5rem;
+  vertical-align: middle;
+}
+
+.metaVal {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.metaDim {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.22);
+}
+
+.tdStatus {
+  padding: 0.6rem 0.5rem;
+  vertical-align: middle;
+}
+
+.statusTxt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.78rem;
+}
+
+.s_open     { color: rgba(255, 255, 255, 0.50); }
+.s_live     { color: #ef4444; }
+.s_soon     { color: #f59e0b; }
+.s_closed   { color: rgba(255, 255, 255, 0.22); }
+.s_done     { color: rgba(255, 255, 255, 0.22); }
+.s_draft    { color: rgba(255, 255, 255, 0.22); }
+.s_cancelled { color: rgba(255, 255, 255, 0.22); text-decoration: line-through; }
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: blink 1.5s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.tdPlayers {
+  padding: 0.6rem 0.5rem;
+  vertical-align: middle;
+}
+
+.players {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.52);
+}
+
+.personIcon {
+  color: rgba(255, 255, 255, 0.28);
+  flex-shrink: 0;
+}
+
+.tdAction {
+  padding: 0.6rem 1rem 0.6rem 0.25rem;
+  vertical-align: middle;
+  text-align: right;
+}
+
+/* ── Action buttons ────────────────────────────────────────────────────────── */
+.btnJoin {
+  padding: 0.28rem 0.85rem;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btnJoin:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.btnJoin:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btnView {
+  padding: 0.28rem 0.85rem;
+  background: rgba(129, 182, 76, 0.12);
+  border: 1px solid rgba(129, 182, 76, 0.30);
+  border-radius: 3px;
+  color: #81b64c;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.btnView:hover {
+  background: rgba(129, 182, 76, 0.22);
+}
+
+.btnWatch {
+  padding: 0.28rem 0.85rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.30);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+.btnWatch:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.60);
+}
+
+/* ── Now indicator ─────────────────────────────────────────────────────────── */
+.nowRow {
+  pointer-events: none;
+}
+
+.nowRow td {
+  padding: 0;
+  height: 18px;
+}
+
+.nowBar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0 1rem;
+  height: 18px;
+}
+
+.nowTime {
+  font-size: 0.62rem;
+  color: #81b64c;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.nowLine {
+  flex: 1;
+  height: 1px;
+  background: #81b64c;
+  opacity: 0.55;
+}
+
+/* ── Pinned "My Tournaments" section ──────────────────────────────────────── */
+.pinnedSection {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+}
+
+.pinnedLabel {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: #f28b38;
+  padding: 0.45rem 1rem 0.2rem;
+}
+
+/* ── Loading / empty states ────────────────────────────────────────────────── */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.30);
+}
+
+.spin {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  to { transform: rotate(360deg); }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 2.5rem;
+  opacity: 0.15;
+  margin-bottom: 0.75rem;
+}
+
+.emptyTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.30);
+  margin-bottom: 0.4rem;
+}
+
+.emptySub {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.18);
+  margin-bottom: 1rem;
+}
+
+.retryBtn {
+  padding: 0.4rem 1.2rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.52);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.retryBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .wrap { background: var(--page-bg); }
+:global(body:not(.dark-ui)) .theadRow {
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--card-border);
+}
+:global(body:not(.dark-ui)) .th { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .row {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+:global(body:not(.dark-ui)) .row:hover { background: rgba(0,0,0,0.04); border-color: rgba(129,182,76,0.25); }
+:global(body:not(.dark-ui)) .row:hover .name { color: #000; }
+
+/* ── Light mode — remaining text ─────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .timeLabel { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .name { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .metaVal { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .metaDim { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .players { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .personIcon { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .loading { color: var(--text-muted); }
+
+/* ── Light mode — all remaining elements ─────────────────────────────────── */
+:global(body:not(.dark-ui)) .s_open      { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .s_closed    { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .s_done      { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .s_draft     { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .s_cancelled { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .btnJoin  { background: rgba(129,182,76,0.1); border-color: rgba(129,182,76,0.3); color: #3a7020; }
+:global(body:not(.dark-ui)) .btnWatch { background: var(--card-bg); border-color: var(--card-border); color: var(--text-muted); }
+:global(body:not(.dark-ui)) .emptyTitle { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .emptySub   { color: var(--text-faint); }
+:global(body:not(.dark-ui)) .retryBtn   { background: var(--card-bg); border-color: var(--card-border); color: var(--text-muted); }

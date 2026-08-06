@@ -1,0 +1,332 @@
+@import "tailwindcss";
+
+/* ── Glass-panel design tokens ─────────────────────────────────────────────
+   Light mode (default): white glass on light backgrounds.
+   Dark mode (body.dark-ui): dark glass on dark backgrounds.            */
+:root {
+  --glass-bg:          rgba(255, 255, 255, 0.82);
+  --glass-bg-light:    rgba(255, 255, 255, 0.72);
+  --glass-border:      rgba(0, 0, 0, 0.09);
+  --glass-border-light:rgba(0, 0, 0, 0.06);
+  --glass-inset:       0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  --glass-inset-sm:    0 1px 0 rgba(255, 255, 255, 0.7) inset;
+  --glass-blur:        blur(12px);
+}
+
+body.dark-ui {
+  /* Glass panel tokens */
+  --glass-bg:          rgba(42, 42, 42, 0.88);
+  --glass-bg-light:    rgba(34, 34, 34, 0.86);
+  --glass-border:      rgba(255, 255, 255, 0.12);
+  --glass-border-light:rgba(255, 255, 255, 0.08);
+  --glass-inset:       0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  --glass-inset-sm:    0 1px 0 rgba(255, 255, 255, 0.05) inset;
+  --glass-blur:        blur(10px);
+
+  /* Semantic tokens — override light defaults */
+  --background:     #1a1a1a;
+  --foreground:     #e8f5e8;
+  --muted:          #9ab090;
+  --surface:        rgba(28, 36, 22, 0.92);
+  --surface-strong: #1c2416;
+  --surface-border: rgba(255, 255, 255, 0.09);
+  --surface-hover:  rgba(40, 52, 30, 0.96);
+
+  --auth-card-bg: #252525;
+  --auth-input-overlay: rgba(255, 255, 255, 0.07);
+  --auth-input-border: rgba(255, 255, 255, 0.12);
+
+  /* Page-level tokens — dark (brighter text) */
+  --page-bg:      #1a1a1a;
+  --text-primary: rgba(255, 255, 255, 0.96);
+  --text-muted:   rgba(255, 255, 255, 0.58);
+  --text-faint:   rgba(255, 255, 255, 0.34);
+  --card-bg:      rgba(255, 255, 255, 0.05);
+  --card-border:  rgba(255, 255, 255, 0.09);
+  --input-bg:     rgba(255, 255, 255, 0.06);
+  --input-border: rgba(255, 255, 255, 0.14);
+
+}
+
+body.dark-ui .lightPage {
+  background:
+    radial-gradient(circle at 20% 15%, rgba(120, 120, 120, 0.05), transparent 30%),
+    linear-gradient(160deg, #1a1a1a 0%, #1c1c1c 60%, #151515 100%);
+}
+
+body.dark-ui .glass-panel {
+  background: var(--surface);
+  border-color: var(--surface-border);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-ui .btn-outline {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--foreground);
+}
+
+body.dark-ui .btn-outline:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+:root {
+  --background: #eef8df;
+  --foreground: #27351f;
+  --auth-card-bg: #ffffff;
+  --auth-input-overlay: rgba(0, 0, 0, 0.05);
+  --auth-input-border: rgba(0, 0, 0, 0.13);
+
+  /* ── Page-level theme tokens (used by all pages) ── */
+  --page-bg:      #f2f5ef;
+  --text-primary: #1a2416;
+  --text-muted:   #5a6e50;
+  --text-faint:   rgba(0, 0, 0, 0.32);
+  --card-bg:      rgba(255, 255, 255, 0.84);
+  --card-border:  rgba(0, 0, 0, 0.08);
+  --input-bg:     rgba(0, 0, 0, 0.05);
+  --input-border: rgba(0, 0, 0, 0.14);
+  --muted: #64745a;
+  --primary: #f28b38;
+  --primary-hover: #d96f1f;
+  --secondary: #6aa84f;
+  --accent: #ffd166;
+  --surface: rgba(255, 253, 245, 0.88);
+  --surface-strong: #fffaf0;
+  --surface-border: rgba(120, 120, 120, 0.2);
+  --surface-hover: rgba(255, 245, 222, 0.95);
+  --board-dark: #7ca35f;
+  --board-light: #f6e7bd;
+  --error: #c2410c;
+  --font-sans: var(--font-fredoka), var(--font-geist-sans), system-ui, sans-serif;
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(122, 151, 101, 0.45) rgba(17, 24, 13, 0.2);
+  }
+
+  body {
+    font-family: var(--font-sans);
+    font-weight: 500;
+    color: var(--foreground);
+    line-height: inherit;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  p, blockquote, pre, ul, ol, dl, figure {
+    margin: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  button, input, optgroup, select, textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+  }
+
+  img, svg, video, canvas, audio, iframe {
+    display: block;
+    vertical-align: middle;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+html {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  color: var(--text-primary);
+  min-height: 100vh;
+  background: var(--page-bg);
+  overflow-x: hidden;
+}
+
+body.dark-ui {
+  background: var(--page-bg); /* resolves to #1a1a1a in dark-ui */
+  color: var(--text-primary); /* resolves to rgba(255,255,255,0.92) */
+}
+
+::selection {
+  background: rgba(242, 139, 56, 0.32);
+  color: #fffaf0;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(17, 24, 13, 0.24);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(122, 151, 101, 0.42);
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(170, 212, 138, 0.5);
+  background-clip: padding-box;
+}
+
+/* Full-screen wrapper for admin pages — no navbar offset */
+.adminPage {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow-y: auto;
+  background:
+    linear-gradient(135deg, rgba(255, 209, 102, 0.22) 0%, rgba(238, 248, 223, 0) 36%),
+    linear-gradient(180deg, #f5fbeb 0%, #e6f4d2 100%);
+}
+
+/* Light-page wrapper — apply to home / profile / auth pages */
+.lightPage {
+  background:
+    linear-gradient(135deg, rgba(255, 209, 102, 0.22) 0%, rgba(238, 248, 223, 0) 36%),
+    linear-gradient(180deg, #f5fbeb 0%, #e6f4d2 100%);
+  min-height: 100vh;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  outline-color: rgba(242, 139, 56, 0.7);
+  outline-offset: 3px;
+}
+
+/* Glassmorphism utilities */
+.glass-panel {
+  background: var(--surface);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
+}
+
+.glass-panel-hover:hover {
+  background: var(--surface-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Premium gradient text */
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary), #ba5d20 45%, var(--secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+}
+
+/* Button variants */
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 24px rgba(242, 139, 56, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(242, 139, 56, 0.32);
+  color: white;
+}
+
+.btn-outline {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #f28b38;
+  color: #f28b38;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

@@ -1,0 +1,266 @@
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  color: #fff;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin: 0 0 0.25rem;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.45);
+  margin: 0;
+}
+
+.createBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #81b64c;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.searchBar {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,0.3);
+}
+
+.searchInput {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  color: #fff;
+  padding: 0.6rem 0.85rem 0.6rem 2.4rem;
+  font-size: 0.88rem;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.searchInput:focus {
+  border-color: rgba(129, 182, 76, 0.5);
+}
+
+/* Create form */
+.createForm {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.formTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.formInput,
+.formTextarea {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: #fff;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+}
+
+.formInput:focus,
+.formTextarea:focus {
+  border-color: #81b64c;
+}
+
+.formBtns {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.saveBtn {
+  background: #81b64c;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1.2rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.saveBtn:disabled { opacity: 0.6; cursor: default; }
+
+.cancelBtn {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.84rem;
+  cursor: pointer;
+}
+
+.error {
+  font-size: 0.78rem;
+  color: #f87171;
+  margin: 0;
+}
+
+/* Image upload row */
+.imageUploadRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.imagePlaceholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 2px dashed rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.imagePreview {
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(129,182,76,0.4);
+}
+
+.uploadBtn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.65);
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: background 0.13s;
+}
+
+.uploadBtn:hover:not(:disabled) { background: rgba(255,255,255,0.12); }
+.uploadBtn:disabled { opacity: 0.5; cursor: default; }
+
+/* Grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: rgba(255,255,255,0.35);
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pageBtn {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.pageBtn:disabled { opacity: 0.4; cursor: default; }
+
+.pageInfo {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.4);
+}
+
+/* ── Light mode ─────────────────────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .page {
+  background: var(--page-bg);
+  color: var(--text-primary);
+}
+:global(body:not(.dark-ui)) .header { color: var(--text-primary); border-bottom-color: var(--card-border); }
+:global(body:not(.dark-ui)) .title { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .subtitle { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .searchInput {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+:global(body:not(.dark-ui)) .formInput,
+:global(body:not(.dark-ui)) .formTextarea {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+:global(body:not(.dark-ui)) .formTitle { color: var(--text-primary); }
+
+/* ── Light mode — remaining text ─────────────────────────────────────────── */
+:global(body:not(.dark-ui)) .createBtn { background: #81b64c; color: #fff; border-color: transparent; }
+:global(body:not(.dark-ui)) .searchIcon { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .empty { color: var(--text-muted); }
+:global(body:not(.dark-ui)) .pageBtn {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--text-muted);
+}
+:global(body:not(.dark-ui)) .pageInfo { color: var(--text-faint); }

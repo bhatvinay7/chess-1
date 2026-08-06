@@ -1,0 +1,144 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # INFRASTRUCTURE DATABASES
+  # ==========================================
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      RABBITMQ_DEFAULT_USER: user
+      RABBITMQ_DEFAULT_PASS: password
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+#   postgres:
+#     image: postgres:15-alpine
+#     environment:
+#       POSTGRES_USER: user
+#       POSTGRES_PASSWORD: password
+#       POSTGRES_DB: chess
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U user -d chess"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+# 
+#   mongodb:
+#     image: mongo:6
+#     environment:
+#       MONGO_INITDB_ROOT_USERNAME: user
+#       MONGO_INITDB_ROOT_PASSWORD: password
+#       MONGO_INITDB_DATABASE: chess
+#     ports:
+#       - "27017:27017"
+#     volumes:
+#       - mongodb_data:/data/db
+#     healthcheck:
+#       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+
+  # ==========================================
+  # NODE.JS / BUN SERVICES
+  # ==========================================
+  http-server:
+    build:
+      context: .
+      dockerfile: apps/http-server/Dockerfile
+    ports:
+      - "3002:3002"
+    env_file:
+      - apps/http-server/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  ws-server:
+    build:
+      context: .
+      dockerfile: apps/ws-server/Dockerfile
+    ports:
+      - "8080:8080"
+    env_file:
+      - apps/ws-server/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  # ==========================================
+  # RUST SERVICES
+  # ==========================================
+  game-server:
+    build:
+      context: .
+      dockerfile: apps/game-server/Dockerfile
+    ports:
+      - "50051:50051"
+    env_file:
+      - apps/game-server/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  sync-worker:
+    build:
+      context: .
+      dockerfile: apps/sync-worker/Dockerfile
+    env_file:
+      - apps/sync-worker/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  notification-worker:
+    build:
+      context: .
+      dockerfile: apps/notification-worker/Dockerfile
+    env_file:
+      - apps/notification-worker/.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  matchmaker:
+    build:
+      context: .
+      dockerfile: apps/matchmaker/Dockerfile
+    env_file:
+      - apps/matchmaker/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+
+volumes:
+  redis_data:
+  rabbitmq_data:
+#  postgres_data:
+#  mongodb_data:

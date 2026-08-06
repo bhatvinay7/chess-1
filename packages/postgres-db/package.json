@@ -1,0 +1,38 @@
+{
+  "name": "@repo/postgres-db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "types": "./dist/src/index.d.ts",
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "tsx prisma/seed.ts",
+    "seed:tournament": "tsx scripts/seed-tournament.ts",
+    "db:studio": "prisma studio",
+    "check-types": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "build": "prisma generate && tsc -b"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "dotenv": "^16.4.5",
+    "redis": "^4.7.0"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/dotenv": "^8.2.3",
+    "@types/node": "^22.15.3",
+    "prisma": "^6.19.0",
+    "tsx": "^4.21.0",
+    "typescript": "5.9.2"
+  }
+}

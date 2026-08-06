@@ -1,0 +1,36 @@
+/* Content column: mobile header + main area stacked vertically */
+.arenaContent {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--page-bg);
+}
+
+/* Main area fills remaining height after the mobile header */
+.arenaMain {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Mobile: switch to natural page-scroll so the board never clips the
+   time-controller panel or the move panel stacked below it.           */
+@media (max-width: 820px) {
+  .arenaContent {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .arenaMain {
+    overflow: visible;
+    height: auto;
+    min-height: 0;
+    flex: none;
+  }
+}

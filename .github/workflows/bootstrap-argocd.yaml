@@ -1,0 +1,52 @@
+name: Bootstrap ArgoCD
+
+on:
+  workflow_dispatch:
+
+jobs:
+  bootstrap-argocd:
+    name: Bootstrap ArgoCD on Cluster
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout GitOps repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.GITOPS_REPO || 'bhatvinay75/chess-k8s' }}
+          token: ${{ secrets.GITOPS_TOKEN || github.token }}
+
+      - name: Configure kubectl
+        env:
+          KUBE_DATA: ${{ secrets.KUBECONFIG }}
+        run: |
+          if [ -z "$KUBE_DATA" ]; then
+            echo "Error: KUBECONFIG secret is not set!"
+            exit 1
+          fi
+          mkdir -p ~/.kube
+          
+          # Check if the secret is plaintext YAML
+          if printf "%s" "$KUBE_DATA" | grep -q "apiVersion:"; then
+            printf "%s" "$KUBE_DATA" > ~/.kube/config
+          else
+            # Otherwise assume it's base64 encoded
+            printf "%s" "$KUBE_DATA" | base64 -d > ~/.kube/config
+          fi
+          chmod 600 ~/.kube/config
+
+      - name: Install ArgoCD & Apply App of Apps
+        run: |
+          if kubectl get deployment argocd-server -n argocd >/dev/null 2>&1; then
+            echo "ArgoCD is already installed. Skipping installation."
+          else
+            echo "ArgoCD not found. Installing..."
+            kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+            # Use server-side apply to avoid the 262144 byte annotation limit on huge CRDs
+            kubectl apply -n argocd --server-side -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+            
+            # Wait a few seconds for CRDs to be fully registered
+            sleep 10
+          fi
+          
+          echo "Applying GitOps root App of Apps..."
+          kubectl apply -k argocd
