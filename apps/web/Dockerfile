@@ -51,6 +51,7 @@ USER nextjs
 COPY --from=installer --chown=nextjs:nodejs /app .
 
 ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 EXPOSE 3000
 
 CMD ["pnpm", "--filter=web", "start"]
