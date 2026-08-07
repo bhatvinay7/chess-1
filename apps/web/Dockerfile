@@ -39,7 +39,7 @@ ENV NEXT_PUBLIC_USE_REMOTE_STOCKFISH=${NEXT_PUBLIC_USE_REMOTE_STOCKFISH}
 RUN pnpm turbo run build --filter=web...
 
 # 3. Production runtime image
-FROM base AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apk add --no-cache libc6-compat
