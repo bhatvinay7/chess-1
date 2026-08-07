@@ -58,5 +58,27 @@ jobs:
             kubectl set resources deployment argocd-repo-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
           fi
           
+          echo "Installing cert-manager CRDs to prevent GitOps race conditions..."
+          kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.crds.yaml
+          
+          echo "Installing cert-manager via Helm..."
+          helm repo add jetstack https://charts.jetstack.io
+          helm repo update
+          helm upgrade --install cert-manager jetstack/cert-manager \
+            --namespace cert-manager --create-namespace \
+            --version v1.13.2 \
+            --set webhook.timeoutSeconds=10
+            
+          echo "Installing ingress-nginx with NodePort configuration..."
+          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+          helm repo update
+          helm upgrade --install ingress-nginx ingress-nginx/ingress-nginx \
+            --namespace ingress-nginx --create-namespace \
+            --version 4.10.0 \
+            --set controller.service.type=NodePort \
+            --set controller.service.nodePorts.http=32080 \
+            --set controller.service.nodePorts.https=32443 \
+            --set controller.metrics.enabled=true
+          
           echo "Applying GitOps root App of Apps..."
           kubectl apply -k argocd
