@@ -52,6 +52,10 @@ jobs:
             
             # Wait a few seconds for CRDs to be fully registered
             sleep 10
+            
+            echo "Patching ArgoCD resources..."
+            kubectl set resources deployment argocd-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
+            kubectl set resources deployment argocd-repo-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
           fi
           
           echo "Applying GitOps root App of Apps..."
