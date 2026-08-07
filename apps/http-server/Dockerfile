@@ -36,6 +36,7 @@ USER expressjs
 COPY --from=installer --chown=expressjs:nodejs /app .
 
 ENV PORT=3002
+ENV HOSTNAME="0.0.0.0"
 EXPOSE 3002
 
 CMD ["node", "apps/http-server/dist/index.js"]

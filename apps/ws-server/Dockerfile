@@ -35,6 +35,7 @@ USER expressjs
 COPY --from=installer --chown=expressjs:nodejs /app .
 
 ENV PORT=8080
+ENV HOSTNAME="0.0.0.0"
 EXPOSE 8080
 
 CMD ["node", "apps/ws-server/dist/index.js"]
