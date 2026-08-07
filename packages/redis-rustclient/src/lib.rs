@@ -13,6 +13,7 @@ pub fn default_url() -> &'static str {
     static REDIS_URL: OnceLock<String> = OnceLock::new();
 
     REDIS_URL.get_or_init(|| {
-        std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string())
+        let raw = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".to_string());
+        raw.trim().trim_matches('\'').trim_matches('"').to_string()
     })
 }

@@ -18,16 +18,18 @@ pub async fn load_config_and_state() -> Result<AppState, Box<dyn std::error::Err
         .ok();
 
     // 1. Setup PostgreSQL
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let raw_db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let database_url = raw_db_url.trim().trim_matches('\'').trim_matches('"');
     let pg_pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(&database_url)
+        .connect(database_url)
         .await?;
     println!("[notification-worker] Connected to PostgreSQL.");
 
     // 2. Setup MongoDB
-    let mongo_url = env::var("MONGO_DB_URL").expect("MONGO_DB_URL must be set");
-    let mut client_options = ClientOptions::parse(&mongo_url).await?;
+    let raw_mongo_url = env::var("MONGO_DB_URL").expect("MONGO_DB_URL must be set");
+    let mongo_url = raw_mongo_url.trim().trim_matches('\'').trim_matches('"');
+    let mut client_options = ClientOptions::parse(mongo_url).await?;
     client_options.app_name = Some("notification-worker".to_string());
     let mongo_client = MongoClient::with_options(client_options)?;
     println!("[notification-worker] Connected to MongoDB.");

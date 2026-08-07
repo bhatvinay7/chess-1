@@ -39,10 +39,11 @@ ENV NEXT_PUBLIC_USE_REMOTE_STOCKFISH=${NEXT_PUBLIC_USE_REMOTE_STOCKFISH}
 RUN pnpm turbo run build --filter=web...
 
 # 3. Production runtime image
-FROM node:20-alpine AS runner
+FROM base AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apk add --no-cache libc6-compat
+RUN npm install -g pnpm@9.0.0
 RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 nextjs
 USER nextjs

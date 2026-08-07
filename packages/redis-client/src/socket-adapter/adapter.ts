@@ -7,8 +7,10 @@ dotenv.config();
 
 export class SocketIORedisAdapter {
   static async setup(io: Server): Promise<void> {
+    const rawUrl = process.env.REDIS_URL;
+    const url = rawUrl ? rawUrl.trim().replace(/^['"]|['"]$/g, "") : "redis://localhost:6379";
     const pubClient = createClient({
-      url: process.env.REDIS_URL! ?? "redis://localhost:6379",
+      url,
     });
     const subClient = pubClient.duplicate();
 

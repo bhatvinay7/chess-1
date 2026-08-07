@@ -4,8 +4,13 @@ dotenv.config();
 
 type RedisClient = RedisClientType;
 
+function sanitizeUrl(url?: string): string {
+  if (!url) return "redis://localhost:6379";
+  return url.trim().replace(/^['"]|['"]$/g, "");
+}
+
 const redisClient: RedisClient = createClient({
-  url: process.env.REDIS_URL! ?? "redis://localhost:6379",
+  url: sanitizeUrl(process.env.REDIS_URL),
 });
 
 redisClient.on("error", (err: Error) =>

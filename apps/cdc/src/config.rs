@@ -19,9 +19,10 @@ impl AppConfig {
         let raw_url = std::env::var("REPLICATION_URL")
             .or_else(|_| std::env::var("DATABASE_URL"))
             .expect("REPLICATION_URL or DATABASE_URL must be set");
+        let raw_url = raw_url.trim().trim_matches('\'').trim_matches('"');
 
         let (host, port, user, password, database, ssl_required) =
-            parse_pg_url(&raw_url).expect("Failed to parse database URL");
+            parse_pg_url(raw_url).expect("Failed to parse database URL");
 
         let tls = if ssl_required {
             TlsConfig::require()
@@ -29,12 +30,14 @@ impl AppConfig {
             TlsConfig::disabled()
         };
 
+        let raw_redis = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".into());
+        let redis_url = raw_redis.trim().trim_matches('\'').trim_matches('"').to_string();
+
         Self {
             slot: std::env::var("SLOT_NAME").unwrap_or_else(|_| "schedular_slot".into()),
             publication: std::env::var("PUBLICATION")
                 .unwrap_or_else(|_| "schedule_tournament".into()),
-            redis_url: std::env::var("REDIS_URL")
-                .unwrap_or_else(|_| "redis://127.0.0.1:6379".into()),
+            redis_url,
             host,
             port,
             user,

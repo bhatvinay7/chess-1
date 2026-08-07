@@ -2,6 +2,11 @@ import { createClient, RedisClientType } from "redis";
 import dotenv from "dotenv";
 
 dotenv.config();
+function sanitizeUrl(url?: string): string {
+  if (!url) return "redis://localhost:6379";
+  return url.trim().replace(/^['"]|['"]$/g, "");
+}
+
 class RedisPubSubClient {
   private pub: RedisClientType;
   private sub: RedisClientType;
@@ -9,7 +14,7 @@ class RedisPubSubClient {
 
   constructor() {
     this.pub = createClient({
-      url: process.env.REDIS_URL! ?? "redis://localhost:6379",
+      url: sanitizeUrl(process.env.REDIS_URL),
       socket: {
       connectTimeout: 10000,
       keepAlive: true
