@@ -30,8 +30,13 @@ impl AppConfig {
             TlsConfig::disabled()
         };
 
-        let raw_redis = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".into());
-        let redis_url = raw_redis.trim().trim_matches('\'').trim_matches('"').to_string();
+        let raw_redis =
+            std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1:6379".into());
+        let redis_url = raw_redis
+            .trim()
+            .trim_matches('\'')
+            .trim_matches('"')
+            .to_string();
 
         Self {
             slot: std::env::var("SLOT_NAME").unwrap_or_else(|_| "schedular_slot".into()),
