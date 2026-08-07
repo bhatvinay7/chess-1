@@ -380,11 +380,10 @@ jobs:
             exit 1
           fi
           
-          # Install kubeseal
-          wget -q https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.26.2/kubeseal-0.26.2-linux-amd64.tar.gz
-          tar -xzf kubeseal-0.26.2-linux-amd64.tar.gz kubeseal
-          sudo install -m 755 kubeseal /usr/local/bin/kubeseal
-          rm kubeseal-0.26.2-linux-amd64.tar.gz kubeseal
+          # Install kubeseal securely in /tmp to prevent it from being committed by git add -A
+          wget -qO /tmp/kubeseal.tar.gz https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.26.2/kubeseal-0.26.2-linux-amd64.tar.gz
+          tar -xzf /tmp/kubeseal.tar.gz -C /tmp kubeseal
+          sudo install -m 755 /tmp/kubeseal /usr/local/bin/kubeseal
           
           if [ -f "${KUSTOMIZE_DIR}/kustomization.yaml" ] || [ -f "${KUSTOMIZE_DIR}/kustomization.yml" ]; then
             cd "${KUSTOMIZE_DIR}"
