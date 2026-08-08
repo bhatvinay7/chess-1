@@ -9,7 +9,7 @@ interface AuthUser {
   rating: number;
 }
 
-export function useAuth(redirectTo = "/auth/login") {
+export function useAuth(redirectTo: string | null = "/auth/login") {
   const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
   const router = useRouter();
 
@@ -17,14 +17,14 @@ export function useAuth(redirectTo = "/auth/login") {
     const stored = localStorage.getItem("user");
     const token = localStorage.getItem("user_token");
     if (!token || !stored) {
-      router.replace(redirectTo);
+      if (redirectTo) router.replace(redirectTo);
       setUser(null);
     } else {
       try {
         setUser(JSON.parse(stored));
       } catch {
         setUser(null);
-        router.replace(redirectTo);
+        if (redirectTo) router.replace(redirectTo);
       }
     }
   }, [redirectTo, router]);

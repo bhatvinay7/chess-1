@@ -82,7 +82,7 @@ const BOARD_PIECES = [
 ];
 
 export default function HomePage() {
-  const { user } = useAuth();
+  const { user } = useAuth(null);
   const playRoute = user ? "/arena" : "/auth/login";
 
   return (
