@@ -121,7 +121,7 @@ export default function SideNav() {
   const mobileNavOpen  = useSelector((s: RootState) => s.sidebar.mobileNavOpen);
   const collapsed      = useSelector((s: RootState) => s.sidebar.collapsed);
   const darkUI         = useSelector((s: RootState) => s.sidebar.darkUI);
-  const { user, logout }  = useAuth();
+  const { user, logout }  = useAuth(null);
   const { data: profile } = useProfile(user?.id);
   const { unreadCount, fetchNotifications } = useNotifications();
   const [showGearMenu, setShowGearMenu] = useState(false);
