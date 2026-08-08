@@ -133,26 +133,6 @@ export function useCoachGame(config: CoachGameConfig | null) {
     };
   }, []);
 
-  /* ── Stockfish options initialization ───────────────────────────────────── */
-  useEffect(() => {
-    if (!config || !sfReady) return;
-    sendCommand("setoption name MultiPV value 1");
-    sendCommand("setoption name Hash value 32");
-    sendCommand("setoption name Threads value 2");
-    if (config.gameMode === "chess960") {
-      sendCommand("setoption name UCI_Chess960 value true");
-    }
-    sendCommand("isready");
-
-    const cleanup = onOutput((line) => {
-      if (line.startsWith("bestmove")) {
-        const move = line.split(" ")[1];
-        if (move && move !== "(none)") applyEngineUci(move);
-        setIsEngineThinking(false);
-      }
-    });
-    return cleanup;
-  }, [config?.opening.id, config?.playerColor, sfReady, sendCommand, onOutput, applyEngineUci]);
 
   /* ── reset on config change ──────────────────────────────────────────────── */
   useEffect(() => {
@@ -221,6 +201,27 @@ export function useCoachGame(config: CoachGameConfig | null) {
     showAnnotation({ san: game.history().at(-1) ?? uci, openingName: null, isBook: false, side: "engine" });
     commitMove();
   }, [commitMove, showAnnotation]);
+
+  /* ── Stockfish options initialization ───────────────────────────────────── */
+  useEffect(() => {
+    if (!config || !sfReady) return;
+    sendCommand("setoption name MultiPV value 1");
+    sendCommand("setoption name Hash value 32");
+    sendCommand("setoption name Threads value 2");
+    if (config.gameMode === "chess960") {
+      sendCommand("setoption name UCI_Chess960 value true");
+    }
+    sendCommand("isready");
+
+    const cleanup = onOutput((line) => {
+      if (line.startsWith("bestmove")) {
+        const move = line.split(" ")[1];
+        if (move && move !== "(none)") applyEngineUci(move);
+        setIsEngineThinking(false);
+      }
+    });
+    return cleanup;
+  }, [config?.opening.id, config?.playerColor, sfReady, sendCommand, onOutput, applyEngineUci]);
 
   /* ── apply engine book move in SAN format ────────────────────────────────── */
   const applyEngineSan = useCallback((san: string, openingName: string): boolean => {

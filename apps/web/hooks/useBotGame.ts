@@ -129,29 +129,7 @@ export function useBotGame(config: BotGameConfig | null) {
     tenSoundPlayedRef.current = { white: false, black: false };
   }, [config?.bot.id, config?.playerColor, config?.timeSlot]);
 
-  // ── Stockfish options initialization ────────────────────────────────────────
-  useEffect(() => {
-    if (!config || !sfReady) return;
-    sendCommand("setoption name MultiPV value 1");
-    sendCommand("setoption name Hash value 32");
-    sendCommand("setoption name Threads value 2");
-    if (config.gameMode === "chess960") {
-      sendCommand("setoption name UCI_Chess960 value true");
-    }
-    sendCommand("isready");
 
-    const cleanup = onOutput((line) => {
-      if (line.startsWith("bestmove")) {
-        const parts = line.split(" ");
-        const move = parts[1];
-        if (move && move !== "(none)") {
-          applyBotMove(move);
-        }
-        setIsBotThinking(false);
-      }
-    });
-    return cleanup;
-  }, [config, sfReady, sendCommand, onOutput, applyBotMove]);
 
   // ── Clock ─────────────────────────────────────────────────────────────────
   const stopClock = useCallback(() => {
@@ -257,6 +235,30 @@ export function useBotGame(config: BotGameConfig | null) {
     }
     commitBotMove();
   }, [commitBotMove]);
+
+  // ── Stockfish options initialization ────────────────────────────────────────
+  useEffect(() => {
+    if (!config || !sfReady) return;
+    sendCommand("setoption name MultiPV value 1");
+    sendCommand("setoption name Hash value 32");
+    sendCommand("setoption name Threads value 2");
+    if (config.gameMode === "chess960") {
+      sendCommand("setoption name UCI_Chess960 value true");
+    }
+    sendCommand("isready");
+
+    const cleanup = onOutput((line) => {
+      if (line.startsWith("bestmove")) {
+        const parts = line.split(" ");
+        const move = parts[1];
+        if (move && move !== "(none)") {
+          applyBotMove(move);
+        }
+        setIsBotThinking(false);
+      }
+    });
+    return cleanup;
+  }, [config, sfReady, sendCommand, onOutput, applyBotMove]);
 
   // ── Apply a bot move in SAN format (from opening book) ───────────────────
   const applyBotMoveSan = useCallback((san: string): boolean => {
