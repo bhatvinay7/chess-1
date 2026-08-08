@@ -1,403 +1,329 @@
-# Rooky — Next-Generation Distributed Chess Platform
+# Chess Platform Architecture
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Rust](https://img.shields.io/badge/Rust-2021%20Edition-000000?logo=rust&logoColor=white)](https://www.rust-lang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js&logoColor=white)](https://nextjs.org/)
-[![Actix](https://img.shields.io/badge/Actix--Web-4.x-E53935?logo=rust&logoColor=white)](https://actix.rs/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-Production-326CE5?logo=kubernetes&logoColor=white)](https://kubernetes.io/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![MongoDB](https://img.shields.io/badge/MongoDB-7.x-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Redis](https://img.shields.io/badge/Redis-7.x-DC382D?logo=redis&logoColor=white)](https://redis.io/)
+## Overview
+This repository contains a modern, microservice-based chess platform. Built for high concurrency and low latency, it handles real-time matchmaking, real-time gameplay via WebSockets, scalable tournaments (Swiss and Round-Robin), and persistent user state.
 
----
+## Architecture
 
-## 1. Executive Summary & System Overview
+### High-Level Architecture
+```mermaid
+graph TD
+    Client[Web Client / Mobile]
+    LB[Cloud Load Balancer]
+    Ingress[NGINX Ingress]
 
-**Rooky** is an enterprise-grade, high-concurrency real-time chess platform built as a **polyglot microservices monorepo**. Designed to support thousands of concurrent chess games with sub-millisecond matchmaking and zero-lag board state synchronization, the platform combines **TypeScript/Node.js** for web presentation and REST APIs with **high-performance Rust** for compute-heavy real-time matchmaking and Change Data Capture (CDC) streaming.
+    subgraph "Frontend Services"
+        Web[Web Frontend - React/Next.js]
+        WSS[WebSocket Server - Node.js]
+    end
+
+    subgraph "Core Backend Services"
+        HTTP[HTTP API Server - Node.js]
+        Game[Game Server - Rust / gRPC]
+        Matchmaker[Matchmaker - Rust / Actix]
+    end
+
+    subgraph "Asynchronous Workers"
+        CDC[CDC Pipeline - Rust]
+        SyncWorker[Sync Worker - Rust]
+        NotifWorker[Notification Worker - Node.js]
+    end
+
+    subgraph "Data & Messaging"
+        PG[(PostgreSQL)]
+        Redis[(Redis)]
+        RabbitMQ((RabbitMQ))
+    end
+
+    Client -->|HTTPS| LB
+    Client -->|WSS| LB
+    LB --> Ingress
+    Ingress -->|HTTPS| Web
+    Ingress -->|HTTPS| HTTP
+    Ingress -->|WSS| WSS
+
+    WSS -->|gRPC| Game
+    HTTP -->|RPC/REST| Matchmaker
+    HTTP -->|Read/Write| PG
+    
+    CDC -->|WAL tailing| PG
+    CDC -->|Schedule Events| Redis
+    
+    SyncWorker -->|Consume| RabbitMQ
+    SyncWorker -->|Consume| Redis
+    SyncWorker -->|Update| PG
+    
+    Matchmaker <-->|State/Streams| Redis
+    WSS <-->|PubSub / State| Redis
+    Game <-->|State| Redis
+
+    HTTP -->|Publish| RabbitMQ
+    NotifWorker -->|Consume| RabbitMQ
+```
+
+### Event/Data Flow
+```mermaid
+graph LR
+    WS[WS Server] -->|Game Over| Game
+    Game -->|Publish Result| RMQ((RabbitMQ))
+    RMQ -->|Consume| Sync[Sync Worker]
+    Sync -->|Update Standings| PG[(PostgreSQL)]
+```
+
+### Architecture Overview
+The system is divided into focused microservices to scale different workloads independently. Synchronous user actions (login, profile updates) are handled by a traditional REST API (HTTP Server) backed by PostgreSQL. Real-time game interactions and moves occur over WebSockets (WS Server), which communicate with the authoritative Game Server via low-latency gRPC.
+
+Asynchronous event processing is heavily decoupled. Matchmaking is handled by a dedicated Rust service using the Actor model and Redis. Tournament progression is entirely event-driven: a CDC (Change Data Capture) service tails the PostgreSQL Write-Ahead Log (WAL) to detect tournament creations, which feeds into a distributed scheduling pipeline processed by the Sync Worker. RabbitMQ guarantees the delivery of these asynchronous domain events.
+
+## Services
+
+### `apps/http-server`
+**Responsibility:** Authoritative REST API for user authentication, profiles, tournament creation, and admin panels.
+**How It Works:** Receives standard HTTPS requests, validates payloads, and reads/writes to PostgreSQL. 
+**Communication:** Exposes a REST API. Communicates synchronously with PostgreSQL. Publishes events to RabbitMQ (e.g., for notifications).
+**Data and State:** Purely stateless. Relies on PostgreSQL for authoritative state.
+**Scaling:** Scales horizontally. Stateless design allows standard L7 load balancing.
+
+### `apps/ws-server`
+**Responsibility:** Manages all real-time WebSocket connections with clients for live gameplay, matchmaking updates, and spectator broadcasting.
+**How It Works:** Clients connect via WebSockets. The server acts as a gateway, receiving moves and routing them to the authoritative Game Server for validation.
+**Communication:** WebSockets to external clients. gRPC to the Game Server. Redis Pub/Sub for cross-pod communication. Redis Hashes for game state.
+**Data and State:** Ephemeral socket state in memory. Live game state and spectator tracking stored in Redis (`game:state:*` and `spectate:*`).
+**Scaling:** Scales horizontally using `SocketIORedisAdapter`. Redis Pub/Sub handles broadcasting events (like a move made on Pod A) to spectators connected to Pod B.
+
+### `apps/matchmaker`
+**Responsibility:** Evaluates player pools, pairs players of similar ELOs, and triggers match creation.
+**How It Works:** Uses the Actix actor framework. Players enter the queue via a Redis Stream. Actors own the state of specific time controls (e.g., Bullet, Blitz). They periodically evaluate their queue, expanding the acceptable ELO gap over time until a match is found.
+**Communication:** Reads player joins via Redis Streams. Writes matches to Redis. 
+**Data and State:** Rapidly changing matchmaking candidate state is held in actor memory (using a `BTreeMap`). Persistent queues are backed by Redis Sorted Sets (ZSET).
+**Failure and Recovery:** On startup, syncs from Redis to recover queue state.
+**Scaling:** Bounded by the number of time-control pools. Each time-control is a single Actor to prevent race conditions during matching.
+
+### `apps/game-server`
+**Responsibility:** The authoritative source of truth for chess logic, move validation, and game termination.
+**How It Works:** Receives move requests. Validates them against the current board state. Determines checkmate, draw, or timeout conditions.
+**Communication:** Exposes a gRPC interface consumed by the WebSocket Server. Reads/writes to Redis for fast state retrieval.
+**Data and State:** Stateless application layer; relies on Redis for storing active game FENs, move histories, and clocks.
+**Scaling:** Highly horizontally scalable as a gRPC service deployed behind a Kubernetes Headless Service.
+
+### `apps/cdc`
+**Responsibility:** Triggers tournament scheduling without polling the database.
+**How It Works:** Tails the PostgreSQL Write-Ahead Log (WAL) using logical replication (`pg_output`). When a tournament is inserted, it creates a schedule job in Redis.
+**Communication:** Communicates with PostgreSQL directly. Writes jobs to Redis ZSETs.
+**Data and State:** Tracks processed LSNs (Log Sequence Numbers) in Redis (`cdc:pending_lsns`) to ensure it resumes correctly after a crash.
+**Scaling:** Single instance/singleton deployment to maintain sequential WAL reading.
+
+### `apps/sync-worker`
+**Responsibility:** Executes scheduled tournament events, generates pairings (Swiss & Round Robin), and processes game results.
+**How It Works:** Processes distributed jobs using a two-phase Redis ZSET queue and consumes RabbitMQ events.
+**Communication:** Consumes from RabbitMQ and Redis Streams. Reads/writes to PostgreSQL and Redis.
+**Failure and Recovery:** Implements dead-letter queues (DLQ) in RabbitMQ. Redis jobs have a visibility timeout; a watchdog re-queues jobs if a worker crashes mid-processing.
+**Scaling:** Horizontally scalable. Workers compete for jobs via atomic Lua scripts and RabbitMQ consumer groups.
+
+### `apps/notification-worker`
+**Responsibility:** Asynchronous email and push notification delivery.
+**Communication:** Consumes strictly from RabbitMQ.
+**Scaling:** Scales horizontally based on queue depth.
+
+## Redis Architecture
+
+In this project, Redis is used as the high-speed state layer for ephemeral and frequently accessed data, avoiding database contention.
+
+- **Matchmaking State:** `QUEUE_ZSET` holds pending players.
+- **Game State:** `game:state:*` hashes store active game FENs, players, and clocks.
+- **Spectator State:** `spectate:*` tracks active observers.
+- **Live Games:** A ZSET `live:games` provides a real-time feed of active matches.
+- **Locks:** Distributed locking using `SET NX PX` prevents concurrent execution (e.g., tournament scheduler watchdogs, rematch handling).
+
+## Redis Streams and PEL
+
+The matchmaker receives players via Redis Streams (`matchmaker:stream`).
+- **Producers:** The HTTP or WS server pushes a `PlayerJoin` payload.
+- **Consumers:** The matchmaker worker reads via Consumer Groups (`XREADGROUP`).
+- **Acknowledgement:** `XACK` is called only after the player is successfully staged in the Actor's queue and backed up to a ZSET.
+- **Failures:** If the matchmaker crashes before `XACK`, the message remains in the Pending Entry List (PEL) and is reprocessed on restart.
+
+## RabbitMQ and Event-Driven Architecture
+
+RabbitMQ decouples heavy domain workflows (like Tournaments) from synchronous user flows.
+
+- **Exchanges & Queues:** Direct and Topic exchanges route events like `MatchNotificationEvent` and `TournamentMatchingDlqEvent`.
+- **Reliability:** Consumers require explicit acknowledgements. Unprocessable messages are routed to a Dead Letter Queue (DLQ) for inspection.
+
+## CDC (Change Data Capture)
+
+Instead of polling `SELECT * FROM tournaments WHERE start_time <= NOW()`, the architecture uses zero-polling CDC.
 
 ```mermaid
 graph TD
-    subgraph Client Layer
-        Web[apps/web<br/>Next.js 15 Client]
-    end
-
-    subgraph API & Gateway Layer
-        HTTP[apps/http-server<br/>Express REST API]
-        WS[apps/ws-server<br/>WebSocket Server]
-    end
-
-    subgraph Real-Time & Authoritative Core
-        GS[apps/game-server<br/>Chess State Engine]
-        MM[apps/matchmaker<br/>Rust Actix / Tokio Matchmaker]
-    end
-
-    subgraph Event & CDC Streaming
-        CDC[apps/cdc<br/>Rust WAL Logical Replication]
-        SYNC[apps/sync-worker<br/>DB Sync Worker]
-        NOTIF[apps/notification-worker<br/>RabbitMQ Worker]
-    end
-
-    subgraph Polyglot Data Store
-        PG[(PostgreSQL<br/>OLTP Core DB)]
-        MONGO[(MongoDB<br/>Game Archives & PGN)]
-        REDIS[(Redis Cluster<br/>Streams, PubSub & Cache)]
-        RMQ[(RabbitMQ<br/>Async Task Queue)]
-    end
-
-    %% Client flows
-    Web <-->|REST / OAuth| HTTP
-    Web <-->|WebSocket WSS| WS
-
-    %% Real-time gameplay
-    WS <-->|PubSub & Game State| REDIS
-    WS <-->|RPC| GS
-    GS -->|Persist Result| PG
-    GS -->|Archive Move Log| MONGO
-
-    %% Matchmaking flow
-    WS -->|XADD INGEST_STREAM| REDIS
-    REDIS -->|XREADGROUP Consumer Group| MM
-    MM -->|Match Result Event| REDIS
-
-    %% CDC Replication flow
-    PG -.->|pg_output WAL Slot| CDC
-    CDC -->|Schedule Tournament / Event| REDIS
-    CDC -->|Dispatch Task| RMQ
-    RMQ --> NOTIF
-    SYNC -->|Sync Analytics| MONGO
+    DB[(PostgreSQL)]
+    DB -->|WAL INSERT| CDC[CDC Pipeline]
+    CDC -->|Job Event| RedisZ[Redis PENDING ZSET]
+    RedisZ -->|Scheduled Time Reached| SyncWorker[Sync Worker]
+    SyncWorker -->|Start Tournament| AppState[Application State]
 ```
 
----
+This ensures zero database CPU overhead for scheduling and near-instant reactivity.
 
-## 2. Microservices Architecture & Server Specifications
+## gRPC Architecture
 
-The workspace is organized into specialized services (`apps/`) and reusable modular libraries (`packages/`).
+gRPC is used for high-throughput, low-latency internal communication—specifically between the WS Server and the Game Server.
 
-### Server Architecture Summary Table
+- **Why gRPC:** The WS Server receives thousands of move events per second. gRPC with HTTP/2 multiplexing significantly reduces connection overhead compared to REST.
+- **Service Definitions:** Protobuf definitions are centralized in `packages/grpc-connection`.
+- **L4 vs L7 Considerations:** Because gRPC uses long-lived HTTP/2 connections, traditional L4 Kubernetes Services (ClusterIP) result in uneven load distribution (all traffic sticks to one pod). 
+- **Solution:** A Kubernetes Headless Service (`game-server-headless`) is used, allowing the client to resolve all Pod IPs and perform client-side round-robin load balancing.
 
-| Service / App | Primary Language | Framework / Runtime | Core Responsibilities & Functionality |
-| :--- | :--- | :--- | :--- |
-| **`apps/web`** | TypeScript | Next.js 15 (React 19) | Premium responsive web interface, interactive chessboard, dark-mode styling, Google One-Tap/OAuth button, and game analytics dashboards. |
-| **`apps/http-server`** | TypeScript | Node.js / Express | Authoritative REST API for User Authentication (2-Table schema), User Profile, Tournaments, Ratings, Admin panels, and JWT session issuing. |
-| **`apps/ws-server`** | TypeScript | Node.js / WebSockets | Low-latency bi-directional WebSocket gateway for live chess moves, spectator broadcasting, game chat, and server-synchronized clocks. |
-| **`apps/game-server`** | TypeScript | Node.js | Authoritative game state engine; validates legality of chess moves, handles time forfeits, draws, and rating calculations. |
-| **`apps/matchmaker`** | **Rust** | Actix / Tokio / Redis | Ultra-fast in-memory matchmaking brackets (Bullet, Blitz, Rapid), standard Chess & Chess960 support, and Prometheus metrics exporting. |
-| **`apps/cdc`** | **Rust** | Tokio / `pgwire` WAL | PostgreSQL Logical Replication WAL reader (`pg_output`); decodes row-level mutations to trigger tournament scheduling without polling. |
-| **`apps/sync-worker`** | TypeScript | Node.js | Background synchronization engine that mirrors relational user summaries into MongoDB document archives and cache warmup. |
-| **`apps/notification-worker`** | TypeScript | Node.js / RabbitMQ | Asynchronous event worker for transactional email delivery (OTP verification, password resets, tournament invitations). |
-| **`apps/docs`** | TypeScript | Next.js | Developer documentation and internal API reference portal. |
+## Actor-Based Matchmaking
 
----
+The matchmaking engine is built on the Actix framework in Rust.
 
-### Deep Dive: Individual Server Architecture
+### Actor Model
+Each matchmaking pool (e.g., 3|0 Blitz, 10|0 Rapid) is an isolated Actor. This eliminates shared-state locks. An actor processes one player join/leave message at a time sequentially.
 
-#### 1. `apps/web` — Frontend Client
-- **Architecture**: App-router Next.js 15 application utilizing CSS variables for cohesive dark-mode aesthetics.
-- **Key Modules**:
-  - `components/auth/`: Features `GoogleAuthButton.tsx` (loading Google Identity Services dynamically) and `AuthLanding.tsx` for credential/email auth.
-  - `components/layout/`: Includes `SideNav.tsx` with dynamic path-based layout suppression (`if (pathname.startsWith("/auth")) return null`).
-  - `app/api/auth/`: Type-safe Axios SDK (`authApi`) connecting to the REST backend.
+### Matching Pool
+The actor maintains candidate players in memory using a `BTreeMap` structured by rating.
 
-#### 2. `apps/http-server` — Core REST API
-- **Architecture**: Modular Express.js server structured by domain controllers (`userAuth`, `profile`, `tournaments`, `admin`).
-- **Authentication Engine**:
-  - Handles login, signup verification, password resets, and Google OAuth ID token verification (`/api/auth/google`).
-  - Interacts with `UserAuth` credentials table to isolate password hashes from OAuth identities.
+### `VecDeque`
+`VecDeque` is **not implemented** in the matchmaking pool in this repository. A `BTreeMap` is used instead because matchmaking requires fast range queries (e.g., finding candidates within `rating - 50` to `rating + 50`), which `BTreeMap` handles efficiently (O(log N)) whereas `VecDeque` would require O(N) linear scanning.
 
-#### 3. `apps/ws-server` & `apps/game-server` — Real-Time Game Engine
-- **Architecture**: Stateful WebSocket connection handlers backed by a **Redis Pub/Sub backplane**.
-- **Execution Flow**:
-  - Player moves are sent over WSS $\rightarrow$ verified for chess rules and clock integrity $\rightarrow$ broadcasted instantly to opponents and spectators via Redis pub/sub channels.
+### Matching Algorithm
+1. Player enters via Stream.
+2. The Actor inserts the player into the `BTreeMap` and the Redis ZSET backup.
+3. Every tick, the Actor checks presence (via Redis pipeline) to ensure players haven't disconnected.
+4. The algorithm calculates `wait_time * EXPANSION_RATE` to widen the acceptable ELO gap.
+5. `BTreeMap::range` efficiently finds opponents in the expanded ELO bracket.
+6. A match is published, and players are atomically removed from the pool.
 
-#### 4. `apps/matchmaker` — Rust High-Performance Matchmaker
-- **Architecture**: Actix Actor system running on Tokio asynchronous runtime.
-- **Ingestion Engine**: Consumes matchmaking ticket requests from Redis Streams (`INGEST_STREAM`) using Redis **Consumer Groups** (`xgroup_create_mkstream`).
-- **Data Structures**: Utilizes B-Tree and Hash maps (`BTreeMap`, `HashMap`) in `MatchPool` to maintain instant rating brackets across Bullet, Blitz, and Rapid modes.
-- **Observability**: Exposes real-time Prometheus histograms and counters on port `9103` (`metrics_rustclient`).
+## Scheduler
+
+The tournament and event scheduler uses a two-phase Redis ZSET approach.
 
 ```mermaid
-sequenceDiagram
-    autonumber
-    participant Player as Client (WS)
-    participant WS as WS Server
-    participant Redis as Redis Stream (INGEST_STREAM)
-    participant MM as Rust Matchmaker (Actix)
-    participant PubSub as Redis PubSub (MATCH_FOUND)
+graph TD
+    CDC[CDC] -->|ZADD fire_time| ZP[PENDING ZSET]
+    Watchdog[Watchdog] -->|Move if due| ZProc[PROCESSING ZSET]
+    Watchdog -->|XADD| Stream[Schedule Stream]
+    Worker[Sync Worker] -->|Consume & Execute| Stream
+    Worker -->|ZREM on Success| ZProc
+```
+- **ZSET Score:** Represents the Unix timestamp when the job is due.
+- **Failure Recovery:** If a worker crashes, the job remains in `PROCESSING_ZSET`. A watchdog scans for jobs with visibility timeouts that have expired and re-queues them.
 
-    Player->>WS: Request Match (Mode: BLITZ, Rating: 1550)
-    WS->>Redis: XADD INGEST_STREAM (Ticket Payload)
-    Redis-->>MM: XREADGROUP Consumer Group ($)
-    Note over MM: BTreeMap Rating Bracket Search<br/>Sub-Millisecond Matching
-    MM->>MM: Pair Player A (1550) & Player B (1545)
-    MM->>PubSub: PUBLISH match_found (GameID, White, Black)
-    PubSub-->>WS: Deliver Game Session
-    WS-->>Player: Start Chess Game (Board Ready)
+## Tournament System
+
+Tournaments are deeply integrated into the asynchronous worker pipeline.
+
+### Tournament Lifecycle
+```mermaid
+graph LR
+    Create[Tournament Creation] --> CDC[CDC Tailing]
+    CDC --> Sched[Scheduling]
+    Sched --> Init[Tournament Init]
+    Init --> Pair[Pairing]
+    Pair --> Match[Matches Played]
+    Match --> Res[Results / Standings]
+    Res --> Next[Next Round]
 ```
 
-#### 5. `apps/cdc` — Rust Change Data Capture (CDC) Service
-- **Architecture**: Asynchronous PostgreSQL Write-Ahead Log (WAL) listener using `pgwire_replication`.
-- **Replication Mechanism**:
-  - Connects directly to PostgreSQL replication slots (`SLOT_NAME`) using the `pg_output` logical decoding plugin.
-  - Decodes binary WAL frames into domain-level events (`CdcEvent::Schedule`, `CdcEvent::Reschedule`).
-  - Prevents split-brain duplication using SQLSTATE `55006` (`object_in_use`) detection.
+### Swiss System
+The repository implements a genuine Swiss pairing algorithm (Edmonds' blossom Maximum Weight Perfect Matching).
+- **Pairings:** Players are grouped by score. The algorithm pairs players with identical scores while avoiding repeat matchups.
+- **Colors:** Balances white/black assignments and prevents three identical colors in a row.
+- **Progression:** The Sync Worker calculates standings, applies tiebreaks, and automatically schedules the next round.
 
----
+### Round Robin
+For smaller club tournaments, the repository generates a full Round Robin matrix. All permutations are generated up-front, avoiding duplicates, and scheduled sequentially.
 
-### Shared Packages Architecture (`packages/`)
+## Game Architecture
+
+### Game Spectator
+- **Connection:** Spectators connect via WebSockets to `apps/ws-server`.
+- **State:** Live board state is pulled from `spectate:<game_id>` in Redis.
+- **Broadcast:** When a move is made, the WS Server broadcasts it to the room. Redis Pub/Sub ensures spectators on *any* WS pod receive the event.
+
+### WebSockets & Scaling
+WebSocket state is strictly bound to the pod the client connected to. To solve horizontal scaling, `SocketIORedisAdapter` is utilized. When Pod A needs to broadcast to a room, it publishes to Redis; Pod B receives the pub/sub event and pushes it to its local connected clients.
+
+### Game Analysis and WASM
+To avoid expensive backend CPU usage, game analysis (Stockfish) is offloaded to the client using WebAssembly (WASM).
+- **Implementation:** The `apps/web` frontend uses `useStockfish.ts` to load the Stockfish WASM engine.
+- **Execution:** Analysis runs locally in the user's browser via Web Workers, entirely isolated from backend load.
+
+## Kubernetes Architecture
+
+Deployed via Argo CD, the infrastructure uses modern Kubernetes primitives.
+
+- **Services:** Frontend and HTTP API use standard `ClusterIP` services.
+- **Ingress:** NGINX Ingress controller routes external HTTPS and WSS traffic. TLS is managed via `cert-manager`.
+- **Headless Services:** Used for gRPC (`game-server-headless`) to bypass kube-proxy and enable client-side load balancing.
+- **Secrets:** `SealedSecrets` encrypt configuration directly in Git.
+
+## CI/CD and GitOps
 
 ```mermaid
 graph LR
-    subgraph Packages
-        PG[packages/postgres-db<br/>Prisma ORM & Schema]
-        MONGO[packages/mongo-db<br/>Mongoose PGN Schema]
-        REDIS_PKG[packages/redis-db<br/>Redis Client]
-        RMQ_PKG[packages/rabbit-mq<br/>RabbitMQ Bus]
-        GRPC_PKG[packages/grpc<br/>Proto Stubs]
-    end
-
-    HTTP[http-server] --> PG
-    WS[ws-server] --> REDIS_PKG
-    WS --> GRPC_PKG
-    CDC[cdc-service] --> RMQ_PKG
-    SYNC[sync-worker] --> MONGO
+    Dev[Developer] -->|Push| Git[GitHub]
+    Git -->|Actions Build & Test| GHCR[Container Registry]
+    Argo[Argo CD] -->|Syncs Manifests| Git
+    Argo -->|Deploys| K8s[Kubernetes Cluster]
 ```
+- **CI:** GitHub Actions builds Docker images, runs tests, and pushes to GHCR.
+- **GitOps:** Argo CD continuously monitors `chess-k8s/apps`. When configurations change or image tags are updated, Argo CD automatically reconciles the Kubernetes cluster state to match Git.
 
-1. **`packages/postgres-db`**: Centralized relational schema defining `User`, `UserAuth`, `Tournament`, `Rating`, `Wallet`, and migrations.
-2. **`packages/mongo-db`**: Document models for archival PGN chess move records and historical game analytics.
-3. **`packages/redis-db`**: Unified Redis connection clients for caching, stream ingestion, and pub/sub.
-4. **`packages/rabbit-mq`**: Message producer/consumer helpers for guaranteed background task processing.
-5. **`packages/grpc`**: Compiled Protocol Buffer (`.proto`) interfaces for low-overhead service-to-service RPC.
+## Service Communication Matrix
 
----
+| Service | Talks To | Protocol | Purpose | State |
+|---------|----------|----------|---------|-------|
+| HTTP Server | PostgreSQL | TCP (pg) | Reads/writes user data | Stateless |
+| HTTP Server | RabbitMQ | AMQP | Send emails | Stateless |
+| WS Server | Game Server | gRPC | Move validation | Ephemeral/Redis |
+| WS Server | Redis | Redis (PubSub) | Cross-pod broadcast | Ephemeral/Redis |
+| Matchmaker | Redis | Redis | Queue ingestion/evaluation | Actor memory/Redis |
+| CDC | PostgreSQL | Logical Repl | Detect new tournaments | Redis LSN |
+| Sync Worker | RabbitMQ | AMQP | Process results | Stateless |
+| Sync Worker | PostgreSQL | TCP (pg) | Update standings | Stateless |
 
-## 3. Architectural Decisions & Technical Rationale (The "Why")
+## Architecture Decisions & Trade-Offs
 
-### Decision 1: Why Rust for Matchmaking (`apps/matchmaker`)?
-- **Zero Garbage Collection (GC) Pauses**: In real-time Bullet (1-minute) and Blitz (3-minute) chess, a 50ms Node.js or JVM GC pause during peak matchmaking load can cause perceived lag or clock drift. Rust's deterministic memory management guarantees **sub-millisecond (<1ms) P99 latency**.
-- **Actix Actor Concurrency**: Matchmaking requires mutating shared rating brackets concurrently. Using Rust's **Actix actors**, state mutation is message-driven and lock-free, eliminating mutex contention across CPU cores.
-- **Crash-Resilient Redis Streams (`XGROUP`)**: Instead of ephemeral in-memory queues, matchmaking requests are persisted in Redis Streams. If a matchmaker pod crashes, unacknowledged tickets are reclaimed by another consumer in the group, ensuring zero lost matchmaking tickets.
+| Decision | Why | Trade-Off |
+|----------|-----|-----------|
+| **Microservices** | Isolates critical real-time components (Game/WS) from slow transactional ones (HTTP/Postgres). | Increased deployment complexity and debugging overhead. |
+| **Actor Model** | Prevents race conditions during matchmaking by giving a single thread ownership of a specific player pool. | A single hot time-control (e.g., Bullet) is bound to a single thread's throughput. |
+| **BTreeMap vs VecDeque** | Matchmaking requires finding ELO brackets (ranges). `VecDeque` is O(N) for this, while `BTreeMap` is O(log N). | Slightly higher memory overhead and insertion cost. |
+| **WASM Stockfish** | Offloads massive CPU computation to the client's device. | Increased initial page load time to download the WASM binary. |
+| **CDC WAL Tailing** | Zero CPU overhead on PostgreSQL for scheduling checks. | Increased operational complexity; requires logical replication slots. |
+| **gRPC Headless Svc** | Allows client-side load balancing across game servers. | Exposes pod IPs directly to internal clients. |
 
----
+## Reliability and Failure Handling
 
-### Decision 2: Why Rust for Change Data Capture (`apps/cdc`)?
-- **Zero-Polling Architecture**: Traditional architectures poll the database (`SELECT * FROM tournaments WHERE start_time <= NOW()`), causing expensive CPU spikes and lock contention. Our CDC service reads PostgreSQL **Write-Ahead Logs (WAL)** directly via replication slots (`pg_output`), reacting to database INSERTs/UPDATEs in real time with near-zero database CPU overhead.
-- **Zero-Copy WAL Deserialization**: Rust decodes Postgres binary replication frames directly into typed Rust structs (`WalEvent`) without intermediate JSON serialization, achieving throughput exceeding **10,000 events/second**.
-- **SQLSTATE `55006` Safety Guard**: In Kubernetes deployments, if a pod is evicted, the CDC service checks Postgres SQLSTATE `55006` (`object_in_use`). If another pod is already holding the replication slot, the standby pod waits gracefully, preventing duplicate event firing.
+- **Crash Recovery with Distributed State:** The architecture strongly separates compute (Kubernetes Pods) from state (Redis/PostgreSQL). When a service crashes, no critical state is lost:
+  - *Matchmaker Crash:* On restart, the new actor instances invoke `sync_from_redis` to automatically recover their matchmaking queues (from `QUEUE_ZSET`) and resume pairing without dropping players.
+  - *WebSocket Server Crash:* If a WS gateway crashes, client connections drop. However, clients are built to auto-reconnect to another healthy pod. Since live game states and spectator mappings are centralized in Redis (`game:state:*` and `spectate:*`), the new pod seamlessly resumes the session.
+  - *Worker Crash:* If a `sync-worker` crashes mid-execution, a Redis ZSET watchdog scans for jobs with expired visibility timeouts in `PROCESSING_ZSET` and re-queues them. Unacknowledged RabbitMQ messages are safely redelivered to other healthy workers.
+  - *CDC Crash:* The CDC worker writes its last processed LSN (Log Sequence Number) to Redis (`cdc:pending_lsns`). On crash recovery, it reads this LSN to resume tailing the PostgreSQL WAL exactly where it left off.
+- **Redis Crash:** High impact. Matchmaking queues would empty, and active games would drop. Requires Redis persistence (AOF/RDB) or HA clustering.
 
-```mermaid
-graph LR
-    subgraph PostgreSQL WAL
-        DB[(PostgreSQL Neon DB)] -->|WAL Binary Frame| SLOT[Replication Slot<br/>pg_output]
-    end
+## Scalability
 
-    subgraph Rust CDC Worker
-        SLOT -->|pgwire_replication| DEC[WAL Decoder<br/>RelationRegistry]
-        DEC -->|CdcEvent::Schedule| SCHED[Tournament Scheduler]
-    end
+- **Database:** Postgres is the ultimate bottleneck, but it is heavily shielded. It only handles persistent profiles and final tournament results.
+- **Matchmaker:** Highly concurrent due to Actor isolation, but individual time controls cannot be sharded across multiple actors without coordination.
+- **WebSocket:** Horizontally scales infinitely due to Redis Pub/Sub adapter.
 
-    SCHED -->|Fire Event| RMQ[RabbitMQ / Redis PubSub]
+## Repository Structure
+```text
+.
+├── apps/
+│   ├── cdc/                  # Rust Postgres WAL reader
+│   ├── game-server/          # Rust gRPC Game logic
+│   ├── http-server/          # Node.js REST API
+│   ├── matchmaker/           # Rust Actix Matchmaking
+│   ├── notification-worker/  # Node.js Email worker
+│   ├── sync-worker/          # Rust Tournament/Scheduler worker
+│   ├── web/                  # Next.js Frontend
+│   └── ws-server/            # Node.js WebSocket gateway
+├── packages/                 # Shared libraries (gRPC, DB clients, UI)
+├── chess-k8s/                # Kubernetes manifests and ArgoCD configs
+├── .github/workflows/        # CI/CD Pipelines
+└── docker-compose.*.yml      # Local development setups
 ```
-
----
-
-### Decision 3: Why a 2-Table Authentication Schema (`User` + `UserAuth`)?
-- **The Problem with Single-Table Auth**: Storing `passwordHash`, `googleId`, `appleId`, and `authProvider` in a single `User` table leads to nullable column bloat and schema conflicts when users link multiple sign-in methods.
-- **Our 2-Table Solution**:
-  1. **`model User`**: Contains only pure identity and domain properties (`username`, `email`, `rating`, `profileImageUrl`).
-  2. **`model UserAuth`**: Contains credentials (`authType`, `providerId`, `passwordHash`) linked via `userId`.
-- **Composite Unique Constraint (`@@unique([userId, authType])`)**: Ensures a user can have at most one credential record per provider type (`CREDENTIALS`, `GOOGLE`).
-- **Seamless Account Linking**: If a user signs up with Google (`providerId: sub`) and later adds an email/password, the system simply inserts a second `UserAuth` row without altering identity records.
-
-```mermaid
-erDiagram
-    User ||--o{ UserAuth : "authMethods (1 to N)"
-    User {
-        string id PK
-        string username
-        string email UK
-        int rating
-        string profileImageUrl
-    }
-    UserAuth {
-        string id PK
-        string userId FK
-        AuthType authType "CREDENTIALS | GOOGLE"
-        string providerId "Email or Google Sub ID"
-        string passwordHash "Nullable for OAuth"
-    }
-```
-
----
-
-### Decision 4: Why a Hybrid Polyglot Database Architecture?
-
-```mermaid
-graph TD
-    subgraph OLTP ACID Domain
-        PG[(PostgreSQL<br/>Relational DB)] --- U[Users & Wallets]
-        PG --- T[Tournaments & Ratings]
-    end
-
-    subgraph OLAP Document Domain
-        MONGO[(MongoDB<br/>Document DB)] --- M[Move Histories & PGN]
-        MONGO --- A[Game Analytics & Replay]
-    end
-
-    subgraph Real-Time & Caching Domain
-        REDIS[(Redis Cluster<br/>In-Memory DB)] --- S[Live Sessions & Clocks]
-        REDIS --- B[Matchmaking Streams]
-    end
-
-    subgraph Async Message Bus
-        RMQ[(RabbitMQ)] --- E[Email Notifications]
-    end
-```
-
-- **PostgreSQL (OLTP)**: Selected for transactional ACID guarantees. Absolutely required for user balances, tournament fee deductions, and ELO rating updates where consistency is paramount.
-- **MongoDB (OLAP / Unstructured Documents)**: A standard chess game can generate hundreds of move records, PGN annotations, and clock ticks. Storing millions of complete game histories in Postgres causes index bloat; MongoDB documents store nested move arrays efficiently for instant game replay loading.
-- **Redis (In-Memory Cache & PubSub)**: Serves as the high-speed state store for active game clocks, WebSocket sticky session mappings, and matchmaking queues.
-- **RabbitMQ**: Decouples non-blocking notification tasks (sending emails/OTPs) from user API latency.
-
----
-
-## 4. Kubernetes Production Architecture & Scaling Guide
-
-The entire Rooky platform is designed for cloud-native orchestration on **Kubernetes (k8s)** with automated CI/CD (`ci-cd.yaml`).
-
-### Kubernetes Topology & Scaling Strategy
-
-```mermaid
-graph TD
-    subgraph External Traffic
-        USER[Users / Chess Players] -->|HTTPS / WSS| ING[Kubernetes Ingress Controller]
-    end
-
-    subgraph k8s Stateless Workers - Horizontal Pod Autoscaler HPA
-        ING -->|/api/*| HTTP_SVC[Service: http-server]
-        ING -->|/ws/*| WS_SVC[Service: ws-server]
-        ING -->|/*| WEB_SVC[Service: web]
-
-        HTTP_SVC --> HTTP_PODS[http-server Pods<br/>Min: 2, Max: 20<br/>CPU Target: 70%]
-        WS_SVC --> WS_PODS[ws-server Pods<br/>Min: 3, Max: 50<br/>Redis PubSub Backplane]
-        WEB_SVC --> WEB_PODS[web Pods<br/>Min: 2, Max: 10]
-    end
-
-    subgraph k8s Specialized Rust Computing Nodes
-        MM_DEPLOY[Deployment: matchmaker<br/>Sharded Rating Consumer Groups<br/>Min: 2, Max: 10]
-        CDC_STS[StatefulSet: cdc-service<br/>Singleton Leader per Replication Slot<br/>SQLSTATE 55006 Guard]
-    end
-
-    WS_PODS <-->|XADD / XREADGROUP| MM_DEPLOY
-    HTTP_PODS -->|SQL| PG_SVC[(Managed PostgreSQL / Neon)]
-    CDC_STS -.->|WAL Slot| PG_SVC
-```
-
----
-
-### Detailed Scaling Strategies by Service Type
-
-#### 1. Stateless HTTP & Frontend Pods (`web`, `http-server`)
-- **Scaling Mechanism**: **Horizontal Pod Autoscaler (HPA)** based on CPU utilization (target: `70%`) and memory utilization.
-- **Load Balancing**: Standard round-robin load balancing via Kubernetes ClusterIP Services.
-- **Zero-Downtime Rolling Updates**: Configured with `maxSurge: 25%` and `maxUnavailable: 0` to ensure no dropped user requests during deployments.
-
-#### 2. WebSocket Real-Time Pods (`ws-server`, `game-server`)
-- **Scaling Mechanism**: Scaled horizontally based on active concurrent WebSocket connection counts.
-- **Multi-Pod Resilience**: Because WebSockets are persistent TCP connections, players connected to Pod A must receive move broadcasts from opponents connected to Pod B. This is achieved using a **Redis PubSub Backplane**—every pod subscribes to game channel events, enabling infinite horizontal WebSocket pod scaling.
-
-#### 3. Rust Matchmaker Scaling (`matchmaker`)
-- **Scaling Mechanism**: Sharded consumer group workers.
-- **Concurrency Control**: Multiple `matchmaker` pods consume from the Redis stream `INGEST_STREAM` under consumer group `matchmaker-group`. Redis automatically partitions unread tickets across available pods. If matchmaking volume spikes, scaling from 2 to 10 pods linearly multiplies matchmaking bracket evaluations without race conditions.
-
-#### 4. Rust CDC Replication Scaling (`cdc`)
-- **Scaling Mechanism**: **Singleton Leader / StatefulSet** per replication slot.
-- **Concurrency Control**: PostgreSQL replication slots (`SLOT_NAME`) can only be read by a single active receiver at a time. The CDC service is deployed as a Kubernetes StatefulSet with `replicas: 1` (or active-passive standby pods using SQLSTATE `55006` lock detection).
-
----
-
-### Secrets Management & CI/CD Pipeline
-
-In our automated GitHub Actions workflow (`.github/workflows/ci-cd.yaml`), database credentials, OAuth keys, and replication parameters are securely injected into the Kubernetes cluster as generic secrets:
-
-```bash
-kubectl create secret generic chess-secrets \
-  --from-literal=DATABASE_URL="postgresql://user:pass@pooler.neon.tech/db" \
-  --from-literal=MONGO_DB_URL="mongodb+srv://cluster.mongodb.net/chess" \
-  --from-literal=REDIS_URL="redis://default:pass@redis-cluster:6379" \
-  --from-literal=RABBITMQ_URL="amqp://user:pass@rabbitmq:5672" \
-  --from-literal=SLOT_NAME="rooky_cdc_slot" \
-  --from-literal=PUBLICATION="rooky_publication" \
-  --from-literal=GOOGLE_CLIENT_ID="your_client_id.apps.googleusercontent.com" \
-  --from-literal=GOOGLE_CLIENT_SECRET="your_client_secret"
-```
-
----
-
-## 5. Local Development & Quickstart Guide
-
-### Prerequisites
-- **Node.js** v18+ & **pnpm** v9+
-- **Rust** 1.75+ (Cargo)
-- **Docker & Docker Compose** (for local Redis, Postgres, MongoDB, RabbitMQ)
-
-### 1. Install Workspace Dependencies
-```bash
-pnpm install
-```
-
-### 2. Configure Environment Variables
-Create your local `.env` files across the workspace:
-```bash
-# Root .env
-cp .env.example .env
-
-# Web Frontend (.env)
-NEXT_PUBLIC_URL="http://localhost:3002"
-NEXT_PUBLIC_SOCKET_URL="ws://localhost:8080"
-NEXT_PUBLIC_GOOGLE_CLIENT_ID="your_google_client_id.apps.googleusercontent.com"
-```
-
-### 3. Synchronize Database Schemas
-Synchronize the PostgreSQL 2-Table auth schema (`User` & `UserAuth`):
-```bash
-cd packages/postgres-db
-npx prisma generate
-npx prisma db push
-```
-
-### 4. Build All Apps and Packages
-```bash
-pnpm build
-# Or using Turbo CLI directly:
-npx turbo build
-```
-
-### 5. Launch Local Development Cluster
-Run all frontends, REST APIs, WebSocket servers, and Rust workers concurrently:
-```bash
-pnpm dev
-```
-- **Web App (`apps/web`)**: http://localhost:3002
-- **REST API (`apps/http-server`)**: http://localhost:3001
-- **WebSocket Server (`apps/ws-server`)**: ws://localhost:8080
-- **Matchmaker Metrics (`apps/matchmaker`)**: http://localhost:9103/metrics
-
----
-
-## 6. Verification & Quality Assurance
-
-To ensure zero type regressions across the TypeScript and Rust codebase:
-
-```bash
-# Verify TypeScript type integrity across packages & apps
-npx tsc --noEmit -p packages/postgres-db
-npx tsc --noEmit -p apps/http-server
-npx tsc --noEmit -p apps/web
-
-# Verify Rust compile & lint checks
-cargo check --manifest-path apps/matchmaker/Cargo.toml
-cargo check --manifest-path apps/cdc/Cargo.toml
-```
-
----
-*Built by the Rooky Engineering Team — Combining advanced AI agentic workflows, Rust systems performance, and Next.js UI excellence.*
