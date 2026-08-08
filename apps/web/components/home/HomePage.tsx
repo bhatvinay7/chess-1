@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
+import { useAuth } from "../../hooks/useAuth";
 import {
   Swords,
   BarChart2,
@@ -79,6 +82,9 @@ const BOARD_PIECES = [
 ];
 
 export default function HomePage() {
+  const { user } = useAuth();
+  const playRoute = user ? "/arena" : "/auth/login";
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -101,7 +107,7 @@ export default function HomePage() {
               className={`${styles.ctaGroup} animate-fade-in`}
               style={{ animationDelay: "0.2s" }}
             >
-              <Link href="/arena" className="btn-primary">
+              <Link href={playRoute} className="btn-primary">
                 Play Now
               </Link>
               <Link href="/tournament" className="btn-outline">

@@ -35,7 +35,7 @@ export class WebSocketServer {
     this.setupConnections();
 
     const PORT = process.env.PORT ?? 8080;
-    this.httpServer.listen(PORT, () => {
+    this.httpServer.listen(Number(PORT), "0.0.0.0", () => {
       console.log(`WS server listening on port ${PORT}`);
     });
   }

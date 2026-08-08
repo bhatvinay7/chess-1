@@ -132,7 +132,7 @@ export default function SideNav() {
     }
   }, [user?.id, fetchNotifications]);
 
-  if (pathname.startsWith("/auth")) {
+  if (pathname.startsWith("/auth") || pathname === "/") {
     return null;
   }
 

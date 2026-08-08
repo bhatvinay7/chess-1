@@ -40,7 +40,7 @@ const PORT = process.env.PORT || 3002;
 if (process.env.NODE_ENV !== "test") {
   connectRedisClient().then(async () => {
     await ensureTtlIndex();
-    app.listen(PORT, () => {
+    app.listen(Number(PORT), "0.0.0.0", () => {
       console.log(`HTTP Server running on port ${PORT}`);
     });
   });
