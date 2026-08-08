@@ -220,6 +220,7 @@ jobs:
       needs.detect-changes.outputs.services != '[]' &&
       needs.detect-changes.outputs.services != ''
     runs-on: ubuntu-22.04
+    environment: production
     permissions:
       contents: read
       packages: write   # required to push to ghcr.io
