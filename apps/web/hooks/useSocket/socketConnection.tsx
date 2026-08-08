@@ -12,7 +12,7 @@ export class SocketService {
     if (typeof window === "undefined") return;
     if (this.socket?.connected) return;
 
-    this.socket = io(process.env.NEXT_PUBLIC_SOCKET_URL!, {
+    this.socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8080", {
       transports: ["websocket"],
       reconnection: true,
       reconnectionAttempts: 5,

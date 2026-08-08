@@ -2,7 +2,7 @@ import axios from "axios";
 import { getUserToken } from "../../hooks/useAuth";
 
 const instance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL!|| "http://localhost:3002/api/v1/",
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002/api/v1/",
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
