@@ -375,6 +375,7 @@ jobs:
           NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
           NEXT_PUBLIC_R2_PUBLIC_URL: ${{ secrets.NEXT_PUBLIC_R2_PUBLIC_URL }}
           NEXT_PUBLIC_USE_REMOTE_STOCKFISH: ${{ secrets.NEXT_PUBLIC_USE_REMOTE_STOCKFISH }}
+          CLIENT_URL: ${{ secrets.CLIENT_URL }}
         run: |
           if [ -z "${{ secrets.KUBECONFIG }}" ]; then
             echo "Error: KUBECONFIG is not set in GitHub Secrets. Cannot connect to cluster for automatic secret sealing."
@@ -441,6 +442,7 @@ jobs:
             --from-literal=PUBLICATION="$PUBLICATION" \
             --from-literal=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
             --from-literal=GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+            --from-literal=CLIENT_URL="$CLIENT_URL" \
             --dry-run=client -o yaml | kubeseal --controller-name "$CONTROLLER_NAME" --controller-namespace "$CONTROLLER_NS" --format yaml > sealed-backend-secrets.yaml
             
           # Generate Frontend Secrets
