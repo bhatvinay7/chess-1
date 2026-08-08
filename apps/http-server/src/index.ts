@@ -19,7 +19,8 @@ import { ensureTtlIndex } from "@repo/mongo-db";
 dotenv.config();
 
 export const app: Express = express();
-app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:3000", credentials: true }));
+const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",") : ["http://localhost:3000"];
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 app.use(express.json());
 
 app.use("/api/v1/auth/admin", authRoutes);
