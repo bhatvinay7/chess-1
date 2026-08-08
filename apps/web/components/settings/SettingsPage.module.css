@@ -323,11 +323,11 @@
 .toggleSlider::before {
   content: "";
   position: absolute;
-  left: 3px;
+  left: 4px;
   top: 50%;
   transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   background: rgba(255, 255, 255, 0.5);
   border-radius: 50%;
   transition: transform 0.2s ease, background 0.2s;

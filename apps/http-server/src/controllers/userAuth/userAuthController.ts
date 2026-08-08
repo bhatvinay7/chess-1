@@ -21,7 +21,10 @@ export async function requestOtp(req: Request, res: Response): Promise<void> {
 
   try {
     await storeOtp(otpKey(email), code);
-    await sendOtpEmail(email, code);
+    console.log(`[Auth] Attempting to send OTP email to ${email}...`);
+    sendOtpEmail(email, code)
+      .then(() => console.log(`[Auth] OTP email successfully sent to ${email}`))
+      .catch((err) => console.error(`[Auth] Background email send failed to ${email}:`, err));
     res.json({ message: "OTP sent to your email" });
   } catch (error) {
     console.error("Error sending OTP email:", error instanceof Error ? error.message : error);
@@ -295,7 +298,10 @@ export async function requestPasswordReset(req: Request, res: Response): Promise
 
     const code = generateOtp();
     await storeOtp(resetOtpKey(email), code);
-    await sendPasswordResetEmail(email, code);
+    console.log(`[Auth] Attempting to send password reset email to ${email}...`);
+    sendPasswordResetEmail(email, code)
+      .then(() => console.log(`[Auth] Password reset email successfully sent to ${email}`))
+      .catch((err) => console.error(`[Auth] Background email send failed to ${email}:`, err));
     res.json({ message: "Password reset code sent to your email" });
   } catch (error) {
     res.status(500).json({ message: error instanceof Error ? error.message : String(error) });

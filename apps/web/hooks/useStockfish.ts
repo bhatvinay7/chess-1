@@ -8,8 +8,8 @@ const R2_PUBLIC_URL =
   process.env.NEXT_PUBLIC_R2_PUBLIC_URL! ||
   "https://thepipe.shop";
 
-const R2_SCRIPT_URL = `${R2_PUBLIC_URL}/zero_copy/stockfish/stockfish-18.js`;
-const R2_WASM_URL = `${R2_PUBLIC_URL}/zero_copy/stockfish/stockfish-18.wasm`;
+const R2_SCRIPT_URL = `${R2_PUBLIC_URL}/zerocopy/stockfish/stockfish-18.js`;
+const R2_WASM_URL = `${R2_PUBLIC_URL}/zerocopy/stockfish/stockfish-18.wasm`;
 const LOCAL_WORKER_URL = "/stockfish-18.js";
 const PROXY_WORKER_URL = "/stockfish-worker.js";
 

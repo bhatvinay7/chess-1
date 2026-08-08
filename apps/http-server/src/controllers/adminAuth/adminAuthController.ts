@@ -25,7 +25,10 @@ export async function requestAdminOtp(req: Request, res: Response): Promise<void
 
   try {
     await storeOtp(otpKey(email), code);
-    await sendOtpEmail(email, code);
+    console.log(`[Admin Auth] Attempting to send OTP email to ${email}...`);
+    sendOtpEmail(email, code)
+      .then(() => console.log(`[Admin Auth] OTP email successfully sent to ${email}`))
+      .catch((err) => console.error(`[Admin Auth] Background email send failed to ${email}:`, err));
     res.json({ message: "OTP sent to your email" });
   } catch {
     res.status(500).json({ message: "Failed to send OTP. Please try again." });

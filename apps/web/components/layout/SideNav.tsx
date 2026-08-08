@@ -253,7 +253,11 @@ export default function SideNav() {
         <div className={styles.spacer} />
 
         {/* ── User row / auth buttons ── */}
-        {user ? (
+        {user === undefined ? (
+          <div className={styles.authSection} style={{ opacity: 0, pointerEvents: "none" }}>
+            <Link href="#" className={styles.authBtnOutline}><span className={styles.navItemLabel}>Loading</span></Link>
+          </div>
+        ) : user ? (
           <div className={styles.userSection}>
             <div className={styles.userRow}>
               <div className={styles.userAvatar} title={user.username}>
