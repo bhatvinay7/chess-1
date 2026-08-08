@@ -78,6 +78,7 @@ jobs:
             --set controller.service.type=NodePort \
             --set controller.service.nodePorts.http=32080 \
             --set controller.service.nodePorts.https=32443 \
+            --set controller.service.externalTrafficPolicy=Local \
             --set controller.metrics.enabled=true
           
           echo "Applying GitOps root App of Apps..."
