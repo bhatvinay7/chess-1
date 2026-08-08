@@ -5,6 +5,7 @@ import { Chess, type Square } from "chess.js";
 import type { CoachOpening } from "@/lib/coachOpenings";
 import { pairMoves, formatTime } from "./useChessGame";
 import type { MovePair } from "../components/chess/MoveHistoryPanel";
+import { useStockfish } from "./useStockfish";
 
 /* ── types ─────────────────────────────────────────────────────────────────── */
 
@@ -39,7 +40,6 @@ export interface MoveAnnotation {
 
 /* ── constants ──────────────────────────────────────────────────────────────── */
 
-const STOCKFISH_URL  = "/stockfish-18.js";
 const BOOK_WORKER_URL = "/opening-book-worker.js";
 const COACH_BOOK_DEPTH = 30;   // plies to use the opening book
 const ENGINE_SKILL     = 20;
@@ -69,8 +69,8 @@ export function useCoachGame(config: CoachGameConfig | null) {
   const annotationTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   /* ── workers ── */
-  const sfWorkerRef   = useRef<Worker | null>(null);
-  const sfReadyRef    = useRef(false);
+  // Stockfish hook
+  const { ready: sfReady, sendCommand, onOutput } = useStockfish();
   const bookWorkerRef = useRef<Worker | null>(null);
   const bookReadyRef  = useRef(false);
   // Map<requestId, callback> so concurrent book lookups don't collide
@@ -133,37 +133,26 @@ export function useCoachGame(config: CoachGameConfig | null) {
     };
   }, []);
 
-  /* ── Stockfish worker ───────────────────────────────────────────────────── */
+  /* ── Stockfish options initialization ───────────────────────────────────── */
   useEffect(() => {
-    if (!config) return;
-    const worker = new Worker(STOCKFISH_URL);
-    sfWorkerRef.current = worker;
+    if (!config || !sfReady) return;
+    sendCommand("setoption name MultiPV value 1");
+    sendCommand("setoption name Hash value 32");
+    sendCommand("setoption name Threads value 2");
+    if (config.gameMode === "chess960") {
+      sendCommand("setoption name UCI_Chess960 value true");
+    }
+    sendCommand("isready");
 
-    worker.onmessage = (e: MessageEvent<string>) => {
-      const line = typeof e.data === "string" ? e.data : "";
-      if (line === "readyok") { sfReadyRef.current = true; return; }
+    const cleanup = onOutput((line) => {
       if (line.startsWith("bestmove")) {
         const move = line.split(" ")[1];
         if (move && move !== "(none)") applyEngineUci(move);
         setIsEngineThinking(false);
       }
-    };
-
-    worker.postMessage("uci");
-    worker.postMessage("setoption name MultiPV value 1");
-    worker.postMessage("setoption name Hash value 32");
-    worker.postMessage("setoption name Threads value 2");
-    if (config.gameMode === "chess960") {
-      worker.postMessage("setoption name UCI_Chess960 value true");
-    }
-    worker.postMessage("isready");
-
-    return () => {
-      worker.terminate();
-      sfWorkerRef.current = null;
-      sfReadyRef.current = false;
-    };
-  }, [config?.opening.id, config?.playerColor]);
+    });
+    return cleanup;
+  }, [config?.opening.id, config?.playerColor, sfReady, sendCommand, onOutput, applyEngineUci]);
 
   /* ── reset on config change ──────────────────────────────────────────────── */
   useEffect(() => {
@@ -244,13 +233,12 @@ export function useCoachGame(config: CoachGameConfig | null) {
 
   /* ── fall back to Stockfish ──────────────────────────────────────────────── */
   const askStockfish = useCallback(() => {
-    const sf = sfWorkerRef.current;
     const game = gameRef.current;
-    if (!sf) return;
-    sf.postMessage(`setoption name Skill Level value ${ENGINE_SKILL}`);
-    sf.postMessage(`position fen ${game.fen()}`);
-    sf.postMessage(`go depth ${ENGINE_DEPTH}`);
-  }, []);
+    if (!sfReady) return;
+    sendCommand(`setoption name Skill Level value ${ENGINE_SKILL}`);
+    sendCommand(`position fen ${game.fen()}`);
+    sendCommand(`go depth ${ENGINE_DEPTH}`);
+  }, [sfReady, sendCommand]);
 
   /* ── engine move entry point ─────────────────────────────────────────────── */
   const askEngineToMove = useCallback(() => {

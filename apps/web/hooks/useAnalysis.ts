@@ -6,6 +6,7 @@ import { parseFen, makeFen, INITIAL_FEN } from "chessops/fen";
 import { parsePgn } from "chessops/pgn";
 import { parseSan, makeSan } from "chessops/san";
 import { makeUci, parseUci } from "chessops/util";
+import { useStockfish } from "./useStockfish";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -75,7 +76,6 @@ interface PositionEval {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const STOCKFISH_WORKER_URL = "/stockfish-18.js";
 const ANALYSIS_DEPTH       = 15;
 const ENGINE_PLAY_DEPTH    = 18;
 
@@ -211,9 +211,10 @@ export function useAnalysis({
   const [isEngineThinking, setIsEngineThinking] = useState(false);
 
   // ── Worker refs ───────────────────────────────────────────────────────────
-  const workerRef         = useRef<Worker | null>(null);
-  const workerReadyRef    = useRef(false);
-  const positionsRef      = useRef<GamePosition[]>([]);
+  const { ready: sfReady, sendCommand, onOutput } = useStockfish();
+  const workerReadyRef = useRef(false);
+  useEffect(() => { workerReadyRef.current = sfReady; }, [sfReady]);
+  const positionsRef = useRef<GamePosition[]>([]);
 
   // ── Bulk-analysis refs ────────────────────────────────────────────────────
   const queueRef       = useRef<number[]>([]);
@@ -244,17 +245,7 @@ export function useAnalysis({
 
   // ── Stockfish worker lifecycle ────────────────────────────────────────────
   useEffect(() => {
-    const worker = new Worker(STOCKFISH_WORKER_URL);
-    workerRef.current = worker;
-
-    worker.onmessage = (e: MessageEvent<string>) => {
-      const line = typeof e.data === "string" ? e.data : "";
-
-      if (line === "readyok") {
-        workerReadyRef.current = true;
-        return;
-      }
-
+    const cleanup = onOutput((line) => {
       // Engine auto-play mode: collect all lines, extract top 3 on bestmove
       if (isEngineMovingRef.current) {
         engineMoveLinesRef.current.push(line);
@@ -281,28 +272,20 @@ export function useAnalysis({
           job.done();
         }
       }
-    };
-
-    worker.postMessage("uci");
-    worker.postMessage("isready");
-
-    return () => {
-      worker.terminate();
-      workerRef.current  = null;
-      workerReadyRef.current = false;
-    };
-  }, []);
+    });
+    return cleanup;
+  }, [onOutput]);
 
   // Set UCI_Chess960 whenever gameMode is known / changes.
   useEffect(() => {
-    if (!workerRef.current) return;
+    if (!sfReady) return;
     const val = gameMode?.toLowerCase() === "chess960" ? "true" : "false";
-    workerRef.current.postMessage(`setoption name UCI_Chess960 value ${val}`);
-  }, [gameMode]);
+    sendCommand(`setoption name UCI_Chess960 value ${val}`);
+  }, [gameMode, sfReady, sendCommand]);
 
   // ── Bulk-analysis: job runner ─────────────────────────────────────────────
   const runNextJob = useCallback(() => {
-    if (!workerRef.current || !workerReadyRef.current) return;
+    if (!workerReadyRef.current) return;
     if (isEngineMovingRef.current) return;
     if (queueRef.current.length === 0) { setIsAnalyzing(false); return; }
 
@@ -334,9 +317,9 @@ export function useAnalysis({
       },
     };
 
-    workerRef.current.postMessage(`position fen ${pos.fen}`);
-    workerRef.current.postMessage(`go depth ${ANALYSIS_DEPTH}`);
-  }, []);
+    sendCommand(`position fen ${pos.fen}`);
+    sendCommand(`go depth ${ANALYSIS_DEPTH}`);
+  }, [sendCommand]);
 
   useEffect(() => { runNextJobRef.current = runNextJob; }, [runNextJob]);
 
@@ -345,9 +328,8 @@ export function useAnalysis({
     if (positions.length === 0) return;
 
     const doStart = () => {
-      if (!workerRef.current) return;
-      workerRef.current.postMessage("setoption name MultiPV value 3");
-      workerRef.current.postMessage("ucinewgame");
+      sendCommand("setoption name MultiPV value 3");
+      sendCommand("ucinewgame");
       queueRef.current = positions.map((_, i) => i);
       setPosEvals(new Map());
       setAnalysisResult(null);
@@ -453,8 +435,8 @@ export function useAnalysis({
 
   // ── Engine auto-play (play mode) ──────────────────────────────────────────
   const doEngineMove = useCallback((fen: string, cb: (uci: string) => void) => {
-    if (!workerRef.current || !workerReadyRef.current) return;
-    workerRef.current.postMessage("stop");
+    if (!workerReadyRef.current) return;
+    sendCommand("stop");
     currentJobRef.current = null;
     isEngineMovingRef.current  = true;
     engineMoveCbRef.current    = cb;
@@ -462,10 +444,10 @@ export function useAnalysis({
     engineMoveFenRef.current   = fen;
     setIsEngineThinking(true);
     setPlayTopMoves([]);
-    workerRef.current.postMessage("setoption name MultiPV value 3");
-    workerRef.current.postMessage(`position fen ${fen}`);
-    workerRef.current.postMessage(`go depth ${ENGINE_PLAY_DEPTH}`);
-  }, []);
+    sendCommand("setoption name MultiPV value 3");
+    sendCommand(`position fen ${fen}`);
+    sendCommand(`go depth ${ENGINE_PLAY_DEPTH}`);
+  }, [sendCommand]);
 
   const doEngineAutoPlay = useCallback((fen: string) => {
     const parsedFen = parseFen(fen).unwrap();
@@ -495,12 +477,10 @@ export function useAnalysis({
   const enterPlayMode = useCallback((mode: PlayMode) => {
     const fen = positions[currentPly]?.fen ?? INITIAL_FEN;
 
-    if (workerRef.current) {
-      workerRef.current.postMessage("stop");
-      currentJobRef.current = null;
-      queueRef.current = [];
-      setIsAnalyzing(false);
-    }
+    sendCommand("stop");
+    currentJobRef.current = null;
+    queueRef.current = [];
+    setIsAnalyzing(false);
 
     setPlayFen(fen);
     setPlayStartFen(fen);
@@ -523,19 +503,17 @@ export function useAnalysis({
   }, [currentPly, positions]);
 
   const exitPlayMode = useCallback(() => {
-    if (workerRef.current) {
-      workerRef.current.postMessage("stop");
-      isEngineMovingRef.current = false;
-      engineMoveCbRef.current   = null;
-    }
+    sendCommand("stop");
+    isEngineMovingRef.current = false;
+    engineMoveCbRef.current   = null;
     setPlayMode("analysis");
     setPlayFen(null);
     setPlayStartFen("");
     setPlayMoves([]);
     setPlayTopMoves([]);
     setIsEngineThinking(false);
-    workerRef.current?.postMessage("setoption name MultiPV value 3");
-  }, []);
+    sendCommand("setoption name MultiPV value 3");
+  }, [sendCommand]);
 
   // ── Handle user piece drop in play mode ────────────────────────────────────
   const handlePlayMove = useCallback((from: string, to: string, promotion?: string): boolean => {

@@ -5,6 +5,7 @@ import { Chess, type Square } from "chess.js";
 import type { BotCharacter } from "@/lib/botCharacters";
 import { pairMoves, formatTime } from "./useChessGame";
 import type { MovePair } from "../components/chess/MoveHistoryPanel";
+import { useStockfish } from "./useStockfish";
 
 export interface BotGameConfig {
   bot: BotCharacter;
@@ -20,7 +21,6 @@ export interface BotGameResult {
   reason: string;
 }
 
-const STOCKFISH_URL = "/stockfish-18.js";
 const BOOK_WORKER_URL = "/opening-book-worker.js";
 
 /** Use opening book for the first N half-moves (plies). After this, always use Stockfish. */
@@ -59,9 +59,8 @@ export function useBotGame(config: BotGameConfig | null) {
   const blackTimeRef = useRef(initSecs * 1000);
   const tenSoundPlayedRef = useRef({ white: false, black: false });
 
-  // Stockfish worker
-  const workerRef = useRef<Worker | null>(null);
-  const workerReadyRef = useRef(false);
+  // Stockfish hook
+  const { ready: sfReady, sendCommand, onOutput } = useStockfish();
 
   // Opening book worker — loaded once, shared across all bot sessions
   const bookWorkerRef = useRef<Worker | null>(null);
@@ -130,17 +129,18 @@ export function useBotGame(config: BotGameConfig | null) {
     tenSoundPlayedRef.current = { white: false, black: false };
   }, [config?.bot.id, config?.playerColor, config?.timeSlot]);
 
-  // ── Stockfish worker init ─────────────────────────────────────────────────
+  // ── Stockfish options initialization ────────────────────────────────────────
   useEffect(() => {
-    if (!config) return;
-    const worker = new Worker(STOCKFISH_URL);
-    workerRef.current = worker;
-    worker.onmessage = (e: MessageEvent<string>) => {
-      const line = typeof e.data === "string" ? e.data : "";
-      if (line === "readyok") {
-        workerReadyRef.current = true;
-        return;
-      }
+    if (!config || !sfReady) return;
+    sendCommand("setoption name MultiPV value 1");
+    sendCommand("setoption name Hash value 32");
+    sendCommand("setoption name Threads value 2");
+    if (config.gameMode === "chess960") {
+      sendCommand("setoption name UCI_Chess960 value true");
+    }
+    sendCommand("isready");
+
+    const cleanup = onOutput((line) => {
       if (line.startsWith("bestmove")) {
         const parts = line.split(" ");
         const move = parts[1];
@@ -149,22 +149,9 @@ export function useBotGame(config: BotGameConfig | null) {
         }
         setIsBotThinking(false);
       }
-    };
-    worker.postMessage("uci");
-    worker.postMessage("setoption name MultiPV value 1");
-    worker.postMessage("setoption name Hash value 32");
-    worker.postMessage("setoption name Threads value 2");
-    if (config.gameMode === "chess960") {
-      worker.postMessage("setoption name UCI_Chess960 value true");
-    }
-    worker.postMessage("isready");
-
-    return () => {
-      worker.terminate();
-      workerRef.current = null;
-      workerReadyRef.current = false;
-    };
-  }, [config?.bot.id]);
+    });
+    return cleanup;
+  }, [config, sfReady, sendCommand, onOutput, applyBotMove]);
 
   // ── Clock ─────────────────────────────────────────────────────────────────
   const stopClock = useCallback(() => {
@@ -285,20 +272,18 @@ export function useBotGame(config: BotGameConfig | null) {
 
   // ── Send position to Stockfish ────────────────────────────────────────────
   const askStockfish = useCallback(() => {
-    const sf = workerRef.current;
     const game = gameRef.current;
-    if (!sf) return;
+    if (!sfReady) return;
     const skillLevel = config?.bot.skillLevel ?? 10;
     const depth = config?.bot.depth ?? 10;
-    sf.postMessage(`setoption name Skill Level value ${skillLevel}`);
-    sf.postMessage(`position fen ${game.fen()}`);
-    sf.postMessage(`go depth ${depth}`);
-  }, [config]);
+    sendCommand(`setoption name Skill Level value ${skillLevel}`);
+    sendCommand(`position fen ${game.fen()}`);
+    sendCommand(`go depth ${depth}`);
+  }, [config, sfReady, sendCommand]);
 
-  // ── Main bot move entry point ─────────────────────────────────────────────
   const askBotToMove = useCallback(() => {
     const game = gameRef.current;
-    if (!workerRef.current || game.isGameOver() || status === "over") return;
+    if (!sfReady || game.isGameOver() || status === "over") return;
     setIsBotThinking(true);
 
     const plyCount = game.history().length;
