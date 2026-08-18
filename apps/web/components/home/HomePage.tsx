@@ -92,7 +92,7 @@ export default function HomePage() {
         <section className={styles.hero}>
           <div className={styles.heroContent}>
             <p className={styles.kicker}>Free · Rated · No download required</p>
-            <h1 className={`${styles.title} animate-fade-in`}>
+            <h1 className={`${styles.title} premium-heading animate-fade-in`}>
               Chess the way it should be played.
             </h1>
             <p

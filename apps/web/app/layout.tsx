@@ -43,11 +43,11 @@ export default function RootLayout({
         >
           <Providers>
             <ThemeApplier />
-            <div style={{ display: "flex", width: "100vw", height: "100vh", overflow: "hidden" }}>
+            <div className="flex flex-col md:flex-row w-full h-screen overflow-hidden">
               <Suspense fallback={null}>
                 <SideNav />
               </Suspense>
-              <div style={{ flex: 1, minWidth: 0, overflowY: "auto", overflowX: "hidden", height: "100%" }}>
+              <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden h-full">
                 {children}
               </div>
             </div>
