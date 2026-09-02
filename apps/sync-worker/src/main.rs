@@ -10,6 +10,7 @@ use bb8_redis::{bb8, RedisConnectionManager};
 use sync_worker::handlers::game_result::handle_game_result;
 use sync_worker::handlers::matchmaking::handle_matchmaking;
 use sync_worker::inistialize_stream::initialize_stream_infrastructure;
+use sync_worker::manual_trigger_pubsub::run_manual_trigger_listener;
 use sync_worker::recovery::recover_stream;
 use sync_worker::stream_jobs::{consume_stream_jobs, RedisPool};
 use sync_worker::types::{GameResultEntry, MatchData};
@@ -183,13 +184,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         sync_worker::tournament_consumer::run(pool5, db5, rabbitmq_t, wid5).await;
     });
 
-    println!("[sync-worker] All 5 tasks running.");
+    // ── Task 6: Manual Trigger Pub/Sub Listener ───────────────────────────────
+    let redis_url_clone = redis_url.clone();
+    let pool6 = redis_pool.clone();
+    let db6 = db.clone();
+    let rabbitmq_pubsub = rabbitmq.clone();
+    let t_pubsub = tokio::spawn(async move {
+        run_manual_trigger_listener(redis_url_clone, pool6, db6, rabbitmq_pubsub).await;
+    });
+
+    println!("[sync-worker] All tasks running.");
     let _ = tokio::join!(
         t_matchmaking,
         t_game_result,
         t_mm_recovery,
         t_gr_recovery,
-        t_tournament
+        t_tournament,
+        t_pubsub
     );
 
     Ok(())

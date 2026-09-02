@@ -25,6 +25,7 @@ serde_json = "1.0"
 
 # Async runtime
 tokio = { version = "1.0", features = ["full"] }
+tokio-stream = "0.1"
 
 # Utilities
 dotenvy = "0.15"

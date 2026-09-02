@@ -7,6 +7,7 @@
 
 pub mod handlers;
 pub mod inistialize_stream;
+pub mod manual_trigger_pubsub;
 pub mod r#match;
 pub mod recovery;
 pub mod round_robin;
