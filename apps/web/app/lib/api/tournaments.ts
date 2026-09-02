@@ -160,3 +160,8 @@ export async function fetchMyTournamentGame(id: string): Promise<{ success: bool
   const { data } = await axiosInstance.get<{ success: boolean; gameId: string | null }>(`/tournaments/${id}/my-game`);
   return data;
 }
+
+export async function triggerManualRound(id: string): Promise<{ success: boolean; message: string }> {
+  const { data } = await axiosInstance.post<{ success: boolean; message: string }>(`/tournaments/${id}/manual-trigger`);
+  return data;
+}

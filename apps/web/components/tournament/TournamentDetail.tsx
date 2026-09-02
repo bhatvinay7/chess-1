@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft, Users, Clock, RefreshCw, Swords, Trash2,
   Trophy, Wifi, WifiOff, ChevronRight, LayoutList, BarChart2, Info,
+  Settings,
 } from "lucide-react";
 import type { TournamentListItem } from "./types";
 import {
@@ -377,6 +378,15 @@ export default function TournamentDetail({ id }: Props) {
                     <Trash2 size={13} /> Delete
                   </button>
                 )}
+              </div>
+            )}
+            {isCreator && (
+              <div className={styles.joinedBlock} style={{ marginTop: "0.75rem" }}>
+                <button type="button" className={styles.leaveBtn}
+                        style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "var(--surface-light)" }}
+                        onClick={() => router.push(`/tournament/${id}/dashboard`)}>
+                  <Settings size={13} /> Creator Dashboard
+                </button>
               </div>
             )}
           </div>
