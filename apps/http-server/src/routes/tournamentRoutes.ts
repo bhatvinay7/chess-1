@@ -12,6 +12,7 @@ import {
   joinTournament,
   leaveTournament,
   deleteTournament,
+  triggerManualRound,
 } from '../controllers/tournament/tournamentController.js';
 
 const router: IRouter = Router();
@@ -25,6 +26,7 @@ router.get('/:id/groups/:groupId/standings', getGroupStandings);
 router.get('/:id', getTournament);
 router.get('/', listTournaments);
 router.post('/', createTournament);
+router.post('/:id/manual-trigger', triggerManualRound);
 router.post('/:id/join', joinTournament);
 router.post('/:id/leave', leaveTournament);
 router.delete('/:id', deleteTournament);

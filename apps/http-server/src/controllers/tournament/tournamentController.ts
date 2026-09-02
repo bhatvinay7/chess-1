@@ -363,6 +363,47 @@ export async function getMyCurrentGame(req: Request, res: Response) {
   }
 }
 
+export async function triggerManualRound(req: Request, res: Response) {
+  const { id } = req.params;
+  const userId = getUserId(req);
+
+  if (!userId) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+
+  try {
+    const tournament = await prisma.tournament.findUnique({
+      where: { id },
+      select: { creatorId: true, status: true },
+    });
+
+    if (!tournament) {
+      return res.status(404).json({ success: false, message: 'Tournament not found' });
+    }
+
+    if (tournament.creatorId !== userId) {
+      return res.status(403).json({ success: false, message: 'Only the creator can trigger rounds manually' });
+    }
+
+    if (tournament.status === 'COMPLETED' || tournament.status === 'CANCELLED') {
+      return res.status(400).json({ success: false, message: 'Tournament is already completed or cancelled' });
+    }
+
+    // Publish trigger event to Redis
+    const payload = JSON.stringify({
+      tournamentId: id,
+      action: 'trigger_next_group', // or 'trigger_next_round'
+    });
+
+    await redisClient.publish('channel:tournament:manual_trigger', payload);
+
+    return res.json({ success: true, message: 'Manual trigger sent' });
+  } catch (err) {
+    console.error('[triggerManualRound]', err);
+    return res.status(500).json({ success: false, message: 'Internal server error.' });
+  }
+}
+
 export async function getGroupStandings(req: Request, res: Response) {
   const { id: tournamentId, groupId } = req.params;
 
