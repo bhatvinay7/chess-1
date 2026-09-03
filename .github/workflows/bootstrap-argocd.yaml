@@ -15,11 +15,21 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Validate GitOps credentials
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+          if [ -z "$GITOPS_TOKEN" ]; then
+            echo "Error: GITOPS_TOKEN is not configured in the production environment."
+            exit 1
+          fi
+
       - name: Checkout GitOps repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ secrets.GITOPS_REPO || 'bhatvinay7/chess-k8s-1' }}
-          token: ${{ secrets.GITOPS_TOKEN || github.token }}
+          repository: bhatvinay7/chess-k8s-1
+          ref: main
+          token: ${{ secrets.GITOPS_TOKEN }}
 
       - name: Configure kubectl
         env:

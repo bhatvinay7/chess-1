@@ -276,13 +276,22 @@ jobs:
     runs-on: ubuntu-22.04
     environment: production   # Required to access environment-scoped secrets (e.g. GITOPS_TOKEN)
     steps:
+      - name: Validate GitOps credentials
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
+        run: |
+          if [ -z "$GITOPS_TOKEN" ]; then
+            echo "Error: GITOPS_TOKEN is not configured in the production environment."
+            exit 1
+          fi
+
       - name: Checkout GitOps repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ secrets.GITOPS_REPO || 'bhatvinay7/chess-k8s-1' }}
-          # GITOPS_TOKEN must be a PAT with 'contents: write' access to chess-k8s
-          # GITHUB_TOKEN only works on the current repo and will 404 on external repos
-          token: ${{ secrets.GITOPS_TOKEN || github.token }}
+          repository: bhatvinay7/chess-k8s-1
+          ref: main
+          # Requires a PAT with contents:write access to chess-k8s-1.
+          token: ${{ secrets.GITOPS_TOKEN }}
           path: gitops-repo
 
       - name: Configure kubectl
@@ -468,4 +477,3 @@ jobs:
           else
             echo "No image tag changes to commit."
           fi
-
