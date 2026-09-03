@@ -18,7 +18,7 @@ jobs:
       - name: Checkout GitOps repository
         uses: actions/checkout@v4
         with:
-          repository: ${{ secrets.GITOPS_REPO || 'bhatvinay75/chess-k8s' }}
+          repository: ${{ secrets.GITOPS_REPO || 'bhatvinay7/chess-k8s-1' }}
           token: ${{ secrets.GITOPS_TOKEN || github.token }}
 
       - name: Configure kubectl
