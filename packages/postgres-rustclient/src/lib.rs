@@ -11,7 +11,6 @@ pub fn default_url() -> &'static str {
     static DB_URL: OnceLock<String> = OnceLock::new();
 
     DB_URL.get_or_init(|| {
-        std::env::var("DATABASE_URL")
-            .unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5432/chess".to_string())
+        std::env::var("DATABASE_URL").expect("DATABASE_URL must be set in the environment")
     })
 }

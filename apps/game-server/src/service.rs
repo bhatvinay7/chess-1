@@ -14,6 +14,9 @@ use tokio::sync::RwLock;
 use tonic::{Request, Response, Status};
 
 pub mod proto {
+    // Tonic owns these generated Result<_, tonic::Status> signatures, so we
+    // cannot box the error without breaking the generated service API.
+    #![allow(clippy::result_large_err)]
     tonic::include_proto!("chess");
 }
 

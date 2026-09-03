@@ -11,9 +11,8 @@ pub fn load_env() {
 
 pub async fn setup_db() -> Arc<PgPool> {
     load_env();
-    let db_url = std::env::var("TEST_DATABASE_URL").unwrap_or_else(|_| {
-        "postgresql://neondb_owner:npg_bxtPcrwmN5Z2@ep-aged-dew-aozy1uw5.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require".to_string()
-    });
+    let db_url = std::env::var("TEST_DATABASE_URL")
+        .expect("TEST_DATABASE_URL must be set in .env");
     
     let pool = PgPoolOptions::new()
         .max_connections(20)
@@ -26,9 +25,9 @@ pub async fn setup_db() -> Arc<PgPool> {
 }
 
 pub async fn setup_redis() -> RedisPool {
-    let redis_url = std::env::var("TEST_REDIS_URL").unwrap_or_else(|_| {
-        "rediss://default:gQAAAAAAATNtAAIgcDIzMDMyZjcxYWM3NDI0ZGNlYjEwZjg4OTExYWI1NDU2OQ@clear-orca-78701.upstash.io:6379".to_string()
-    });
+    load_env();
+    let redis_url =
+        std::env::var("TEST_REDIS_URL").expect("TEST_REDIS_URL must be set in .env");
     
     let manager = RedisConnectionManager::new(redis_url)
         .expect("Invalid TEST_REDIS_URL");
@@ -151,4 +150,3 @@ pub async fn join_tournament(db: &PgPool, tournament_id: &str, user_ids: &[Strin
         .expect("Failed to add participant");
     }
 }
-
