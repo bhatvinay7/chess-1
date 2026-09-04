@@ -52,21 +52,17 @@ jobs:
 
       - name: Install ArgoCD & Apply App of Apps
         run: |
-          if kubectl get deployment argocd-server -n argocd >/dev/null 2>&1; then
-            echo "ArgoCD is already installed. Skipping installation."
-          else
-            echo "ArgoCD not found. Installing..."
-            kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
-            # Use server-side apply to avoid the 262144 byte annotation limit on huge CRDs
-            kubectl apply -n argocd --server-side -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-            
-            # Wait a few seconds for CRDs to be fully registered
-            sleep 10
-            
-            echo "Patching ArgoCD resources..."
-            kubectl set resources deployment argocd-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
-            kubectl set resources deployment argocd-repo-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
-          fi
+          echo "Installing or repairing ArgoCD..."
+          kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+          # Server-side apply creates any resources missing from a partial installation.
+          kubectl apply -n argocd --server-side -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+          # Wait a few seconds for CRDs to be fully registered
+          sleep 10
+
+          echo "Patching ArgoCD resources..."
+          kubectl set resources deployment argocd-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
+          kubectl set resources deployment argocd-repo-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
           
           echo "Installing cert-manager CRDs to prevent GitOps race conditions..."
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.crds.yaml
