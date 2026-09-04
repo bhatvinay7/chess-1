@@ -365,6 +365,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
           GRPC_SERVER_URL: ${{ secrets.GRPC_SERVER_URL }}
           INVITATION_ENCRYPTION_KEY: ${{ secrets.INVITATION_ENCRYPTION_KEY }}
           MONGO_DB_URL: ${{ secrets.MONGO_DB_URL }}
@@ -388,6 +389,10 @@ jobs:
         run: |
           if [ -z "${{ secrets.KUBECONFIG }}" ]; then
             echo "Error: KUBECONFIG is not set in GitHub Secrets. Cannot connect to cluster for automatic secret sealing."
+            exit 1
+          fi
+          if [ -z "$GHCR_TOKEN" ]; then
+            echo "Error: GHCR_TOKEN is not set in the production environment."
             exit 1
           fi
           
@@ -464,6 +469,13 @@ jobs:
             --from-literal=NEXT_PUBLIC_R2_PUBLIC_URL="$NEXT_PUBLIC_R2_PUBLIC_URL" \
             --from-literal=NEXT_PUBLIC_USE_REMOTE_STOCKFISH="$NEXT_PUBLIC_USE_REMOTE_STOCKFISH" \
             --dry-run=client -o yaml | kubeseal --controller-name "$CONTROLLER_NAME" --controller-namespace "$CONTROLLER_NS" --format yaml > sealed-frontend-secrets.yaml
+
+          # Generate a read-only GHCR pull secret for the application pods.
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username="${{ github.repository_owner }}" \
+            --docker-password="$GHCR_TOKEN" \
+            --dry-run=client -o yaml | kubeseal --controller-name "$CONTROLLER_NAME" --controller-namespace "$CONTROLLER_NS" --format yaml > ghcr-secret.yaml
 
       - name: Commit and push GitOps tag updates
         working-directory: gitops-repo
