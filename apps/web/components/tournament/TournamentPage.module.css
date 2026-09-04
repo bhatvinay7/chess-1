@@ -483,6 +483,14 @@
   animation: toastIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5);
   font-family: inherit;
+  max-width: calc(100vw - 1.5rem);
+  white-space: normal;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 640px) {
+  .toast { bottom: max(0.75rem, env(safe-area-inset-bottom)); width: max-content; }
 }
 
 @keyframes toastIn {
@@ -554,6 +562,20 @@
 :global(body:not(.dark-ui)) .createPrompt { color: var(--text-muted); }
 :global(body:not(.dark-ui)) .createGroupSub { color: var(--text-faint); }
 :global(body:not(.dark-ui)) .scheduleEmpty { color: var(--text-faint); }
+
+@media (max-width: 700px) {
+  .page { padding: 0.875rem; }
+  .header { align-items: flex-start; }
+  .headerMeta { flex-wrap: wrap; }
+  .tabBar, .filterBar { overflow-x: auto; scrollbar-width: none; }
+  .tabBtn { flex: 0 0 auto; min-height: 44px; }
+  .filterBar { align-items: stretch; flex-direction: column; }
+  .searchWrap, .filterSelect { width: 100%; min-height: 44px; }
+  .slotDayHeader { align-items: flex-start; }
+  .slotGroup { grid-template-columns: minmax(0, 1fr); }
+  .createGroups { grid-template-columns: minmax(0, 1fr); }
+  .createOption { min-height: 72px; padding: 1rem; }
+}
 
 /* ── Light mode — remaining gaps ────────────────────────────────────────── */
 :global(body:not(.dark-ui)) .header {

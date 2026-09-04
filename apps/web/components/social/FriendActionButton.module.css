@@ -60,3 +60,8 @@
   border-color: #dde1e7;
   color: #5a6e50;
 }
+
+@media (max-width: 560px) {
+  .primaryBtn, .statusPill { min-height: 44px; max-width: 100%; }
+  .primaryBtn { white-space: normal; text-align: center; }
+}

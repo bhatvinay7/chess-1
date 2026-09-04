@@ -132,13 +132,25 @@
 
 /* ── Responsive */
 @media (max-width: 480px) {
-  .modal {
-    width: 100%;
+  .backdrop {
+    align-items: flex-end;
+    padding: 12px 12px max(12px, env(safe-area-inset-bottom));
+    overflow-y: auto;
   }
 
+  .modal {
+    width: 100%;
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    border-radius: 14px;
+  }
+
+  .body { padding: 18px 16px; }
   .actions {
     flex-direction: column;
   }
+
+  .btnAccept, .btnDecline { min-height: 44px; }
 }
 
 /* ── Light mode ─────────────────────────────────────────────────────────── */

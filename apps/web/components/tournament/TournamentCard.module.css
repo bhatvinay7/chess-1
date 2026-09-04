@@ -290,3 +290,11 @@
 :global(body:not(.dark-ui)) .fillBar { background: rgba(0,0,0,0.1); }
 :global(body:not(.dark-ui)) .viewBtn  { background: var(--card-bg); border-color: var(--card-border); color: var(--text-primary); }
 :global(body:not(.dark-ui)) .watchBtn { background: var(--card-bg); border-color: var(--card-border); color: var(--text-muted); }
+
+@media (max-width: 640px) {
+  .card { padding: 1rem; }
+  .topRow { align-items: flex-start; gap: 0.65rem; }
+  .meta { flex-wrap: wrap; row-gap: 0.5rem; }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.55rem; }
+  .actions > button, .actions > a { min-height: 44px; justify-content: center; }
+}

@@ -327,8 +327,17 @@
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 480px) {
+  .backdrop {
+    align-items: flex-end;
+    padding: 12px 12px max(12px, env(safe-area-inset-bottom));
+    overflow-y: auto;
+  }
+
   .modal {
     width: 100%;
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    border-radius: 14px;
   }
 
   .headerTitle {
@@ -357,6 +366,10 @@
     width: 68px;
     height: 68px;
   }
+
+  .avatarCard { min-width: 0; flex: 1; }
+  .scoreCenter { min-width: 64px; }
+  .playerName { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
 
 /* ── Light mode ─────────────────────────────────────────────────────────── */

@@ -544,3 +544,15 @@
 
 /* Scrollbar */
 :global(body:not(.dark-ui)) .grid::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+
+@media (max-width: 640px) {
+  .wrap { padding: 0.875rem; }
+  .topBar { align-items: flex-start; flex-direction: column; gap: 0.75rem; }
+  .filters { width: 100%; overflow-x: auto; scrollbar-width: none; }
+  .chip { flex: 0 0 auto; min-height: 40px; }
+  .grid { grid-template-columns: minmax(0, 1fr); gap: 0.875rem; }
+  .listCard { align-items: flex-start; flex-wrap: wrap; }
+  .listPlayers { width: 100%; }
+  .listWatch { min-height: 44px; margin-left: auto; }
+  .card { padding: 1rem; }
+}

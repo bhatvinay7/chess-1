@@ -3,6 +3,7 @@
 import React, { useRef, useEffect } from "react";
 import { Settings, PanelLeftClose, PanelLeftOpen, HelpCircle, LogOut } from "lucide-react";
 import Link from "next/link";
+import styles from "./SettingsDropdown.module.css";
 
 interface SettingsDropdownProps {
   onClose: () => void;
@@ -40,6 +41,7 @@ export function SettingsDropdown({
 
       <button
         type="button"
+        className={styles.desktopOnly}
         style={s.item}
         onClick={() => { onToggleCollapse(); onClose(); }}
         onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = s.hoverBg; }}

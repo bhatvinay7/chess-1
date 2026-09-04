@@ -153,3 +153,22 @@
 :global(body:not(.dark-ui)) .typeSub { color: var(--text-faint); }
 
 :global(body:not(.dark-ui)) .divider { background: var(--card-border); }
+
+@media (max-width: 760px) {
+  .sidebar {
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid var(--card-border);
+    padding: 0.75rem;
+  }
+
+  .typeList {
+    display: flex;
+    overflow-x: auto;
+    gap: 0.5rem;
+    scrollbar-width: none;
+  }
+  .typeList::-webkit-scrollbar { display: none; }
+  .typeItem { flex: 0 0 auto; min-height: 44px; }
+  .createBtn { width: 100%; min-height: 44px; }
+}

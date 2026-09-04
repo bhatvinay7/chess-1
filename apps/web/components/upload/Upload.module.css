@@ -102,3 +102,14 @@
 .dropIconWrap:hover {
   transform: scale(1.08);
 }
+
+@media (max-width: 640px) {
+  .container { padding: 1.5rem 0.875rem 2rem; }
+  .header { margin-bottom: 2rem; }
+  .badge { margin-bottom: 1rem; padding-inline: 0.75rem; }
+  .title { font-size: clamp(2rem, 12vw, 2.6rem); line-height: 1.05; }
+  .subtitle { font-size: 1rem; line-height: 1.55; }
+  .grid { gap: 1.25rem; }
+  .cardHeader { margin-bottom: 0.75rem; }
+  .dropzone { min-height: 180px; padding: 1rem; text-align: center; }
+}

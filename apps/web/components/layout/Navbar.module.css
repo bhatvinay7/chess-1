@@ -184,6 +184,9 @@
   display: flex;
   flex-direction: column;
   animation: drawerSlideDown 0.2s ease;
+  max-height: calc(100dvh - 64px);
+  overflow-y: auto;
+  padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
 }
 
 @keyframes drawerSlideDown {

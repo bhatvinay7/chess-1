@@ -75,13 +75,12 @@
   padding: 1.5rem 1.6rem;
   overflow: hidden;
   /* light gray glass base */
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--card-border);
   /* white shadow: outer glow + inner top-edge highlight */
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.22),
-    0 1px 0 rgba(255, 255, 255, 0.18) inset,
-    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+    0 12px 32px rgba(28, 45, 35, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.85) inset;
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
 }
@@ -127,11 +126,11 @@
 .heroName {
   font-size: 1.45rem;
   font-weight: 900;
-  color: #ffffff;
+  color: var(--text-primary);
   letter-spacing: 0.01em;
   line-height: 1.1;
   margin-bottom: 0.2rem;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+  text-shadow: none;
 }
 
 .heroBadgeRow {
@@ -156,13 +155,13 @@
 .heroEloBadge {
   font-size: 0.78rem;
   font-weight: 700;
-  color: rgba(220, 240, 220, 0.75);
+  color: var(--text-muted);
   font-family: monospace;
 }
 
 .heroDesc {
   font-size: 0.8rem;
-  color: rgba(210, 235, 210, 0.65);
+  color: var(--text-muted);
   line-height: 1.55;
   margin-bottom: 0.7rem;
 }
@@ -177,7 +176,7 @@
 .difficultyLabel {
   font-size: 0.6rem;
   font-weight: 700;
-  color: rgba(200, 220, 200, 0.4);
+  color: var(--text-faint);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   white-space: nowrap;
@@ -186,7 +185,7 @@
 .difficultyBar {
   flex: 1;
   height: 4px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(31, 122, 77, 0.1);
   border-radius: 99px;
   overflow: hidden;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
@@ -374,6 +373,7 @@
 /* ─── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 700px) {
+  .root { padding: 1rem 0.875rem calc(1.25rem + env(safe-area-inset-bottom)); }
   .body {
     grid-template-columns: 1fr;
   }
@@ -387,6 +387,8 @@
     align-items: flex-start;
     gap: 1rem;
   }
+
+  .heroCard { padding: 1.1rem; }
 
   /* On mobile, settings panel is full-width and always expanded */
   .settingsPanel {

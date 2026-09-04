@@ -117,13 +117,17 @@
 
 @media (max-width: 560px) {
   .container {
-    padding: 1rem;
+    padding: 1rem 0.875rem calc(1.25rem + env(safe-area-inset-bottom));
   }
 
+  .profileHero { padding: 1rem; }
   .profileMain {
     align-items: flex-start;
     flex-direction: column;
   }
+  .profileAvatar { width: 72px; height: 72px; }
+  .profileName { font-size: 1.45rem; overflow-wrap: anywhere; }
+  .statsGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* ── Light mode ─────────────────────────────────────────────────────────── */

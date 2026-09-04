@@ -68,15 +68,15 @@ export function BotSetup({ onStart }: BotSetupProps) {
                 transition={{ duration: 0.2 }}
                 style={{
                   border: `1px solid ${accentHex}44`,
-                  background: `linear-gradient(135deg, ${accentHex}22 0%, ${accentHex}0c 45%, rgba(8,14,6,0.92) 100%)`,
-                  boxShadow: `0 0 60px ${accentHex}22, 0 8px 32px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.1) inset`,
+                  background: `linear-gradient(135deg, ${accentHex}18 0%, rgba(255,255,255,0.98) 52%, rgba(245,251,235,0.96) 100%)`,
+                  boxShadow: `0 12px 32px rgba(28,45,35,0.10), 0 0 0 1px ${accentHex}10 inset`,
                 }}
               >
                 {/* Radial glow behind the avatar */}
                 <div
                   className={styles.heroGlow}
                   style={{
-                    background: `radial-gradient(ellipse at 12% 50%, ${accentHex}28 0%, transparent 58%)`,
+                    background: `radial-gradient(ellipse at 12% 50%, ${accentHex}20 0%, transparent 62%)`,
                   }}
                 />
                 <div className={styles.heroBody}>

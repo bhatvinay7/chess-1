@@ -125,9 +125,14 @@
 }
 
 @media (max-width: 640px) {
+  .container { padding: 1rem 0.875rem; }
   .formCard {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
+    border-radius: 16px;
   }
+
+  .inputGroup input, .submitBtn { min-height: 44px; }
+  .footer { line-height: 1.5; }
 }
 
 /* ── Light mode ─────────────────────────────────────────────────────────── */

@@ -12,6 +12,7 @@
 
 .spinner {
   color: var(--primary, #f28b38);
+  filter: drop-shadow(0 0 6px rgba(242, 139, 56, 0.22));
 }
 
 .wrapper {
@@ -67,4 +68,11 @@
 .cardDesc {
   font-size: 0.875rem;
   color: var(--muted, rgba(255, 255, 255, 0.6));
+}
+
+@media (max-width: 640px) {
+  .container { padding: 4.5rem 0.875rem 2rem; }
+  .header { flex-direction: column; gap: 0.75rem; }
+  .grid { gap: 0.875rem; }
+  .cardIcon { width: 44px; height: 44px; }
 }

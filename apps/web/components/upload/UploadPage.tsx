@@ -84,7 +84,7 @@ export default function UploadPage() {
               <div className={styles.indicator} />
               <h2 className={styles.cardTitle}>Batch</h2>
             </div>
-            <div className="flex flex-col gap-5 p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl min-h-[300px] h-full justify-center">
+            <div className="flex flex-col gap-4 sm:gap-5 p-4 sm:p-6 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 shadow-xl min-h-[240px] sm:min-h-[300px] h-full justify-center">
               <div
                 className={styles.dropzone}
                 onClick={() => document.getElementById("bulk-upload")?.click()}
@@ -132,17 +132,17 @@ export default function UploadPage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mt-24"
+            className="mt-12 sm:mt-24"
           >
-            <div className="flex items-center justify-between mb-10">
-              <h3 className="text-3xl font-black">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-6 sm:mb-10">
+              <h3 className="text-2xl sm:text-3xl font-black">
                 Recent <span className="text-gray-400">Library</span>
               </h3>
               <div className="px-4 py-1 bg-white/10 rounded-full text-xs font-bold uppercase tracking-widest">
                 {uploadedUrls.length} ITEMS
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-6">
               <AnimatePresence>
                 {uploadedUrls.map((url, i) => (
                   <motion.div

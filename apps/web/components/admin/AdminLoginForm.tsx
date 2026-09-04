@@ -126,7 +126,7 @@ function AdminLoginInner() {
           </span>
         </div>
 
-        <div className="glass-panel p-8 md:p-10">
+        <div className="glass-panel p-5 sm:p-8 md:p-10">
           <h1 className="text-3xl font-extrabold mb-1 text-gradient">
             Welcome Back
           </h1>

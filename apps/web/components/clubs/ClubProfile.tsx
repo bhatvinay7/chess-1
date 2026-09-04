@@ -400,12 +400,13 @@ export default function ClubProfile({ club }: Props) {
       {/* Toast */}
       {toast && (
         <div style={{
-          position: "fixed", bottom: "2rem", left: "50%", transform: "translateX(-50%)",
+          position: "fixed", bottom: "max(0.75rem, env(safe-area-inset-bottom))", left: "50%", transform: "translateX(-50%)",
           background: toast.ok ? "#1a4a1a" : "#4a1a1a",
           border: `1px solid ${toast.ok ? "#2d7a2d" : "#7a2d2d"}`,
           color: toast.ok ? "#81c995" : "#f48771",
           padding: "0.6rem 1.2rem", borderRadius: "6px", fontSize: "0.85rem",
-          zIndex: 1000, pointerEvents: "none",
+          zIndex: 1000, pointerEvents: "none", maxWidth: "calc(100vw - 24px)",
+          width: "max-content", textAlign: "center", overflowWrap: "anywhere",
         }}>
           {toast.msg}
         </div>

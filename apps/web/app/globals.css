@@ -287,6 +287,51 @@ textarea {
   }
 }
 
+@media (max-width: 640px) {
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  body {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  main, section, article, nav, header, footer, form {
+    min-width: 0;
+  }
+
+  img, video, canvas, svg {
+    max-width: 100%;
+  }
+
+  input, select, textarea {
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  [role="dialog"], dialog {
+    max-width: calc(100vw - 1.5rem);
+    max-height: calc(100dvh - 1.5rem);
+  }
+
+  .mobile-container {
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
+  }
+
+  .glass-panel {
+    border-radius: 14px;
+  }
+
+  .btn-primary, .btn-outline {
+    min-height: 44px;
+    padding: 0.7rem 1rem;
+  }
+}
+
 /* Typography refinements */
 h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;

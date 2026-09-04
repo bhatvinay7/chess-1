@@ -54,7 +54,7 @@ export default function AdminDashboard() {
           <div className={styles.header}>
             <div>
               <p className={styles.kicker}>Rooky</p>
-              <h1 className="text-4xl font-extrabold text-gradient">
+              <h1 className="text-3xl sm:text-4xl font-extrabold text-gradient">
                 Admin Dashboard
               </h1>
               <p className={styles.subtitle}>
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
                 >
                   <Link
                     href={card.href}
-                    className="glass-panel glass-panel-hover flex items-center gap-5 p-6 transition-all duration-200 group"
+                    className="glass-panel glass-panel-hover flex items-start sm:items-center gap-4 sm:gap-5 p-4 sm:p-6 transition-all duration-200 group"
                   >
                     <div
                       className={styles.cardIcon}

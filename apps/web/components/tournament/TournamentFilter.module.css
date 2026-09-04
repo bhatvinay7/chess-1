@@ -137,3 +137,19 @@
 :global(body:not(.dark-ui)) .resetBtn:hover { color: var(--text-primary); }
 
 :global(body:not(.dark-ui)) .divider { background: var(--card-border); }
+
+@media (max-width: 760px) {
+  .panel {
+    width: 100%;
+    border-left: 0;
+    border-top: 1px solid var(--card-border);
+    padding: 1rem;
+  }
+
+  .optionList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.5rem; }
+  .filterOption, .option, .clearBtn, .resetBtn { min-height: 44px; }
+}
+
+@media (max-width: 420px) {
+  .optionList { grid-template-columns: 1fr; }
+}

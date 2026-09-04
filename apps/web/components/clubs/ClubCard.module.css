@@ -94,3 +94,10 @@
 
 /* ── Light mode — remaining text ─────────────────────────────────────────── */
 :global(body:not(.dark-ui)) .creator { color: var(--text-faint); }
+
+@media (max-width: 640px) {
+  .card { padding: 1rem; min-width: 0; }
+  .header { align-items: flex-start; }
+  .meta { flex-wrap: wrap; row-gap: 0.5rem; }
+  .name, .desc, .creator { overflow-wrap: anywhere; }
+}

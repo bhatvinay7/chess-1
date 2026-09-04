@@ -92,7 +92,7 @@ export default function AdminCreateForm() {
           </span>
         </div>
 
-        <div className="glass-panel p-8 md:p-10">
+        <div className="glass-panel p-5 sm:p-8 md:p-10">
           <h1 className="text-3xl font-extrabold mb-1 text-gradient">
             Add Administrator
           </h1>
@@ -186,7 +186,7 @@ export default function AdminCreateForm() {
         </div>
 
         <div
-          className="mt-6 flex items-center justify-between text-xs px-1"
+          className="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs px-1"
           style={{ color: "var(--muted)" }}
         >
           <Link

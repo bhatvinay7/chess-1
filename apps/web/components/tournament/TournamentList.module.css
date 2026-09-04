@@ -400,3 +400,15 @@
 :global(body:not(.dark-ui)) .emptyTitle { color: var(--text-muted); }
 :global(body:not(.dark-ui)) .emptySub   { color: var(--text-faint); }
 :global(body:not(.dark-ui)) .retryBtn   { background: var(--card-bg); border-color: var(--card-border); color: var(--text-muted); }
+
+@media (max-width: 720px) {
+  .wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.35rem;
+  }
+
+  .table { min-width: 700px; }
+  .row { min-height: 58px; }
+  .btnJoin, .btnView, .btnWatch { min-height: 40px; }
+}

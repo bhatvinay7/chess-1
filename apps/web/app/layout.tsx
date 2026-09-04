@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Fredoka } from "next/font/google";
 import "./globals.css";
@@ -22,11 +22,63 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-  title: "Rooky | Chess Arena",
-  description: "An online chess arena with live matches",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://chesscounty.life"),
+  applicationName: "Rooky",
+  title: "Rooky",
+  description:
+    "Play live chess, challenge friends, join tournaments, study your games, and improve with computer analysis on Rooky.",
+  keywords: [
+    "Rooky",
+    "online chess",
+    "play chess",
+    "live chess",
+    "chess tournaments",
+    "chess analysis",
+    "chess training",
+  ],
+  authors: [{ name: "Rooky" }],
+  creator: "Rooky",
+  publisher: "Rooky",
+  alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "/",
+    siteName: "Rooky",
+    title: "Rooky",
+    description:
+      "Play live chess, challenge friends, join tournaments, and improve with game analysis.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Rooky",
+    description:
+      "Play live chess, challenge friends, join tournaments, and improve with game analysis.",
+  },
+  category: "games",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="22" fill="%231a2416"/><text x="50" y="72" text-anchor="middle" font-size="76" fill="%23f28b38">♜</text></svg>',
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#f5fbeb",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -35,13 +87,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <SocketProvider>
         <body
           className={`${geistSans.variable} ${geistMono.variable} ${fredoka.variable}`}
         >
           <Providers>
-            <div className="flex flex-col md:flex-row w-full h-screen overflow-hidden">
+            <div className="flex flex-col md:flex-row w-full h-dvh overflow-hidden">
               <Suspense fallback={null}>
                 <SideNav />
               </Suspense>

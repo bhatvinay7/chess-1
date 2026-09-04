@@ -371,3 +371,17 @@
 :global(body:not(.dark-ui)) .emptyState   { color: var(--text-faint); }
 :global(body:not(.dark-ui)) .loadingState { color: var(--text-muted); }
 :global(body:not(.dark-ui)) .noMatches    { color: var(--text-faint); }
+
+@media (max-width: 720px) {
+  .roundTabs { overflow-x: auto; scrollbar-width: none; }
+  .roundTabs::-webkit-scrollbar { display: none; }
+  .roundTab { flex: 0 0 auto; min-height: 44px; }
+  .topBar { flex-wrap: wrap; gap: 0.65rem; }
+  .groupsGrid { grid-template-columns: minmax(0, 1fr); }
+  .groupPanel, .roundStandPanel { overflow: hidden; }
+  .standingsSection { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .standTable { min-width: 520px; }
+  .matchRow { gap: 0.45rem; padding-inline: 0.75rem; }
+  .matchSide { min-width: 0; }
+  .matchName { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+}

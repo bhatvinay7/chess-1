@@ -15,3 +15,9 @@
 .msgText {
   transition: color 0.2s;
 }
+
+@media (max-width: 640px) {
+  .container { width: 100%; padding-inline: 0.875rem; }
+  .markAllBtn { min-height: 44px; }
+  .msgText { overflow-wrap: anywhere; }
+}

@@ -18,6 +18,7 @@ import TournamentStandings from "./TournamentStandings";
 import { useTournamentView } from "../../hooks/useTournamentView";
 
 import styles from "./TournamentDetail.module.css";
+import dashboard from "./CreatorDashboard.module.css";
 
 interface Props { id: string }
 
@@ -95,39 +96,29 @@ export default function CreatorDashboard({ id }: Props) {
   const canTrigger = ["REGISTRATION_CLOSED", "NOT_INITIALIZED", "IN_PROGRESS"].includes(tournament.status);
 
   return (
-    <div className={styles.page}>
-      <div className={styles.nav}>
-        <button type="button" className={styles.navBack} onClick={() => router.push(`/tournament/${id}`)}>
+    <div className={dashboard.pageShell}>
+      <div className={dashboard.topbar}>
+        <button type="button" className={dashboard.backButton} onClick={() => router.push(`/tournament/${id}`)}>
           <ArrowLeft size={15} /><span>Back to Tournament</span>
         </button>
-        <div className={styles.navRight}>
-          <button type="button" className={styles.refreshBtn} onClick={refresh} title="Refresh data">
+        <div>
+          <button type="button" className={dashboard.refreshButton} onClick={refresh} title="Refresh data" aria-label="Refresh tournament data">
             <RefreshCw size={13} />
           </button>
         </div>
       </div>
 
-      <div className={styles.hero} style={{ "--tc": accentColor } as React.CSSProperties}>
-        <div className={styles.heroBg}
-             style={{ background: `radial-gradient(ellipse at 60% 0%, ${accentColor}22 0%, transparent 65%)` }} />
-        <div className={styles.heroContent}>
-          <div className={styles.heroLeft}>
-            <div>
-              <div className={styles.heroTypeLine}>
-                <span className={`${styles.statusBadge} ${styles.status_live}`}>
-                  Creator Dashboard
-                </span>
-              </div>
-              <h1 className={styles.heroTitle}>{tournament.name}</h1>
-              <p className={styles.heroDesc}>Manage and monitor your tournament here.</p>
-            </div>
+      <section className={dashboard.hero} style={{ "--tc": accentColor } as React.CSSProperties}>
+          <div>
+            <div className={dashboard.eyebrow}>Tournament administration</div>
+            <h1 className={dashboard.title}>{tournament.name}</h1>
+            <p className={dashboard.description}>Manage rounds, review games, and monitor standings.</p>
           </div>
-          <div className={styles.heroActions}>
+          <div>
              {canTrigger && (
                 <button 
                   type="button" 
-                  className={styles.joinBtn} 
-                  style={{ background: accentColor, color: '#111' }}
+                  className={dashboard.triggerButton}
                   onClick={handleTriggerRound} 
                   disabled={triggerLoading}
                 >
@@ -136,12 +127,12 @@ export default function CreatorDashboard({ id }: Props) {
                 </button>
              )}
           </div>
-        </div>
-      </div>
+      </section>
 
-      <div style={{ padding: '0 2rem 2rem' }}>
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', marginTop: '2rem' }}>All Games & Rounds Status</h2>
-        <div style={{ background: 'var(--surface-light)', borderRadius: '12px', overflow: 'hidden' }}>
+      <main className={dashboard.content}>
+        <section className={dashboard.section}>
+        <div className={dashboard.sectionHeader}><h2 className={dashboard.sectionTitle}>Games and round status</h2><span className={dashboard.sectionHint}>Live tournament operations</span></div>
+        <div className={dashboard.panel}>
           <TournamentRounds
             tournamentId={id}
             accentColor={accentColor}
@@ -151,9 +142,11 @@ export default function CreatorDashboard({ id }: Props) {
             userId={user?.id}
           />
         </div>
+        </section>
 
-        <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', marginTop: '2rem' }}>Scorecard / Standings</h2>
-        <div style={{ background: 'var(--surface-light)', borderRadius: '12px', overflow: 'hidden' }}>
+        <section className={dashboard.section}>
+        <div className={dashboard.sectionHeader}><h2 className={dashboard.sectionTitle}>Scorecard and standings</h2><span className={dashboard.sectionHint}>Current ranking and scores</span></div>
+        <div className={dashboard.panel}>
           <TournamentStandings
             liveData={liveData}
             userId={user?.id}
@@ -161,7 +154,8 @@ export default function CreatorDashboard({ id }: Props) {
             isActive={isActive}
           />
         </div>
-      </div>
+        </section>
+      </main>
 
       {toast && (
         <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>

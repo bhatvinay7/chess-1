@@ -233,3 +233,13 @@
 :global(body:not(.dark-ui)) .barTrack   { background: rgba(0,0,0,0.1); }
 :global(body:not(.dark-ui)) .tr         { border-bottom-color: var(--card-border); }
 :global(body:not(.dark-ui)) .tr:hover   { background: rgba(0,0,0,0.02); }
+
+@media (max-width: 720px) {
+  .roundTabs { overflow-x: auto; scrollbar-width: none; }
+  .roundTabs::-webkit-scrollbar { display: none; }
+  .roundTab { flex: 0 0 auto; min-height: 44px; }
+  .content { padding: 0.85rem; }
+  .groupsWrap { grid-template-columns: minmax(0, 1fr); }
+  .groupBlock { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .table { min-width: 520px; }
+}

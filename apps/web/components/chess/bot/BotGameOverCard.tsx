@@ -85,6 +85,8 @@ function makeStyles(darkUI: boolean): Record<string, React.CSSProperties> {
       justifyContent: "center",
       zIndex: 100,
       backdropFilter: "blur(4px)",
+      padding: "clamp(12px, 4vw, 20px)",
+      overflowY: "auto",
     },
     card: {
       background: darkUI
@@ -94,8 +96,10 @@ function makeStyles(darkUI: boolean): Record<string, React.CSSProperties> {
         ? "1px solid rgba(124,163,95,0.25)"
         : "1px solid rgba(124,163,95,0.3)",
       borderRadius: "14px",
-      padding: "2rem 2.5rem",
-      minWidth: "300px",
+      padding: "clamp(1.25rem, 6vw, 2rem) clamp(1rem, 7vw, 2.5rem)",
+      width: "min(100%, 380px)",
+      maxHeight: "calc(100dvh - 24px)",
+      overflowY: "auto",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",

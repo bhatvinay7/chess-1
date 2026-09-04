@@ -200,9 +200,9 @@
 }
 
 .typeCardActive {
-  border-color: rgba(var(--tc), 0.45);
-  background: rgba(var(--tc), 0.08);
-  box-shadow: 0 0 0 1px rgba(var(--tc), 0.15);
+  border-color: color-mix(in srgb, var(--tc) 55%, transparent);
+  background: color-mix(in srgb, var(--tc) 10%, white);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tc) 16%, transparent);
 }
 
 .typeCardIcon {
@@ -276,6 +276,8 @@
   background: rgba(255, 255, 255, 0.07);
 }
 
+.input:hover, .select:hover { border-color: rgba(31, 122, 77, 0.32); }
+
 .input::placeholder {
   color: rgba(255, 255, 255, 0.22);
 }
@@ -329,7 +331,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.4rem 0;
+  min-height: 52px;
+  padding: 0.55rem 0;
   cursor: pointer;
   gap: 1rem;
 }
@@ -516,9 +519,10 @@
 }
 
 .statusToggleBtnActive {
-  background: rgba(62, 207, 142, 0.08);
-  border-color: rgba(62, 207, 142, 0.3);
-  color: #eef8df;
+  background: rgba(31, 122, 77, 0.1);
+  border-color: rgba(31, 122, 77, 0.42);
+  color: #1f7a4d;
+  box-shadow: 0 0 0 1px rgba(31, 122, 77, 0.08);
 }
 
 .statusHint {
@@ -818,6 +822,10 @@
   border-color: var(--card-border);
 }
 :global(body:not(.dark-ui)) .typeCard:hover { background: rgba(255,255,255,0.96); border-color: rgba(0,0,0,0.14); }
+:global(body:not(.dark-ui)) .typeCardActive {
+  background: color-mix(in srgb, var(--tc) 9%, white);
+  border-color: color-mix(in srgb, var(--tc) 52%, #dce7d4);
+}
 :global(body:not(.dark-ui)) .typeCardLabel { color: var(--text-primary); }
 :global(body:not(.dark-ui)) .typeCardDesc { color: var(--text-muted); }
 /* Fields */
@@ -830,6 +838,11 @@
 }
 :global(body:not(.dark-ui)) .input::placeholder,
 :global(body:not(.dark-ui)) .textarea::placeholder { color: #aaa; }
+:global(body:not(.dark-ui)) .input:focus,
+:global(body:not(.dark-ui)) .select:focus {
+  border-color: #1f7a4d;
+  box-shadow: 0 0 0 3px rgba(31, 122, 77, 0.1);
+}
 /* Select: use background-color (not shorthand) so background-image/position/repeat survive */
 :global(body:not(.dark-ui)) .select {
   background-color: #fff;
@@ -942,3 +955,26 @@
 :global(body:not(.dark-ui)) .clubItemActive { background: rgba(75,157,232,0.1); border-color: rgba(75,157,232,0.35); color: var(--text-primary); }
 :global(body:not(.dark-ui)) .stepDone .stepLabel { color: var(--text-muted); }
 :global(body:not(.dark-ui)) .statusToggleBtnActive { color: var(--text-primary); }
+:global(body:not(.dark-ui)) .nextBtn {
+  background: rgba(31, 122, 77, 0.1);
+  border-color: rgba(31, 122, 77, 0.32);
+  color: #17623d;
+}
+:global(body:not(.dark-ui)) .nextBtn:hover { background: rgba(31, 122, 77, 0.16); border-color: rgba(31, 122, 77, 0.48); }
+:global(body:not(.dark-ui)) .submitBtn { background: #1f7a4d; color: #fff; }
+:global(body:not(.dark-ui)) .submitBtn:hover { background: #17623d; box-shadow: 0 8px 20px rgba(31,122,77,0.22); }
+
+@media (max-width: 640px) {
+  .overlay { align-items: flex-end; padding: 0; }
+  .modal { width: 100%; max-width: none; max-height: 94dvh; border-radius: 22px 22px 0 0; }
+  .header, .body, .footer { padding-inline: 1rem; }
+  .stepper { overflow-x: auto; justify-content: flex-start; padding-inline: 1rem; }
+  .stepItem { flex: 0 0 auto; }
+  .typeGrid { grid-template-columns: minmax(0, 1fr); }
+  .fieldRow, .statusToggleRow { flex-direction: column; }
+  .footer { gap: 0.625rem; flex-wrap: wrap; padding-bottom: max(0.9rem, env(safe-area-inset-bottom)); }
+  .cancelBtn, .backBtn, .nextBtn, .submitBtn { min-height: 44px; justify-content: center; }
+  .nextBtn, .submitBtn { flex: 1; }
+  .accessChips { grid-template-columns: 1fr; }
+  .tcChip { min-height: 40px; padding-inline: 0.8rem; }
+}

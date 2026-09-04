@@ -181,3 +181,15 @@
   border-color: #dde1e7;
   color: #64748b;
 }
+
+@media (max-width: 560px) {
+  .stack { gap: 0.75rem; }
+  .section { padding: 0.875rem; }
+  .sectionHeader { align-items: flex-start; flex-wrap: wrap; }
+  .sectionTitle { min-width: 0; }
+  .actions { width: 100%; flex-wrap: wrap; }
+  .actions > * { flex: 1 1 auto; }
+  .primaryBtn, .secondaryBtn, .ghostBtn, .statusPill { min-height: 44px; }
+  .primaryBtn, .secondaryBtn, .ghostBtn { white-space: normal; text-align: center; }
+  .empty { padding: 1rem 0.75rem; }
+}

@@ -169,8 +169,9 @@
 .spinner {
   width: 36px;
   height: 36px;
-  border: 3px solid rgba(255, 255, 255, 0.1);
-  border-top-color: #7ca35f;
+  border: 3px solid rgba(31, 122, 77, 0.12);
+  border-top-color: #f28b38;
+  border-right-color: #1f7a4d;
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
 }

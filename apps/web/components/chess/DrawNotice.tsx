@@ -24,7 +24,7 @@ export function DrawNotice({ message, onDismiss, durationMs = 4000 }: DrawNotice
       <motion.div
         style={{
           position: "fixed",
-          top: "20px",
+          top: "max(12px, env(safe-area-inset-top))",
           left: "50%",
           zIndex: 10000,
           display: "flex",
@@ -38,6 +38,9 @@ export function DrawNotice({ message, onDismiss, durationMs = 4000 }: DrawNotice
           color: "#c8e6a8",
           fontSize: "0.85rem",
           fontWeight: 600,
+          width: "max-content",
+          maxWidth: "calc(100vw - 24px)",
+          overflowWrap: "anywhere",
         }}
         initial={{ opacity: 0, y: -16 }}
         animate={{ opacity: 1, y: 0, x: "-50%" }}

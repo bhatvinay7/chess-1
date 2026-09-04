@@ -27,7 +27,8 @@ export function ResumeGameModal({ pendingGame, onResume, onNewGame }: ResumeGame
           alignItems: "center",
           justifyContent: "center",
           zIndex: 9999,
-          padding: "20px",
+          padding: "clamp(12px, 4vw, 20px)",
+          overflowY: "auto",
         }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -38,10 +39,12 @@ export function ResumeGameModal({ pendingGame, onResume, onNewGame }: ResumeGame
           style={{
             width: "380px",
             maxWidth: "100%",
+            maxHeight: "calc(100dvh - 24px)",
             background: "#1a2a14",
             border: "1px solid rgba(93,171,58,0.25)",
             borderRadius: "12px",
-            overflow: "hidden",
+            overflowX: "hidden",
+            overflowY: "auto",
             boxShadow: "0 25px 60px rgba(0,0,0,0.5)",
           }}
           initial={{ scale: 0.9, opacity: 0, y: 20 }}

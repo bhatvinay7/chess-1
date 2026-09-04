@@ -570,7 +570,7 @@
 
 @media (max-width: 640px) {
   .container {
-    padding: 1rem;
+    padding: 1rem 0.875rem calc(1.25rem + env(safe-area-inset-bottom));
   }
 
   .header {
@@ -619,6 +619,10 @@
     align-items: flex-start;
     gap: 0.5rem;
   }
+
+  .filterTabs { width: 100%; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+  .filterTabs::-webkit-scrollbar { display: none; }
+  .filterTab, .pageBtn { min-height: 44px; }
 }
 
 @media (max-width: 420px) {
