@@ -51,6 +51,8 @@ jobs:
           chmod 600 ~/.kube/config
 
       - name: Install ArgoCD & Apply App of Apps
+        env:
+          GITOPS_TOKEN: ${{ secrets.GITOPS_TOKEN }}
         run: |
           echo "Installing or repairing ArgoCD..."
           kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
@@ -59,6 +61,19 @@ jobs:
 
           # Wait a few seconds for CRDs to be fully registered
           sleep 10
+
+          echo "Registering the private GitOps repository with ArgoCD..."
+          kubectl create secret generic chess-k8s-repository \
+            --namespace argocd \
+            --from-literal=type=git \
+            --from-literal=url=https://github.com/bhatvinay7/chess-k8s-1.git \
+            --from-literal=username=bhatvinay7 \
+            --from-literal=password="$GITOPS_TOKEN" \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl label secret chess-k8s-repository \
+            --namespace argocd \
+            argocd.argoproj.io/secret-type=repository \
+            --overwrite
 
           echo "Patching ArgoCD resources..."
           kubectl set resources deployment argocd-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
