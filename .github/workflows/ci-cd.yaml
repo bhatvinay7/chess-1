@@ -24,6 +24,7 @@ on:
           - web
 env:
   REGISTRY: ghcr.io
+  STOCKFISH_R2_PUBLIC_URL: https://thepipe.shop
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
 
 jobs:
@@ -266,7 +267,7 @@ jobs:
             NEXT_PUBLIC_SOCKET_URL=${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
             NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
-            NEXT_PUBLIC_R2_PUBLIC_URL=${{ secrets.CLOUDFLARE_R2_PUBLIC_URL }}
+            NEXT_PUBLIC_R2_PUBLIC_URL=${{ env.STOCKFISH_R2_PUBLIC_URL }}
             NEXT_PUBLIC_USE_REMOTE_STOCKFISH=${{ secrets.NEXT_PUBLIC_USE_REMOTE_STOCKFISH }}
 
   update-gitops-tags:
@@ -383,7 +384,7 @@ jobs:
           SLOT_NAME: ${{ secrets.SLOT_NAME }}
           PUBLICATION: ${{ secrets.PUBLICATION }}
           NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
-          NEXT_PUBLIC_R2_PUBLIC_URL: ${{ secrets.NEXT_PUBLIC_R2_PUBLIC_URL }}
+          NEXT_PUBLIC_R2_PUBLIC_URL: ${{ env.STOCKFISH_R2_PUBLIC_URL }}
           NEXT_PUBLIC_USE_REMOTE_STOCKFISH: ${{ secrets.NEXT_PUBLIC_USE_REMOTE_STOCKFISH }}
           CLIENT_URL: ${{ secrets.CLIENT_URL }}
         run: |

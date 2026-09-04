@@ -3,10 +3,9 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
 // Cloudflare R2 storage URLs for long-term caching of Stockfish WASM engine on user devices
-const R2_PUBLIC_URL =
-  process.env.NEXT_PUBLIC_CLOUDFLARE_R2_PUBLIC_URL! ||
-  process.env.NEXT_PUBLIC_R2_PUBLIC_URL! ||
-  "https://thepipe.shop";
+const R2_PUBLIC_URL = (
+  process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "https://thepipe.shop"
+).replace(/\/$/, "");
 
 const R2_SCRIPT_URL = `${R2_PUBLIC_URL}/stockfish/stockfish-18.js`;
 const R2_WASM_URL = `${R2_PUBLIC_URL}/stockfish/stockfish-18.wasm`;
