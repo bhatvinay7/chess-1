@@ -23,7 +23,35 @@ import { TournamentHandler } from "./events/handlers/tournament.handler.js";
 import { GameHandler }       from "./events/handlers/game.handler.js";
 
 export class WebSocketServer {
-  private readonly httpServer = createServer();
+  private lastCpu = process.cpuUsage();
+  private lastSample = process.hrtime.bigint();
+  private readonly httpServer = createServer((req, res) => {
+    if (req.url !== "/metrics") {
+      res.writeHead(404).end("Not Found");
+      return;
+    }
+
+    const now = process.hrtime.bigint();
+    const cpu = process.cpuUsage(this.lastCpu);
+    const elapsedMicros = Number(now - this.lastSample) / 1_000;
+    const cpuPercent = elapsedMicros > 0 ? ((cpu.user + cpu.system) / elapsedMicros) * 100 : 0;
+    this.lastCpu = process.cpuUsage();
+    this.lastSample = now;
+    const body =
+      `# HELP chess_service_health_status Service health status (1 = healthy)\n` +
+      `# TYPE chess_service_health_status gauge\nchess_service_health_status 1\n` +
+      `# HELP chess_active_users_total Current active WebSocket connections\n` +
+      `# TYPE chess_active_users_total gauge\nchess_active_users_total ${this.io.engine.clientsCount}\n` +
+      `# HELP chess_process_cpu_usage_percent Process CPU utilization percentage\n` +
+      `# TYPE chess_process_cpu_usage_percent gauge\nchess_process_cpu_usage_percent ${cpuPercent}\n` +
+      `# HELP chess_process_memory_bytes Process resident memory in bytes\n` +
+      `# TYPE chess_process_memory_bytes gauge\nchess_process_memory_bytes ${process.memoryUsage().rss}\n`;
+    res.writeHead(200, {
+      "Content-Type": "text/plain; version=0.0.4",
+      "Content-Length": Buffer.byteLength(body),
+    });
+    res.end(body);
+  });
   private readonly io = new Server(this.httpServer, { cors: { origin: "*" } });
   private readonly grpcClient: ChessMoveServiceClient = createGrpcClient();
 

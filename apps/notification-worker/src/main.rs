@@ -14,7 +14,18 @@ use rabbitmq_rustclient::client::APP_NOTIFICATION_QUEUE;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenvy::dotenv().ok();
     println!("[notification-worker] Starting...");
+
+    metrics_rustclient::system::start_system_metrics_collector(5);
+    let metrics = Arc::new(metrics_rustclient::MetricsCollector::new(
+        "notification-worker",
+    ));
+    let metrics_port: u16 = env::var("METRICS_PORT")
+        .unwrap_or_else(|_| "9104".to_string())
+        .parse()
+        .unwrap_or(9104);
+    metrics_rustclient::server::start_metrics_server(metrics.clone(), metrics_port);
 
     // 1. Setup config and state
     let state = Arc::new(load_config_and_state().await?);
@@ -71,15 +82,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     while let Some(delivery) = rabbit_consumer.next().await {
         if let Ok(delivery) = delivery {
             let state = state.clone();
+            let task_metrics = metrics.clone();
 
             // Process in a spawned task so we can handle them concurrently
             tokio::spawn(async move {
                 match process_message(&state, &delivery.data).await {
                     Ok(_) => {
+                        task_metrics.record_request("notification", "success", 0.0);
                         let _ = delivery.ack(BasicAckOptions::default()).await;
                         println!("[notification-worker] Processed and ACKed message.");
                     }
                     Err(e) => {
+                        task_metrics.record_request("notification", "error", 0.0);
                         eprintln!("[notification-worker] Error processing message: {e}");
                         // For transient errors, you might want to nack. Here we just reject.
                         let _ = delivery.nack(BasicNackOptions::default()).await;
