@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { Fredoka } from "next/font/google";
 import "./globals.css";
-import { ThemeApplier } from "../components/layout/ThemeApplier";
 import { SocketProvider } from "../hooks/useSocket/socketConnection";
 import Providers from "../components/Providers";
 import SideNav from "../components/layout/SideNav";
@@ -42,7 +41,6 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} ${fredoka.variable}`}
         >
           <Providers>
-            <ThemeApplier />
             <div className="flex flex-col md:flex-row w-full h-screen overflow-hidden">
               <Suspense fallback={null}>
                 <SideNav />
@@ -57,4 +55,3 @@ export default function RootLayout({
     </html>
   );
 }
-

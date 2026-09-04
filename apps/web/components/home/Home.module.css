@@ -381,7 +381,10 @@
 
 /* Page shell — clean light gray background */
 :global(body:not(.dark-ui)) .page {
-  background: #f0f2f5;
+  background:
+    radial-gradient(circle at 12% 5%, rgba(31, 122, 77, 0.1), transparent 34rem),
+    radial-gradient(circle at 88% 22%, rgba(213, 155, 69, 0.1), transparent 30rem),
+    var(--page-bg);
   color: var(--text-primary);
 }
 
@@ -401,9 +404,10 @@
 
 /* Stats bar */
 :global(body:not(.dark-ui)) .statsBar {
-  background: #ffffff;
-  border-color: #dde1e7;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.9);
+  border-color: var(--card-border);
+  border-radius: 18px;
+  box-shadow: 0 16px 42px rgba(28, 45, 35, 0.08);
 }
 
 :global(body:not(.dark-ui)) .stat span {
@@ -421,9 +425,10 @@
 
 /* Feature cards */
 :global(body:not(.dark-ui)) .featureCard {
-  background: #ffffff;
-  border-color: #dde1e7;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.92);
+  border-color: var(--card-border);
+  border-radius: 18px;
+  box-shadow: 0 14px 38px rgba(28, 45, 35, 0.07);
 }
 
 :global(body:not(.dark-ui)) .featureCard:hover {
@@ -442,9 +447,10 @@
 
 /* How it works steps */
 :global(body:not(.dark-ui)) .step {
-  background: #ffffff;
-  border-color: #dde1e7;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.92);
+  border-color: var(--card-border);
+  border-radius: 18px;
+  box-shadow: 0 14px 38px rgba(28, 45, 35, 0.07);
 }
 
 :global(body:not(.dark-ui)) .stepTitle {
@@ -457,9 +463,10 @@
 
 /* Coach banner */
 :global(body:not(.dark-ui)) .coachBanner {
-  background: #ffffff;
-  border-color: #dde1e7;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  background: rgba(255, 255, 255, 0.92);
+  border-color: var(--card-border);
+  border-radius: 20px;
+  box-shadow: 0 16px 42px rgba(28, 45, 35, 0.08);
 }
 
 :global(body:not(.dark-ui)) .coachText h3 {

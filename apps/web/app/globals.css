@@ -1,105 +1,42 @@
 @import "tailwindcss";
 
-/* ── Glass-panel design tokens ─────────────────────────────────────────────
-   Light mode (default): white glass on light backgrounds.
-   Dark mode (body.dark-ui): dark glass on dark backgrounds.            */
+/* Light-only product design system */
 :root {
-  --glass-bg:          rgba(255, 255, 255, 0.82);
-  --glass-bg-light:    rgba(255, 255, 255, 0.72);
-  --glass-border:      rgba(0, 0, 0, 0.09);
-  --glass-border-light:rgba(0, 0, 0, 0.06);
-  --glass-inset:       0 1px 0 rgba(255, 255, 255, 0.9) inset;
-  --glass-inset-sm:    0 1px 0 rgba(255, 255, 255, 0.7) inset;
-  --glass-blur:        blur(12px);
-}
-
-body.dark-ui {
-  /* Glass panel tokens */
-  --glass-bg:          rgba(42, 42, 42, 0.88);
-  --glass-bg-light:    rgba(34, 34, 34, 0.86);
-  --glass-border:      rgba(255, 255, 255, 0.12);
-  --glass-border-light:rgba(255, 255, 255, 0.08);
-  --glass-inset:       0 1px 0 rgba(255, 255, 255, 0.08) inset;
-  --glass-inset-sm:    0 1px 0 rgba(255, 255, 255, 0.05) inset;
-  --glass-blur:        blur(10px);
-
-  /* Semantic tokens — override light defaults */
-  --background:     #1a1a1a;
-  --foreground:     #e8f5e8;
-  --muted:          #9ab090;
-  --surface:        rgba(28, 36, 22, 0.92);
-  --surface-strong: #1c2416;
-  --surface-border: rgba(255, 255, 255, 0.09);
-  --surface-hover:  rgba(40, 52, 30, 0.96);
-
-  --auth-card-bg: #252525;
-  --auth-input-overlay: rgba(255, 255, 255, 0.07);
-  --auth-input-border: rgba(255, 255, 255, 0.12);
-
-  /* Page-level tokens — dark (brighter text) */
-  --page-bg:      #1a1a1a;
-  --text-primary: rgba(255, 255, 255, 0.96);
-  --text-muted:   rgba(255, 255, 255, 0.58);
-  --text-faint:   rgba(255, 255, 255, 0.34);
-  --card-bg:      rgba(255, 255, 255, 0.05);
-  --card-border:  rgba(255, 255, 255, 0.09);
-  --input-bg:     rgba(255, 255, 255, 0.06);
-  --input-border: rgba(255, 255, 255, 0.14);
-
-}
-
-body.dark-ui .lightPage {
-  background:
-    radial-gradient(circle at 20% 15%, rgba(120, 120, 120, 0.05), transparent 30%),
-    linear-gradient(160deg, #1a1a1a 0%, #1c1c1c 60%, #151515 100%);
-}
-
-body.dark-ui .glass-panel {
-  background: var(--surface);
-  border-color: var(--surface-border);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.4);
-}
-
-body.dark-ui .btn-outline {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: var(--foreground);
-}
-
-body.dark-ui .btn-outline:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-:root {
-  --background: #eef8df;
-  --foreground: #27351f;
+  color-scheme: light;
+  --glass-bg: rgba(255, 255, 255, 0.9);
+  --glass-bg-light: rgba(255, 255, 255, 0.98);
+  --glass-border: rgba(23, 33, 27, 0.09);
+  --glass-border-light: rgba(23, 33, 27, 0.06);
+  --glass-inset: 0 1px 0 rgba(255, 255, 255, 0.95) inset;
+  --glass-inset-sm: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
+  --glass-blur: blur(18px);
+  --background: #f6f8f5;
+  --foreground: #17211b;
   --auth-card-bg: #ffffff;
   --auth-input-overlay: rgba(0, 0, 0, 0.05);
   --auth-input-border: rgba(0, 0, 0, 0.13);
 
   /* ── Page-level theme tokens (used by all pages) ── */
-  --page-bg:      #f2f5ef;
-  --text-primary: #1a2416;
-  --text-muted:   #5a6e50;
-  --text-faint:   rgba(0, 0, 0, 0.32);
-  --card-bg:      rgba(255, 255, 255, 0.84);
-  --card-border:  rgba(0, 0, 0, 0.08);
-  --input-bg:     rgba(0, 0, 0, 0.05);
-  --input-border: rgba(0, 0, 0, 0.14);
-  --muted: #64745a;
-  --primary: #f28b38;
-  --primary-hover: #d96f1f;
-  --secondary: #6aa84f;
-  --accent: #ffd166;
-  --surface: rgba(255, 253, 245, 0.88);
-  --surface-strong: #fffaf0;
-  --surface-border: rgba(120, 120, 120, 0.2);
-  --surface-hover: rgba(255, 245, 222, 0.95);
-  --board-dark: #7ca35f;
-  --board-light: #f6e7bd;
-  --error: #c2410c;
+  --page-bg: #f4f7f4;
+  --text-primary: #17211b;
+  --text-muted: #64726a;
+  --text-faint: #9aa59e;
+  --card-bg: rgba(255, 255, 255, 0.94);
+  --card-border: rgba(23, 33, 27, 0.09);
+  --input-bg: #f7f9f7;
+  --input-border: #d9e1dc;
+  --muted: #64726a;
+  --primary: #1f7a4d;
+  --primary-hover: #17633d;
+  --secondary: #d59b45;
+  --accent: #f0c36a;
+  --surface: rgba(255, 255, 255, 0.94);
+  --surface-strong: #ffffff;
+  --surface-border: rgba(23, 33, 27, 0.09);
+  --surface-hover: #f7faf8;
+  --board-dark: #769656;
+  --board-light: #eeeed2;
+  --error: #c83f49;
   --font-sans: var(--font-fredoka), var(--font-geist-sans), system-ui, sans-serif;
 }
 
@@ -176,18 +113,16 @@ body {
   font-weight: 500;
   color: var(--text-primary);
   min-height: 100vh;
-  background: var(--page-bg);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(31, 122, 77, 0.08), transparent 26rem),
+    radial-gradient(circle at 92% 100%, rgba(213, 155, 69, 0.08), transparent 28rem),
+    var(--page-bg);
   overflow-x: hidden;
 }
 
-body.dark-ui {
-  background: var(--page-bg); /* resolves to #1a1a1a in dark-ui */
-  color: var(--text-primary); /* resolves to rgba(255,255,255,0.92) */
-}
-
 ::selection {
-  background: rgba(242, 139, 56, 0.32);
-  color: #fffaf0;
+  background: rgba(31, 122, 77, 0.2);
+  color: #102419;
 }
 
 ::-webkit-scrollbar {
@@ -259,7 +194,7 @@ a,
 input,
 select,
 textarea {
-  outline-color: rgba(242, 139, 56, 0.7);
+  outline-color: rgba(31, 122, 77, 0.55);
   outline-offset: 3px;
 }
 
@@ -269,8 +204,8 @@ textarea {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--surface-border);
-  border-radius: 8px;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.15);
+  border-radius: 18px;
+  box-shadow: 0 18px 50px rgba(28, 45, 35, 0.1);
 }
 
 .glass-panel-hover:hover {
@@ -293,30 +228,30 @@ textarea {
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 700;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 10px 24px rgba(242, 139, 56, 0.25);
+  box-shadow: 0 10px 24px rgba(31, 122, 77, 0.2);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(242, 139, 56, 0.32);
+  box-shadow: 0 14px 30px rgba(31, 122, 77, 0.26);
   color: white;
 }
 
 .btn-outline {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.78);
   color: var(--primary) !important;
   border: 1px solid var(--primary) !important;
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-weight: 600;
+  border-radius: 12px;
+  font-weight: 700;
   transition: all 0.2s ease;
 }
 
 .btn-outline:hover {
-  background: rgba(242, 139, 56, 0.08);
+  background: rgba(31, 122, 77, 0.08);
   border-color: var(--primary-hover);
   color: var(--primary-hover);
 }

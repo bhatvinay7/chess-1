@@ -1555,16 +1555,18 @@
 
 /* Light mode: white background — inherit light CSS vars from :root */
 :global(body:not(.dark-ui)) .arenaOuter {
-  background: var(--page-bg);
-  --glass-bg:          rgba(255, 255, 255, 0.82);
-  --glass-bg-light:    rgba(255, 255, 255, 0.72);
-  --glass-border:      rgba(0, 0, 0, 0.09);
-  --glass-border-light:rgba(0, 0, 0, 0.06);
-  --text-primary:      #1a2416;
-  --text-muted:        #5a6e50;
-  --text-faint:        rgba(0, 0, 0, 0.32);
-  --card-bg:           rgba(255, 255, 255, 0.84);
-  --card-border:       rgba(0, 0, 0, 0.08);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(31, 122, 77, 0.08), transparent 28rem),
+    var(--page-bg);
+  --glass-bg: rgba(255, 255, 255, 0.94);
+  --glass-bg-light: #ffffff;
+  --glass-border: rgba(23, 33, 27, 0.09);
+  --glass-border-light: rgba(23, 33, 27, 0.06);
+  --text-primary: #17211b;
+  --text-muted: #64726a;
+  --text-faint: #9aa59e;
+  --card-bg: rgba(255, 255, 255, 0.94);
+  --card-border: rgba(23, 33, 27, 0.09);
 }
 
 /* ── Arena light-mode text overrides ─────────────────────────────────────── */
@@ -1599,10 +1601,26 @@
 :global(body:not(.dark-ui)) .movePanel {
   background: var(--card-bg);
   border-color: var(--card-border);
+  box-shadow: 0 20px 48px rgba(28, 45, 35, 0.1);
 }
 
-/* Timer — keep green accent in both modes */
-:global(body:not(.dark-ui)) .timerActive { color: #3a7020; }
+:global(body:not(.dark-ui)) .playerBar {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: var(--card-border);
+}
+
+:global(body:not(.dark-ui)) .timer {
+  color: var(--text-primary);
+  background: #edf2ee;
+  border-color: #d9e1dc;
+}
+
+:global(body:not(.dark-ui)) .timerActive {
+  color: #ffffff;
+  background: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 8px 20px rgba(31, 122, 77, 0.22);
+}
 :global(body:not(.dark-ui)) .timerLow    { color: #c0392b; }
 
 /* ── Move panel inner elements — light mode ──────────────────────────────── */
