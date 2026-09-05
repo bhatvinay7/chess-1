@@ -22,6 +22,11 @@ on:
           - matchmaker
           - cdc
           - web
+      rotate_secrets:
+        description: 'Rotate and reseal Kubernetes secrets'
+        required: false
+        default: false
+        type: boolean
 env:
   REGISTRY: ghcr.io
   STOCKFISH_R2_PUBLIC_URL: https://thepipe.shop
@@ -296,6 +301,7 @@ jobs:
           path: gitops-repo
 
       - name: Configure kubectl
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.rotate_secrets }}
         env:
           KUBE_DATA: ${{ secrets.KUBECONFIG }}
         run: |
@@ -356,9 +362,11 @@ jobs:
           done
 
       - name: Generate Sealed Secrets
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.rotate_secrets }}
         working-directory: gitops-repo
         env:
           KUSTOMIZE_DIR: ${{ secrets.KUSTOMIZE_DIR || 'apps' }}
+          SERVICES_JSON: ${{ needs.detect-changes.outputs.services }}
           CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
           CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
@@ -396,6 +404,25 @@ jobs:
             echo "Error: GHCR_TOKEN is not set in the production environment."
             exit 1
           fi
+
+          # Verify that the credential can read a real private image before it
+          # is allowed to replace the working imagePullSecret in the cluster.
+          TEST_SERVICE=$(printf '%s' "$SERVICES_JSON" | jq -r '.[0]')
+          SHORT_SHA=$(printf '%s' "${{ github.sha }}" | cut -c1-7)
+          IMAGE_OWNER=$(printf '%s' "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          TEST_IMAGE="ghcr.io/${IMAGE_OWNER}/chess-${TEST_SERVICE}:commit-${SHORT_SHA}"
+
+          echo "$GHCR_TOKEN" | docker login ghcr.io \
+            --username "${{ github.repository_owner }}" \
+            --password-stdin
+          trap 'docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+
+          if ! docker manifest inspect "$TEST_IMAGE" >/dev/null; then
+            echo "Error: GHCR_TOKEN cannot pull ${TEST_IMAGE}."
+            echo "Use a classic PAT owned by ${{ github.repository_owner }} with read:packages access."
+            exit 1
+          fi
+          echo "GHCR pull access verified for ${TEST_IMAGE}."
           
           # Install kubeseal securely in /tmp to prevent it from being committed by git add -A
           wget -qO /tmp/kubeseal.tar.gz https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.26.2/kubeseal-0.26.2-linux-amd64.tar.gz
