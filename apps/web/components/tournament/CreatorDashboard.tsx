@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, RefreshCw, Zap } from "lucide-react";
 import type { TournamentListItem } from "./types";
 import {
@@ -20,9 +20,9 @@ import { useTournamentView } from "../../hooks/useTournamentView";
 import styles from "./TournamentDetail.module.css";
 import dashboard from "./CreatorDashboard.module.css";
 
-interface Props { id: string }
-
-export default function CreatorDashboard({ id }: Props) {
+export default function CreatorDashboard() {
+  const params = useParams();
+  const id = params?.id as string;
   const router = useRouter();
   const { user } = useAuth();
 

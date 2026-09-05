@@ -357,7 +357,7 @@ export default function TournamentDetail({ id }: Props) {
             )}
 
             {canDelete && (
-              <div className={styles.joinedBlock} style={{ marginTop: "0.75rem" }}>
+              <div className={styles.joinedBlock}>
                 {deleteConfirm ? (
                   <>
                     <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>Delete?</span>
@@ -381,7 +381,7 @@ export default function TournamentDetail({ id }: Props) {
               </div>
             )}
             {isCreator && (
-              <div className={styles.joinedBlock} style={{ marginTop: "0.75rem" }}>
+              <div className={styles.joinedBlock}>
                 <button type="button" className={styles.leaveBtn}
                         style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "var(--surface-light)" }}
                         onClick={() => router.push(`/tournament/${id}/dashboard`)}>

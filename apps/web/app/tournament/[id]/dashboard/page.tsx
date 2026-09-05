@@ -8,10 +8,10 @@ const CreatorDashboard = dynamic(() => import("../../../../components/tournament
   loading: () => <AuthLoadingSplash message="Loading creator dashboard..." />,
 });
 
-export default function CreatorDashboardPage({ params }: { params: { id: string } }) {
+export default function CreatorDashboardPage() {
   return (
     <AuthGuard>
-      <CreatorDashboard id={params.id} />
+      <CreatorDashboard />
     </AuthGuard>
   );
 }
