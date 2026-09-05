@@ -81,13 +81,13 @@ export default function FileUploader({
   };
 
   return (
-    <div className="flex flex-col gap-5 p-6 rounded-2xl bg-white/40 backdrop-blur-md border border-white/20 shadow-xl">
+    <div className="flex flex-col gap-5 p-6 rounded-2xl bg-white/40 dark:bg-white/5 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-xl">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="p-2 bg-primary/10 rounded-lg text-primary">
             <Camera size={18} />
           </div>
-          <label className="text-sm font-bold text-gray-800 tracking-tight">
+          <label className="text-sm font-bold text-gray-800 dark:text-gray-100 tracking-tight">
             {label}
           </label>
         </div>
@@ -96,9 +96,9 @@ export default function FileUploader({
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             onClick={handleRemove}
-            className="p-1.5 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+            className="p-1.5 bg-gray-100 hover:bg-gray-200 dark:bg-white/10 dark:hover:bg-white/15 rounded-full transition-colors"
           >
-            <X size={14} className="text-gray-500" />
+            <X size={14} className="text-gray-500 dark:text-gray-300" />
           </motion.button>
         )}
       </div>
@@ -106,7 +106,7 @@ export default function FileUploader({
       <motion.div
         whileHover={{ scale: 1.01 }}
         whileTap={{ scale: 0.99 }}
-        className="relative group flex flex-col items-center justify-center min-h-[140px] border-2 border-dashed border-gray-200 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 bg-gray-50/30"
+        className="relative group flex flex-col items-center justify-center min-h-[140px] border-2 border-dashed border-gray-200 dark:border-white/15 rounded-2xl overflow-hidden hover:border-primary/50 transition-all duration-300 bg-gray-50/30 dark:bg-black/10"
       >
         <AnimatePresence mode="wait">
           {preview ? (
@@ -150,10 +150,10 @@ export default function FileUploader({
                   className="text-primary group-hover:text-white"
                 />
               </div>
-              <p className="text-sm font-bold text-gray-700">
+              <p className="text-sm font-bold text-gray-700 dark:text-gray-100">
                 Click to select photo
               </p>
-              <p className="text-xs text-gray-400 mt-1">
+              <p className="text-xs text-gray-400 dark:text-gray-400 mt-1">
                 SVG, PNG, JPG (max. 5MB)
               </p>
             </motion.div>
@@ -188,7 +188,7 @@ export default function FileUploader({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               onClick={handleRemove}
-              className="w-full py-2 text-gray-500 hover:text-gray-700 font-bold transition-all text-sm"
+              className="w-full py-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-100 font-bold transition-all text-sm"
             >
               Cancel
             </motion.button>
@@ -201,7 +201,7 @@ export default function FileUploader({
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-2 text-green-600 bg-green-50/80 backdrop-blur-sm p-3 rounded-xl text-sm font-bold border border-green-100"
+            className="flex items-center gap-2 text-green-600 dark:text-green-300 bg-green-50/80 dark:bg-green-950/50 backdrop-blur-sm p-3 rounded-xl text-sm font-bold border border-green-100 dark:border-green-800"
           >
             <CheckCircle size={18} />
             <span>Photo uploaded successfully!</span>
@@ -214,7 +214,7 @@ export default function FileUploader({
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-2 text-red-600 bg-red-50/80 backdrop-blur-sm p-3 rounded-xl text-sm font-bold border border-red-100"
+            className="flex items-center gap-2 text-red-600 dark:text-red-300 bg-red-50/80 dark:bg-red-950/50 backdrop-blur-sm p-3 rounded-xl text-sm font-bold border border-red-100 dark:border-red-800"
           >
             <AlertCircle size={18} />
             <span>Upload failed. Please try again.</span>

@@ -1,6 +1,7 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark-ui, .dark-ui *));
 
-/* Light-only product design system */
+/* Shared product design tokens. ThemeApplier toggles body.dark-ui. */
 :root {
   color-scheme: light;
   --glass-bg: rgba(255, 255, 255, 0.9);
@@ -38,6 +39,39 @@
   --board-light: #eeeed2;
   --error: #c83f49;
   --font-sans: var(--font-fredoka), var(--font-geist-sans), system-ui, sans-serif;
+}
+
+body.dark-ui {
+  color-scheme: dark;
+  --glass-bg: rgba(14, 22, 17, 0.9);
+  --glass-bg-light: rgba(20, 31, 24, 0.96);
+  --glass-border: rgba(210, 232, 216, 0.12);
+  --glass-border-light: rgba(210, 232, 216, 0.08);
+  --glass-inset: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  --glass-inset-sm: 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  --background: #0b120e;
+  --foreground: #edf5ef;
+  --auth-card-bg: #111b15;
+  --auth-input-overlay: rgba(255, 255, 255, 0.05);
+  --auth-input-border: rgba(210, 232, 216, 0.16);
+  --page-bg: #0b120e;
+  --text-primary: #edf5ef;
+  --text-muted: #a2b3a8;
+  --text-faint: #718078;
+  --card-bg: rgba(17, 27, 21, 0.94);
+  --card-border: rgba(210, 232, 216, 0.12);
+  --input-bg: #111b15;
+  --input-border: #2a3b30;
+  --muted: #a2b3a8;
+  --primary: #75bc8f;
+  --primary-hover: #91cda6;
+  --secondary: #e1ad61;
+  --accent: #f0c978;
+  --surface: rgba(17, 27, 21, 0.94);
+  --surface-strong: #152119;
+  --surface-border: rgba(210, 232, 216, 0.12);
+  --surface-hover: #1a281f;
+  --error: #ff7b84;
 }
 
 @layer base {
@@ -166,6 +200,14 @@ body {
   min-height: 100vh;
 }
 
+body.dark-ui .adminPage,
+body.dark-ui .lightPage {
+  background:
+    radial-gradient(circle at 12% 0%, rgba(117, 188, 143, 0.12), transparent 28rem),
+    radial-gradient(circle at 88% 100%, rgba(225, 173, 97, 0.08), transparent 30rem),
+    var(--page-bg);
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -254,6 +296,10 @@ textarea {
   background: rgba(31, 122, 77, 0.08);
   border-color: var(--primary-hover);
   color: var(--primary-hover);
+}
+
+body.dark-ui .btn-outline {
+  background: rgba(17, 27, 21, 0.82);
 }
 
 /* Animations */

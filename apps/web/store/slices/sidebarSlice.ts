@@ -42,6 +42,9 @@ export const sidebarSlice = createSlice({
     toggleDarkUI(state) {
       state.darkUI = !state.darkUI;
     },
+    setDarkUI(state, action: { payload: boolean }) {
+      state.darkUI = action.payload;
+    },
   },
 });
 
@@ -53,6 +56,7 @@ export const {
   closeMobileNav,
   toggleCollapsed,
   toggleDarkUI,
+  setDarkUI,
 } = sidebarSlice.actions;
 
 export default sidebarSlice.reducer;

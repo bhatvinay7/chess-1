@@ -27,8 +27,12 @@ ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SOCKET_URL
 ARG NEXT_PUBLIC_GOOGLE_CLIENT_ID
 ARG NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-ARG NEXT_PUBLIC_R2_PUBLIC_URL
+ARG NEXT_PUBLIC_R2_PUBLIC_URL=https://thepipe.shop
 ARG NEXT_PUBLIC_USE_REMOTE_STOCKFISH
+
+# next.config.js compiles the same-origin Stockfish WASM proxy destination at
+# build time. Export the public R2 base URL so Next.js can read it reliably.
+ENV NEXT_PUBLIC_R2_PUBLIC_URL=${NEXT_PUBLIC_R2_PUBLIC_URL}
 
 RUN pnpm turbo run build --filter=web...
 

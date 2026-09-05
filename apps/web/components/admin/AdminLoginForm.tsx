@@ -159,7 +159,7 @@ function AdminLoginInner() {
                     autoFocus
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-surface-border bg-white/60 focus:border-blue-400 focus:ring-1 focus:ring-blue-300 outline-none transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-lg border border-surface-border bg-white/60 dark:bg-white/5 dark:text-white focus:border-blue-400 focus:ring-1 focus:ring-blue-300 outline-none transition-all text-sm"
                   />
                 </div>
 
@@ -230,7 +230,7 @@ function AdminLoginInner() {
                     onChange={(e) =>
                       setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
                     }
-                    className="w-full px-4 py-3 rounded-lg border border-surface-border bg-white/60 focus:border-blue-400 focus:ring-1 focus:ring-blue-300 outline-none transition-all text-sm font-mono tracking-widest"
+                    className="w-full px-4 py-3 rounded-lg border border-surface-border bg-white/60 dark:bg-white/5 dark:text-white focus:border-blue-400 focus:ring-1 focus:ring-blue-300 outline-none transition-all text-sm font-mono tracking-widest"
                   />
                 </div>
 

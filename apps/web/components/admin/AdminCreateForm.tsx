@@ -116,7 +116,7 @@ export default function AdminCreateForm() {
                 autoFocus
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-surface-border bg-white/60 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-300 outline-none transition-all text-sm"
+                className="w-full px-4 py-3 rounded-lg border border-surface-border bg-white/60 dark:bg-white/5 dark:text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-300 outline-none transition-all text-sm"
               />
             </div>
 
@@ -134,7 +134,7 @@ export default function AdminCreateForm() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-surface-border bg-white/60 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-300 outline-none transition-all text-sm"
+                className="w-full px-4 py-3 rounded-lg border border-surface-border bg-white/60 dark:bg-white/5 dark:text-white focus:border-emerald-400 focus:ring-1 focus:ring-emerald-300 outline-none transition-all text-sm"
               />
             </div>
 

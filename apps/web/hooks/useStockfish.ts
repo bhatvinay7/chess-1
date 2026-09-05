@@ -2,14 +2,11 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
-// Stockfish assets are always fetched from the public Cloudflare R2 origin.
-// URL() prevents an application-relative path from silently falling back to the web origin.
-const R2_PUBLIC_URL = new URL(
-  `${(process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "https://thepipe.shop").replace(/\/$/, "")}/`,
-);
-const R2_SCRIPT_URL = new URL("stockfish/stockfish-18.js", R2_PUBLIC_URL).href;
-const R2_WASM_URL = new URL("stockfish/stockfish-18.wasm", R2_PUBLIC_URL).href;
-const PROXY_WORKER_URL = "/stockfish-worker.js";
+// Keep the worker script same-origin so pthread workers can start normally.
+// Stockfish reads the URL fragment as the WASM location; Next.js proxies this
+// same-origin path to the public Cloudflare R2 object.
+const STOCKFISH_WASM_PATH = "/stockfish/stockfish-18.wasm";
+const STOCKFISH_WORKER_URL = `/stockfish-18.js#${encodeURIComponent(STOCKFISH_WASM_PATH)}`;
 
 export type StockfishOutputHandler = (line: string) => void;
 
@@ -25,11 +22,7 @@ export function useStockfish(): UseStockfishReturn {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const worker = new Worker(PROXY_WORKER_URL);
-    worker.postMessage({
-      type: "INIT",
-      data: { scriptUrl: R2_SCRIPT_URL, wasmUrl: R2_WASM_URL },
-    });
+    const worker = new Worker(STOCKFISH_WORKER_URL);
     workerRef.current = worker;
 
     worker.onmessage = (e: MessageEvent<any>) => {
@@ -63,6 +56,14 @@ export function useStockfish(): UseStockfishReturn {
       handlersRef.current.forEach((h) => h(line));
     };
 
+    worker.onerror = (event) => {
+      console.error("[useStockfish] Worker error:", event.message);
+    };
+
+    // Stockfish queues commands received while the WASM engine initializes.
+    worker.postMessage("uci");
+    worker.postMessage("isready");
+
     return () => {
       worker.terminate();
       workerRef.current = null;
@@ -72,7 +73,7 @@ export function useStockfish(): UseStockfishReturn {
 
   const sendCommand = useCallback((cmd: string) => {
     if (!workerRef.current) return;
-    workerRef.current.postMessage({ type: "COMMAND", data: cmd });
+    workerRef.current.postMessage(cmd);
   }, []);
 
   const onOutput = useCallback((handler: StockfishOutputHandler) => {
