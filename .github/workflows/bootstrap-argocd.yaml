@@ -104,3 +104,21 @@ jobs:
           
           echo "Applying GitOps root App of Apps..."
           kubectl apply -k argocd
+
+          echo "Verifying the Sealed Secrets Helm source..."
+          EXPECTED_SEALED_SECRETS_REPO="https://bitnami.github.io/sealed-secrets"
+          ACTUAL_SEALED_SECRETS_REPO=$(kubectl get application sealed-secrets \
+            --namespace argocd \
+            -o jsonpath='{.spec.source.repoURL}')
+
+          if [ "$ACTUAL_SEALED_SECRETS_REPO" != "$EXPECTED_SEALED_SECRETS_REPO" ]; then
+            echo "Error: sealed-secrets Application still uses $ACTUAL_SEALED_SECRETS_REPO"
+            exit 1
+          fi
+
+          # Clear any cached Helm index/manifest error after a repository URL change.
+          kubectl annotate application sealed-secrets \
+            --namespace argocd \
+            argocd.argoproj.io/refresh=hard \
+            --overwrite
+          echo "Sealed Secrets source updated and hard refresh requested."
