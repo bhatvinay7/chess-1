@@ -20,8 +20,23 @@ import { registerMetrics } from "./metrics.js";
 dotenv.config();
 
 export const app: Express = express();
-const allowedOrigins = process.env.CLIENT_URL ? process.env.CLIENT_URL.split(",") : ["http://localhost:3000"];
-app.use(cors({ origin: allowedOrigins, credentials: true }));
+const allowedOrigins = new Set(
+  (process.env.CLIENT_URL || "http://localhost:3000")
+    .split(",")
+    .map((origin) => origin.trim().replace(/\/$/, ""))
+    .filter(Boolean),
+);
+app.use(cors({
+  origin(origin, callback) {
+    // Requests without Origin are non-browser/server-to-server requests.
+    if (!origin || allowedOrigins.has(origin.replace(/\/$/, ""))) {
+      callback(null, true);
+      return;
+    }
+    callback(new Error(`CORS origin is not allowed: ${origin}`));
+  },
+  credentials: true,
+}));
 app.use(express.json());
 registerMetrics(app);
 

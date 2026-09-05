@@ -7,6 +7,7 @@ import { SocketProvider } from "../hooks/useSocket/socketConnection";
 import Providers from "../components/Providers";
 import SideNav from "../components/layout/SideNav";
 import { ThemeApplier } from "../components/layout/ThemeApplier";
+import { RouteTransition } from "../components/layout/RouteTransition";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -103,7 +104,7 @@ export default function RootLayout({
                 <SideNav />
               </Suspense>
               <div className="flex-1 min-w-0 overflow-y-auto overflow-x-hidden h-full">
-                {children}
+                <RouteTransition>{children}</RouteTransition>
               </div>
             </div>
           </Providers>

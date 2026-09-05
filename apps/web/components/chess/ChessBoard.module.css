@@ -1474,7 +1474,9 @@
   }
 
   .boardWrapper {
-    width: 100vw;
+    width: min(calc(100vw - 1.5rem), 520px);
+    max-width: 100%;
+    margin-inline: auto;
   }
 
   .movePanel {
@@ -1523,7 +1525,7 @@
 /* Very small phones */
 @media (max-width: 360px) {
   .boardWrapper {
-    width: 100vw;
+    width: min(calc(100vw - 1.5rem), 520px);
   }
 
   .playerName {

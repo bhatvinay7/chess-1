@@ -14,9 +14,18 @@ declare global {
     google?: {
       accounts?: {
         id?: {
-          initialize: (config: any) => void;
-          prompt: (notification?: any) => void;
-          renderButton: (parent: HTMLElement, options: any) => void;
+          initialize: (config: {
+            client_id: string;
+            callback: (response: { credential?: string }) => void;
+            cancel_on_tap_outside?: boolean;
+          }) => void;
+          prompt: (
+            notification?: (notification: {
+              isNotDisplayed: () => boolean;
+              isSkippedMoment: () => boolean;
+            }) => void
+          ) => void;
+          renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void;
         };
       };
     };
@@ -73,9 +82,10 @@ export function GoogleAuthButton({ mode = "login" }: GoogleAuthButtonProps) {
       const data = await authApi.loginWithGoogle(response.credential);
       setUserSession(data.token, data.user);
       router.replace("/");
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
       setErrorMsg(
-        err.response?.data?.message ||
+        error.response?.data?.message ||
           "Google authentication failed. Please check your credentials or try again."
       );
     } finally {
@@ -88,8 +98,8 @@ export function GoogleAuthButton({ mode = "login" }: GoogleAuthButtonProps) {
       setErrorMsg("Google Sign-In is still loading. Please try again in a moment.");
       return;
     }
-    window.google.accounts.id.prompt((notification: any) => {
-      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+    window.google.accounts.id.prompt((notification) => {
+      if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
         setErrorMsg("Please enable popups or configure your Google Client ID in .env.");
       }
     });

@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, ChevronRight, ChevronLeft, Settings2 } from "lucide-react";
+import { useSelector } from "react-redux";
 import { BOT_CHARACTERS, type BotCharacter } from "@/lib/botCharacters";
+import type { RootState } from "@/store";
 import { FloatingTimeControls } from "./FloatingTimeControls";
 import { BotCard } from "./BotCard";
 import { ColorPicker, type ColorChoice } from "./ColorPicker";
@@ -27,6 +29,7 @@ function ColorLabel({ choice }: { choice: ColorChoice }) {
 }
 
 export function BotSetup({ onStart }: BotSetupProps) {
+  const darkUI = useSelector((state: RootState) => state.sidebar.darkUI);
   const [selectedBot, setSelectedBot] = useState<BotCharacter>(BOT_CHARACTERS[2]!);
   const [colorChoice, setColorChoice] = useState<ColorChoice>("white");
   const [timeSlot, setTimeSlot]       = useState("10+0");
@@ -68,8 +71,12 @@ export function BotSetup({ onStart }: BotSetupProps) {
                 transition={{ duration: 0.2 }}
                 style={{
                   border: `1px solid ${accentHex}44`,
-                  background: `linear-gradient(135deg, ${accentHex}18 0%, rgba(255,255,255,0.98) 52%, rgba(245,251,235,0.96) 100%)`,
-                  boxShadow: `0 12px 32px rgba(28,45,35,0.10), 0 0 0 1px ${accentHex}10 inset`,
+                  background: darkUI
+                    ? `linear-gradient(135deg, ${accentHex}24 0%, rgba(20,29,23,0.98) 50%, rgba(10,16,12,0.98) 100%)`
+                    : `linear-gradient(135deg, ${accentHex}18 0%, rgba(255,255,255,0.98) 52%, rgba(245,251,235,0.96) 100%)`,
+                  boxShadow: darkUI
+                    ? `0 18px 44px rgba(0,0,0,0.38), 0 0 0 1px ${accentHex}18 inset`
+                    : `0 12px 32px rgba(28,45,35,0.10), 0 0 0 1px ${accentHex}10 inset`,
                 }}
               >
                 {/* Radial glow behind the avatar */}

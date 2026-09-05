@@ -71,6 +71,33 @@
   animation: spin 0.75s linear infinite;
 }
 
+:global(body.dark-ui) .splashContainer {
+  background:
+    radial-gradient(circle at center, rgba(117, 188, 143, 0.14) 0%, transparent 58%),
+    linear-gradient(180deg, #101a14 0%, #09100c 100%);
+}
+
+:global(body.dark-ui) .splashCard {
+  background: rgba(17, 27, 21, 0.92);
+  border-color: rgba(117, 188, 143, 0.2);
+  box-shadow:
+    0 22px 60px rgba(0, 0, 0, 0.42),
+    0 0 44px rgba(117, 188, 143, 0.08);
+}
+
+:global(body.dark-ui) .iconWrapper {
+  color: #e1ad61;
+  background: rgba(225, 173, 97, 0.12);
+  border-color: rgba(225, 173, 97, 0.34);
+  box-shadow: 0 8px 28px rgba(225, 173, 97, 0.16);
+}
+
+:global(body.dark-ui) .spinner {
+  border-color: rgba(117, 188, 143, 0.18);
+  border-top-color: #e1ad61;
+  border-right-color: #75bc8f;
+}
+
 @keyframes splashFadeIn {
   from {
     opacity: 0;
