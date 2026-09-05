@@ -27,3 +27,14 @@
   .sectionHeader { align-items:flex-start; flex-direction:column; gap:.2rem; }
   .panel { border-radius:12px; }
 }
+
+:global(body.dark-ui) .topbar { background: rgba(26,26,26,0.9); }
+:global(body.dark-ui) .backButton { background: var(--surface-light); color: var(--text-primary); border-color: var(--card-border); }
+:global(body.dark-ui) .refreshButton { color: #3ecf8e; background: rgba(62,207,142,0.1); border-color: rgba(62,207,142,0.25); }
+:global(body.dark-ui) .backButton:hover { background: rgba(255,255,255,0.08); }
+:global(body.dark-ui) .refreshButton:hover { background: rgba(62,207,142,0.2); border-color: rgba(62,207,142,0.4); color: #86efac; }
+:global(body.dark-ui) .hero { background: linear-gradient(135deg, color-mix(in srgb, var(--tc) 15%, transparent), var(--surface-light) 58%, rgba(255,255,255,0.02)); box-shadow: 0 14px 38px rgba(0,0,0,0.4); }
+:global(body.dark-ui) .eyebrow { color: #3ecf8e; }
+:global(body.dark-ui) .triggerButton { background: #f28b38; color: #1a0a00; border-color: #f28b38; box-shadow: 0 8px 20px rgba(242,139,56,0.2); }
+:global(body.dark-ui) .triggerButton:hover { background: #d96f1f; }
+:global(body.dark-ui) .panel { background: var(--surface-light); border-color: var(--card-border); box-shadow: 0 8px 24px rgba(0,0,0,0.5); }

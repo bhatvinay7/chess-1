@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface AuthUser {
   id: string;
@@ -12,6 +12,7 @@ interface AuthUser {
 export function useAuth(redirectTo: string | null = "/auth/login") {
   const [user, setUser] = useState<AuthUser | null | undefined>(undefined);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -27,7 +28,7 @@ export function useAuth(redirectTo: string | null = "/auth/login") {
         if (redirectTo) router.replace(redirectTo);
       }
     }
-  }, [redirectTo, router]);
+  }, [redirectTo, router, pathname]);
 
   const logout = () => {
     localStorage.removeItem("user_token");
