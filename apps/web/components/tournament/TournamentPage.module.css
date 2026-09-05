@@ -569,12 +569,19 @@
   .headerMeta { flex-wrap: wrap; }
   .tabBar, .filterBar { overflow-x: auto; scrollbar-width: none; }
   .tabBtn { flex: 0 0 auto; min-height: 44px; }
-  .filterBar { align-items: stretch; flex-direction: column; }
-  .searchWrap, .filterSelect { width: 100%; min-height: 44px; }
+  .filterBar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; padding: 0.75rem; overflow: visible; }
+  .searchWrap { grid-column: 1 / -1; width: 100%; min-height: 44px; border-radius: 10px; padding-inline: 0.8rem; }
+  .searchInput { min-width: 0; font-size: 1rem; }
+  .filterSelect { width: 100%; min-width: 0; min-height: 44px; border-radius: 10px; padding-inline: 0.65rem 1.7rem; }
   .slotDayHeader { align-items: flex-start; }
   .slotGroup { grid-template-columns: minmax(0, 1fr); }
   .createGroups { grid-template-columns: minmax(0, 1fr); }
   .createOption { min-height: 72px; padding: 1rem; }
+}
+
+@media (max-width: 390px) {
+  .filterBar { grid-template-columns: 1fr; }
+  .searchWrap { grid-column: 1; }
 }
 
 /* ── Light mode — remaining gaps ────────────────────────────────────────── */

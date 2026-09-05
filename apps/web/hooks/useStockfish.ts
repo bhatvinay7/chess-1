@@ -2,14 +2,13 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 
-// Cloudflare R2 storage URLs for long-term caching of Stockfish WASM engine on user devices
-const R2_PUBLIC_URL = (
-  process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "https://thepipe.shop"
-).replace(/\/$/, "");
-
-const R2_SCRIPT_URL = `${R2_PUBLIC_URL}/stockfish/stockfish-18.js`;
-const R2_WASM_URL = `${R2_PUBLIC_URL}/stockfish/stockfish-18.wasm`;
-const LOCAL_WORKER_URL = "/stockfish-18.js";
+// Stockfish assets are always fetched from the public Cloudflare R2 origin.
+// URL() prevents an application-relative path from silently falling back to the web origin.
+const R2_PUBLIC_URL = new URL(
+  `${(process.env.NEXT_PUBLIC_R2_PUBLIC_URL || "https://thepipe.shop").replace(/\/$/, "")}/`,
+);
+const R2_SCRIPT_URL = new URL("stockfish/stockfish-18.js", R2_PUBLIC_URL).href;
+const R2_WASM_URL = new URL("stockfish/stockfish-18.wasm", R2_PUBLIC_URL).href;
 const PROXY_WORKER_URL = "/stockfish-worker.js";
 
 export type StockfishOutputHandler = (line: string) => void;
@@ -26,23 +25,11 @@ export function useStockfish(): UseStockfishReturn {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const isRemote =
-      process.env.NODE_ENV === "production" ||
-      Boolean(process.env.NEXT_PUBLIC_USE_REMOTE_STOCKFISH);
-
-    let worker: Worker;
-    if (isRemote) {
-      worker = new Worker(PROXY_WORKER_URL);
-      worker.postMessage({
-        type: "INIT",
-        data: {
-          scriptUrl: R2_SCRIPT_URL,
-          wasmUrl: R2_WASM_URL,
-        },
-      });
-    } else {
-      worker = new Worker(LOCAL_WORKER_URL);
-    }
+    const worker = new Worker(PROXY_WORKER_URL);
+    worker.postMessage({
+      type: "INIT",
+      data: { scriptUrl: R2_SCRIPT_URL, wasmUrl: R2_WASM_URL },
+    });
     workerRef.current = worker;
 
     worker.onmessage = (e: MessageEvent<any>) => {
@@ -76,11 +63,6 @@ export function useStockfish(): UseStockfishReturn {
       handlersRef.current.forEach((h) => h(line));
     };
 
-    if (!isRemote) {
-      worker.postMessage("uci");
-      worker.postMessage("isready");
-    }
-
     return () => {
       worker.terminate();
       workerRef.current = null;
@@ -90,15 +72,7 @@ export function useStockfish(): UseStockfishReturn {
 
   const sendCommand = useCallback((cmd: string) => {
     if (!workerRef.current) return;
-    const isRemote =
-      process.env.NODE_ENV === "production" ||
-      Boolean(process.env.NEXT_PUBLIC_USE_REMOTE_STOCKFISH!);
-
-    if (isRemote) {
-      workerRef.current.postMessage({ type: "COMMAND", data: cmd });
-    } else {
-      workerRef.current.postMessage(cmd);
-    }
+    workerRef.current.postMessage({ type: "COMMAND", data: cmd });
   }, []);
 
   const onOutput = useCallback((handler: StockfishOutputHandler) => {

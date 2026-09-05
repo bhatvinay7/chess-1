@@ -34,6 +34,7 @@ import {
   closeSidebarPanel,
   closeMobileNav,
   toggleCollapsed,
+  toggleDarkUI,
 } from "../../store/slices/sidebarSlice";
 import { useAuth } from "../../hooks/useAuth";
 import { useProfile } from "../../hooks/useProfile";
@@ -119,6 +120,7 @@ export default function SideNav() {
   const openPanel      = useSelector((s: RootState) => s.sidebar.openPanel);
   const mobileNavOpen  = useSelector((s: RootState) => s.sidebar.mobileNavOpen);
   const collapsed      = useSelector((s: RootState) => s.sidebar.collapsed);
+  const darkUI         = useSelector((s: RootState) => s.sidebar.darkUI);
   const { user, logout }  = useAuth(null);
   const { data: profile } = useProfile(user?.id);
   const { unreadCount, fetchNotifications } = useNotifications();
@@ -144,6 +146,7 @@ export default function SideNav() {
     styles.sidenav,
     mobileNavOpen ? styles.sidenavMobileOpen : "",
     collapsed     ? styles.sidenavCollapsed  : "",
+    darkUI        ? styles.sidenavDark       : "",
   ].filter(Boolean).join(" ");
 
   return (
@@ -315,7 +318,9 @@ export default function SideNav() {
                 onClose={() => setShowGearMenu(false)}
                 onLogout={logout}
                 collapsed={collapsed}
+                darkUI={darkUI}
                 onToggleCollapse={() => dispatch(toggleCollapsed())}
+                onToggleDarkUI={() => dispatch(toggleDarkUI())}
               />
             )}
           </div>

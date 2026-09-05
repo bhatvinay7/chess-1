@@ -6,14 +6,8 @@
 //   INIT. This worker importScripts the remote file, bypassing the CORS Worker
 //   restriction.
 //
-// WHY WE DON'T USE IT NOW:
-//   Stockfish derives its WASM path from `self.location` (this worker's URL), so
-//   it would request /stockfish-worker.wasm (404) instead of /stockfish-18.wasm.
-//   For local serving, use stockfish-18.js directly as new Worker('/stockfish-18.js').
-//
-// FUTURE S3 USAGE:
-//   new Worker('/stockfish-worker.js')
-//   worker.postMessage({ type: 'INIT', data: { scriptUrl: 'https://cdn/sf18.js', wasmUrl: 'https://cdn/sf18.wasm' } })
+// The application always passes absolute Cloudflare R2 URLs for both files.
+// locateFile keeps the WASM binary on R2 instead of resolving it at the app root.
 
 let sf = null;
 
