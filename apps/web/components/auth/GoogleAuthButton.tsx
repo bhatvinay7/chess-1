@@ -16,9 +16,11 @@ declare global {
         id?: {
           initialize: (config: {
             client_id: string;
-            callback: (response: { credential?: string }) => void;
+            callback?: (response: { credential?: string }) => void;
             cancel_on_tap_outside?: boolean;
             use_fedcm_for_prompt?: boolean;
+            ux_mode?: "popup" | "redirect";
+            login_uri?: string;
           }) => void;
           prompt: (
             notification?: (notification: {
@@ -66,6 +68,7 @@ export function GoogleAuthButton({ mode = "login" }: GoogleAuthButtonProps) {
     };
   }, []);
 
+  // handleGoogleCallback is still here for fallback, but redirect mode won't use it directly
   const handleGoogleCallback = async (response: { credential?: string }) => {
     if (!response.credential) return;
     setLoading(true);
@@ -90,9 +93,11 @@ export function GoogleAuthButton({ mode = "login" }: GoogleAuthButtonProps) {
 
     window.google.accounts.id.initialize({
       client_id: clientId,
-      callback: handleGoogleCallback,
+      callback: handleGoogleCallback, // Fallback if redirect fails
       cancel_on_tap_outside: true,
-      use_fedcm_for_prompt: true, // Uses modern browser UI and bypasses COOP restrictions
+      use_fedcm_for_prompt: true,
+      ux_mode: "redirect",
+      login_uri: `${window.location.origin}/api/auth/google/callback`,
     });
 
     window.google.accounts.id.renderButton(buttonRef.current, {
