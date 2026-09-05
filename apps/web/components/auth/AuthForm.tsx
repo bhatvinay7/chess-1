@@ -19,6 +19,7 @@ import { authApi } from "../../app/api/auth/auth";
 import { setUserSession } from "../../hooks/useAuth";
 import { AuthLanding } from "./AuthLanding";
 import { AuthEmailForm } from "./AuthEmailForm";
+import { GoogleAuthButton } from "./GoogleAuthButton";
 
 interface AuthFormProps {
   type: "login" | "signup";
@@ -231,6 +232,15 @@ export default function AuthForm({ type }: AuthFormProps) {
               <div style={cardStyles.header}>
                 <Logo />
               </div>
+              
+              <GoogleAuthButton mode="login" />
+
+              <div style={cardStyles.divider}>
+                <span style={cardStyles.dividerLine} />
+                <span style={cardStyles.dividerText}>OR</span>
+                <span style={cardStyles.dividerLine} />
+              </div>
+
               <form onSubmit={handleLogin} style={cardStyles.form}>
                 <InputField
                   icon={<Mail size={15} />}
@@ -671,4 +681,7 @@ const cardStyles: Record<string, React.CSSProperties> = {
     background: "var(--auth-input-overlay)", border: "1px solid var(--auth-input-border)",
     color: "var(--text-primary)", outline: "none", fontFamily: "monospace", transition: "border-color 0.2s",
   },
+  divider: { display: "flex", alignItems: "center", gap: "0.7rem", width: "100%", marginBottom: "0.3rem" },
+  dividerLine: { flex: 1, height: "1px", background: "var(--auth-input-border)" },
+  dividerText: { fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.1em" },
 };
