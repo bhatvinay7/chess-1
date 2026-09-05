@@ -441,18 +441,21 @@ jobs:
             fi
           fi
           
-          # Dynamically check if controller exists, install it if it does not
+          # The controller is cluster infrastructure and must be installed by
+          # bootstrap-argocd.yaml. CI only uses an existing healthy controller.
           CONTROLLER_SVC=$(kubectl get svc --all-namespaces --no-headers | grep -i sealed-secret | awk '{print $1 " " $2}' | head -n 1)
           if [ -z "$CONTROLLER_SVC" ]; then
-            echo "Sealed-secrets controller not found! Installing it automatically..."
-            kubectl apply -f https://github.com/bitnami/sealed-secrets/releases/download/v0.26.2/controller.yaml
-            CONTROLLER_NS="kube-system"
-            CONTROLLER_NAME="sealed-secrets-controller"
-            CONTROLLER_DEPLOY="deployment.apps/sealed-secrets-controller"
-          else
-            CONTROLLER_NS=$(echo "$CONTROLLER_SVC" | awk '{print $1}')
-            CONTROLLER_NAME=$(echo "$CONTROLLER_SVC" | awk '{print $2}')
-            CONTROLLER_DEPLOY=$(kubectl get deploy -n "$CONTROLLER_NS" -o name | grep -i sealed | head -n 1)
+            echo "ERROR: Sealed Secrets controller is not installed."
+            echo "Run the Bootstrap ArgoCD workflow before rotating secrets."
+            exit 1
+          fi
+
+          CONTROLLER_NS=$(echo "$CONTROLLER_SVC" | awk '{print $1}')
+          CONTROLLER_NAME=$(echo "$CONTROLLER_SVC" | awk '{print $2}')
+          CONTROLLER_DEPLOY=$(kubectl get deploy -n "$CONTROLLER_NS" -o name | grep -i sealed | head -n 1)
+          if [ -z "$CONTROLLER_DEPLOY" ]; then
+            echo "ERROR: Sealed Secrets service exists, but its controller deployment was not found."
+            exit 1
           fi
           
           echo "Waiting up to 60s for the controller ($CONTROLLER_DEPLOY) to boot and become healthy..."

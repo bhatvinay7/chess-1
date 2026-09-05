@@ -122,3 +122,14 @@ jobs:
             argocd.argoproj.io/refresh=hard \
             --overwrite
           echo "Sealed Secrets source updated and hard refresh requested."
+
+          echo "Waiting for ArgoCD to create the Sealed Secrets controller..."
+          kubectl wait --for=create deployment \
+            --namespace kube-system \
+            --selector=app.kubernetes.io/name=sealed-secrets \
+            --timeout=120s
+          kubectl wait --for=condition=Available deployment \
+            --namespace kube-system \
+            --selector=app.kubernetes.io/name=sealed-secrets \
+            --timeout=180s
+          echo "Sealed Secrets controller is available."
