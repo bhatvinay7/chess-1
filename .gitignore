@@ -53,3 +53,4 @@ yarn-error.log*
 **/web/public/stockfish-18.wasm
 **/.env.test
 .kube/chess-k8s
+chess-k8s
