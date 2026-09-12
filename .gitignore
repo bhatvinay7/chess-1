@@ -52,4 +52,4 @@ yarn-error.log*
 *.pdb
 **/web/public/stockfish-18.wasm
 **/.env.test
-.kube/
+.kube/chess-k8s
