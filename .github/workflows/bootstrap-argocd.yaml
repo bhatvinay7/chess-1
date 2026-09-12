@@ -214,13 +214,13 @@ jobs:
           NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
           NEXT_PUBLIC_USE_REMOTE_STOCKFISH: ${{ secrets.NEXT_PUBLIC_USE_REMOTE_STOCKFISH }}
         run: |
-          python3 chess-k8s/scripts/seal-secrets.py
+          python3 scripts/seal-secrets.py
 
       - name: Commit and push GitOps change
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add chess-k8s/apps/sealed-backend-secrets.yaml chess-k8s/apps/sealed-frontend-secrets.yaml chess-k8s/apps/ghcr-secret.yaml chess-k8s/scripts/seal-secrets.py
+          git add apps/sealed-backend-secrets.yaml apps/sealed-frontend-secrets.yaml apps/ghcr-secret.yaml scripts/seal-secrets.py
           git diff --cached --quiet && exit 0
           git commit -m "chore(secrets): seal secrets"
           for attempt in 1 2 3; do
