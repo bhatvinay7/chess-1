@@ -133,3 +133,102 @@ jobs:
             --selector=app.kubernetes.io/name=sealed-secrets \
             --timeout=180s
           echo "Sealed Secrets controller is available."
+
+          # Wait until the Service has at least one endpoint address registered.
+          # kubeseal --fetch-cert proxies through the API server; it fails with
+          # "no endpoints available" until the Endpoints object is populated.
+          deadline=$((SECONDS + 120))
+          while (( SECONDS < deadline )); do
+            addrs=$(kubectl get endpoints sealed-secrets \
+              -n kube-system \
+              -o jsonpath='{.subsets[0].addresses}' 2>/dev/null || true)
+            if [ -n "$addrs" ] && [ "$addrs" != 'null' ]; then
+              echo "sealed-secrets-controller endpoint is ready."
+              break
+            fi
+            echo "Waiting for sealed-secrets-controller endpoint..."
+            sleep 5
+          done
+
+      - name: Install kubeseal
+        run: |
+          curl -fSL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.27.1/kubeseal-0.27.1-linux-amd64.tar.gz" | tar xz
+          sudo install -m 755 kubeseal /usr/local/bin/kubeseal
+
+      - name: Wait for controller certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          kubectl wait --for=condition=Established crd/sealedsecrets.bitnami.com --timeout=5m
+          cert="$RUNNER_TEMP/sealed-secrets-cert.pem"
+          # kubeseal --fetch-cert proxies through the API server HTTP handler which
+          # is unreachable from GitHub runners. Read the cert directly from the
+          # sealed-secrets-key Secret that the controller creates in kube-system.
+          deadline=$((SECONDS + 300))
+          while (( SECONDS < deadline )); do
+            tls_crt=$(kubectl get secret -n kube-system \
+              -l sealedsecrets.bitnami.com/sealed-secrets-key=active \
+              -o jsonpath='{.items[0].data.tls\.crt}' 2>/dev/null || true)
+            if [ -n "$tls_crt" ] && [ "$tls_crt" != "null" ]; then
+              printf '%s' "$tls_crt" | base64 --decode > "$cert"
+              openssl x509 -in "$cert" -noout
+              echo "SEALED_SECRETS_CERT_FILE=$cert" >> "$GITHUB_ENV"
+              echo "Controller certificate written to $cert"
+              exit 0
+            fi
+            echo "Waiting for sealed-secrets-key secret..."
+            sleep 5
+          done
+          echo "Sealed Secrets controller certificate unavailable after 5 minutes"
+          exit 1
+
+      - name: Seal Secrets
+        env:
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          CLIENT_URL: ${{ secrets.CLIENT_URL }}
+          CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GRPC_SERVER_URL: ${{ secrets.GRPC_SERVER_URL }}
+          INVITATION_ENCRYPTION_KEY: ${{ secrets.INVITATION_ENCRYPTION_KEY }}
+          MONGO_DB_URL: ${{ secrets.MONGO_DB_URL }}
+          PUBLICATION: ${{ secrets.PUBLICATION }}
+          RABBITMQ_URL: ${{ secrets.RABBITMQ_URL }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          REPLICATION_URL: ${{ secrets.REPLICATION_URL }}
+          SLOT_NAME: ${{ secrets.SLOT_NAME }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_SECURE: ${{ secrets.SMTP_SECURE }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: ${{ secrets.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME }}
+          NEXT_PUBLIC_R2_PUBLIC_URL: ${{ secrets.NEXT_PUBLIC_R2_PUBLIC_URL }}
+          NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
+          NEXT_PUBLIC_USE_REMOTE_STOCKFISH: ${{ secrets.NEXT_PUBLIC_USE_REMOTE_STOCKFISH }}
+        run: |
+          python3 chess-k8s/scripts/seal-secrets.py
+
+      - name: Commit and push GitOps change
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add chess-k8s/apps/sealed-backend-secrets.yaml chess-k8s/apps/sealed-frontend-secrets.yaml chess-k8s/apps/ghcr-secret.yaml chess-k8s/scripts/seal-secrets.py
+          git diff --cached --quiet && exit 0
+          git commit -m "chore(secrets): seal secrets"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:main"; then
+              exit 0
+            fi
+            git fetch origin main
+            git rebase "origin/main"
+          done
+          echo "Could not push generated GitOps changes after three rebase attempts."
+          exit 1
