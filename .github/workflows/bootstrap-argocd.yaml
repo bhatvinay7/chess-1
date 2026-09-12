@@ -12,6 +12,8 @@ env:
 jobs:
   bootstrap-argocd:
     name: Bootstrap ArgoCD on Cluster
+    # CI/CD uses production secrets for both application branches.
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     environment: production
     steps:
@@ -195,7 +197,7 @@ jobs:
       - name: Seal Secrets
         env:
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
-          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME || github.repository_owner }}
           CLIENT_URL: ${{ secrets.CLIENT_URL }}
           CLOUDFLARE_R2_SECRET_ACCESS_KEY: ${{ secrets.CLOUDFLARE_R2_SECRET_ACCESS_KEY }}
           CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
