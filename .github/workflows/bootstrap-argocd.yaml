@@ -4,7 +4,7 @@ on:
   push:
     branches: [dev, main]
     paths:
-      - '.github/workflows/bootstrap-argocd.yaml'
+      - ".github/workflows/bootstrap-argocd.yaml"
   workflow_dispatch:
 env:
   ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
@@ -31,6 +31,14 @@ jobs:
           ref: main
           token: ${{ secrets.GITOPS_TOKEN }}
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install manifest parser
+        run: python3 -m pip install PyYAML==6.0.3
+      - uses: azure/setup-helm@v4
+      - name: Validate deployment images and namespaces
+        run: python3 scripts/validate-monitoring.py --require-images dev
       - name: Configure kubectl
         env:
           KUBE_DATA: ${{ secrets.KUBECONFIG }}
@@ -40,7 +48,7 @@ jobs:
             exit 1
           fi
           mkdir -p ~/.kube
-          
+
           # Check if the secret is plaintext YAML
           if printf "%s" "$KUBE_DATA" | grep -q "apiVersion:"; then
             printf "%s" "$KUBE_DATA" > ~/.kube/config
@@ -78,10 +86,10 @@ jobs:
           echo "Patching ArgoCD resources..."
           kubectl set resources deployment argocd-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
           kubectl set resources deployment argocd-repo-server -n argocd --limits=cpu=1000m,memory=1Gi --requests=cpu=250m,memory=256Mi
-          
+
           echo "Installing cert-manager CRDs to prevent GitOps race conditions..."
           kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.crds.yaml
-          
+
           echo "Installing cert-manager via Helm..."
           helm repo add jetstack https://charts.jetstack.io
           helm repo update
@@ -89,7 +97,7 @@ jobs:
             --namespace cert-manager --create-namespace \
             --version v1.13.2 \
             --set webhook.timeoutSeconds=10
-            
+
           echo "Installing ingress-nginx with NodePort configuration..."
           helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
           helm repo update
@@ -101,7 +109,9 @@ jobs:
             --set controller.service.nodePorts.https=32443 \
             --set controller.service.externalTrafficPolicy=Local \
             --set controller.metrics.enabled=true
-          
+
+          python3 scripts/bootstrap-monitoring.py infra
+
           echo "Applying GitOps root App of Apps..."
           kubectl apply -k argocd
 
