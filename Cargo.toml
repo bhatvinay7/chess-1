@@ -9,5 +9,6 @@ members = [
   "packages/postgres-rustclient",
   "packages/rabbitmq-rustclient",
   "packages/redis-rustclient",
+  "packages/telemetry",
 ]
 resolver = "2"
