@@ -71,14 +71,70 @@ const STEPS = [
 ];
 
 const BOARD_PIECES = [
-  "♜","","♝","♛","♚","♝","♞","♜",
-  "♟","♟","♟","♟","","♟","♟","♟",
-  "","","♞","","","","","",
-  "","","","","♟","","","",
-  "","","♗","","♙","","","",
-  "","","","","","♘","","",
-  "♙","♙","♙","♙","","♙","♙","♙",
-  "♖","♘","♗","♕","♔","","","♖",
+  "♜",
+  "",
+  "♝",
+  "♛",
+  "♚",
+  "♝",
+  "♞",
+  "♜",
+  "♟",
+  "♟",
+  "♟",
+  "♟",
+  "",
+  "♟",
+  "♟",
+  "♟",
+  "",
+  "",
+  "♞",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "♟",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "♗",
+  "",
+  "♙",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "",
+  "♘",
+  "",
+  "",
+  "♙",
+  "♙",
+  "♙",
+  "♙",
+  "",
+  "♙",
+  "♙",
+  "♙",
+  "♖",
+  "♘",
+  "♗",
+  "♕",
+  "♔",
+  "",
+  "",
+  "♖",
 ];
 
 export default function HomePage() {
@@ -148,7 +204,9 @@ export default function HomePage() {
 
         {/* ── Features ─────────────────────────────────────────────────────── */}
         <section className={styles.featuresSection}>
-          <h2 className={styles.sectionTitle}>Everything you need to improve</h2>
+          <h2 className={styles.sectionTitle}>
+            Everything you need to improve
+          </h2>
           <div className={styles.features}>
             {FEATURES.map((f) => (
               <div key={f.title} className={styles.featureCard}>
@@ -191,8 +249,8 @@ export default function HomePage() {
             </div>
           </div>
           <Link href="/arena/coach" className="btn-primary">
-                Try Coach Mode
-              </Link>
+            Try Coach Mode
+          </Link>
         </section>
       </main>
 

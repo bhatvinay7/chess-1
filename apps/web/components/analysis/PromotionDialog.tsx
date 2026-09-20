@@ -37,7 +37,7 @@ export function PromotionDialog({ promotingColor, onSelect, onCancel }: Props) {
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.85, opacity: 0 }}
         transition={{ type: "spring", stiffness: 380, damping: 22 }}
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
       >
         <span className={styles.promotionTitle}>Promote to</span>
         <div className={styles.promotionPieces}>

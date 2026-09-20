@@ -7,7 +7,11 @@ import type {
 import type { ClubSummary } from "../../../components/tournament/types";
 import type { TournamentsResponse } from "./tournaments";
 
-export const listClubs = async (params?: { page?: number; limit?: number; search?: string }): Promise<ClubListResponse> => {
+export const listClubs = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<ClubListResponse> => {
   const { data } = await axiosInstance.get("/clubs", { params });
   return data;
 };
@@ -29,17 +33,28 @@ export const createClub = async (payload: {
 
 export const updateClub = async (
   clubId: string,
-  payload: { name?: string; description?: string; imageUrl?: string; requesterId: string },
+  payload: {
+    name?: string;
+    description?: string;
+    imageUrl?: string;
+    requesterId: string;
+  },
 ): Promise<Club> => {
   const { data } = await axiosInstance.put(`/clubs/${clubId}`, payload);
   return data;
 };
 
-export const requestJoinClub = async (clubId: string, userId: string): Promise<void> => {
+export const requestJoinClub = async (
+  clubId: string,
+  userId: string,
+): Promise<void> => {
   await axiosInstance.post(`/clubs/${clubId}/join`, { userId });
 };
 
-export const getJoinRequests = async (clubId: string, adminId: string): Promise<ClubJoinRequest[]> => {
+export const getJoinRequests = async (
+  clubId: string,
+  adminId: string,
+): Promise<ClubJoinRequest[]> => {
   const { data } = await axiosInstance.get(`/clubs/${clubId}/requests`, {
     params: { adminId },
   });
@@ -52,11 +67,20 @@ export const handleJoinRequest = async (
   action: "accept" | "reject",
   adminId: string,
 ): Promise<void> => {
-  await axiosInstance.patch(`/clubs/${clubId}/requests/${requestId}`, { action, adminId });
+  await axiosInstance.patch(`/clubs/${clubId}/requests/${requestId}`, {
+    action,
+    adminId,
+  });
 };
 
-export const removeMember = async (clubId: string, userId: string, adminId: string): Promise<void> => {
-  await axiosInstance.delete(`/clubs/${clubId}/members/${userId}`, { data: { adminId } });
+export const removeMember = async (
+  clubId: string,
+  userId: string,
+  adminId: string,
+): Promise<void> => {
+  await axiosInstance.delete(`/clubs/${clubId}/members/${userId}`, {
+    data: { adminId },
+  });
 };
 
 export const sendCoordinatorInvite = async (
@@ -64,7 +88,10 @@ export const sendCoordinatorInvite = async (
   invitedUserId: string,
   invitedById: string,
 ): Promise<void> => {
-  await axiosInstance.post(`/clubs/${clubId}/coordinator-invite`, { invitedUserId, invitedById });
+  await axiosInstance.post(`/clubs/${clubId}/coordinator-invite`, {
+    invitedUserId,
+    invitedById,
+  });
 };
 
 export const getMyAdminClubs = async (): Promise<ClubSummary[]> => {
@@ -78,10 +105,15 @@ export const handleCoordinatorInvite = async (
   action: "accept" | "reject",
   userId: string,
 ): Promise<void> => {
-  await axiosInstance.patch(`/clubs/${clubId}/coordinator-invite/${inviteId}`, { action, userId });
+  await axiosInstance.patch(`/clubs/${clubId}/coordinator-invite/${inviteId}`, {
+    action,
+    userId,
+  });
 };
 
-export const getClubTournaments = async (clubId: string): Promise<TournamentsResponse> => {
+export const getClubTournaments = async (
+  clubId: string,
+): Promise<TournamentsResponse> => {
   const { data } = await axiosInstance.get(`/clubs/${clubId}/tournaments`);
   return data;
 };

@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BOARD_THEMES, DEFAULT_THEME_ID, type BoardTheme } from "../lib/boardThemes";
+import {
+  BOARD_THEMES,
+  DEFAULT_THEME_ID,
+  type BoardTheme,
+} from "../lib/boardThemes";
 
 const STORAGE_KEY = "chess-board-theme";
 
@@ -14,9 +18,8 @@ export function useBoardTheme(): {
 
   // Hydrate from localStorage after mount (avoids SSR mismatch)
   useEffect(() => {
-    const stored = typeof window !== "undefined"
-      ? localStorage.getItem(STORAGE_KEY)
-      : null;
+    const stored =
+      typeof window !== "undefined" ? localStorage.getItem(STORAGE_KEY) : null;
     if (stored && BOARD_THEMES.some((t) => t.id === stored)) {
       setSavedThemeId(stored);
     }

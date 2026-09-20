@@ -19,7 +19,7 @@ import { DrawNotice } from "./DrawNotice";
 import { BoardUI } from "./board";
 import { PlayerBar } from "./PlayerBar";
 import { useBoardTheme } from "../../hooks/useBoardTheme";
-import { useSearchSselection } from '@/hooks/useSearchSelection';
+import { useSearchSselection } from "@/hooks/useSearchSelection";
 import { useGameResult } from "../../hooks/useGameResult";
 
 const DEFAULT_AVATAR = "/defaultUser.jpg";
@@ -180,7 +180,10 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
   /* ── Search timer ────────────────────────────────────────────────────── */
   const [searchTimer, setSearchTimer] = useState(0);
   useEffect(() => {
-    if (!isSearching) { setSearchTimer(0); return; }
+    if (!isSearching) {
+      setSearchTimer(0);
+      return;
+    }
     const id = setInterval(() => setSearchTimer((t) => t + 1), 1000);
     return () => clearInterval(id);
   }, [isSearching, searchStatus]);
@@ -203,7 +206,7 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
   useEffect(() => {
     if (!activeGameId || !user || drawOffer) return;
     checkDrawOffer(user.id);
-  }, [activeGameId, user, checkDrawOffer,drawOffer]);
+  }, [activeGameId, user, checkDrawOffer, drawOffer]);
 
   /* ── Auto-start search when no active game found ─────────────────────── */
   useEffect(() => {
@@ -225,7 +228,17 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
         gameMode: gameVariant,
       });
     }
-  }, [hasCheckedActiveGame, isCheckingActiveGame, activeGameId, isSearching, searchCancelled, user, time_slot, isRated, gameVariant]);
+  }, [
+    hasCheckedActiveGame,
+    isCheckingActiveGame,
+    activeGameId,
+    isSearching,
+    searchCancelled,
+    user,
+    time_slot,
+    isRated,
+    gameVariant,
+  ]);
 
   /* ── Sync matchData.game_id → activeGameId ───────────────────────────── */
   useEffect(() => {
@@ -321,11 +334,15 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
   // player1 = white, player2 = black (set by game-initializer)
   const myProfileImageUrl =
     profile?.profileImageUrl ||
-    (isWhite ? gameState?.player1ProfileImageUrl : gameState?.player2ProfileImageUrl) ||
+    (isWhite
+      ? gameState?.player1ProfileImageUrl
+      : gameState?.player2ProfileImageUrl) ||
     DEFAULT_AVATAR;
   const opponentProfileImageUrl =
     opponentProfile?.profileImageUrl ||
-    (isWhite ? gameState?.player2ProfileImageUrl : gameState?.player1ProfileImageUrl) ||
+    (isWhite
+      ? gameState?.player2ProfileImageUrl
+      : gameState?.player1ProfileImageUrl) ||
     (isWhite ? matchData?.p2.profileImageUrl : matchData?.p1.profileImageUrl) ||
     DEFAULT_AVATAR;
 
@@ -335,7 +352,9 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
       (isWhite ? gameState?.player2Rating : gameState?.player1Rating) ??
       (isWhite ? matchData?.p2.elo : matchData?.p1.elo),
     profileImageUrl: opponentProfileImageUrl,
-    clock: formatTime(isWhite ? displayBlackTime ?? 0 : displayWhiteTime ?? 0),
+    clock: formatTime(
+      isWhite ? (displayBlackTime ?? 0) : (displayWhiteTime ?? 0),
+    ),
     color: isWhite ? "Black" : "White",
   };
 
@@ -345,7 +364,9 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
       (isWhite ? gameState?.player1Rating : gameState?.player2Rating) ??
       (isWhite ? matchData?.p1.elo : matchData?.p2.elo),
     profileImageUrl: myProfileImageUrl,
-    clock: formatTime(isWhite ? displayWhiteTime ?? 0 : displayBlackTime ?? 0),
+    clock: formatTime(
+      isWhite ? (displayWhiteTime ?? 0) : (displayBlackTime ?? 0),
+    ),
     color: isWhite ? "White" : "Black",
   };
 
@@ -354,7 +375,9 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
      "Opponent's captures" = my pieces gone = same color as me.
      "My captures"         = opponent's pieces gone = opposite color.  */
   const myColor: "w" | "b" = isWhite ? "w" : "b";
-  const piecesOpponentCaptured = capturedPieces.filter((p) => p.color === myColor);
+  const piecesOpponentCaptured = capturedPieces.filter(
+    (p) => p.color === myColor,
+  );
   const piecesMeCaptured = capturedPieces.filter((p) => p.color !== myColor);
 
   /* ── Countdown to game start (tournament games) ──────────────────────── */
@@ -367,7 +390,10 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
 
   useEffect(() => {
     const t = gameState?.leftGameStartTime;
-    if (!t) { setSecondsToStart(null); return; }
+    if (!t) {
+      setSecondsToStart(null);
+      return;
+    }
 
     let fired = false;
     const tick = () => {
@@ -386,7 +412,8 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
   }, [gameState?.leftGameStartTime, user?.id, syncGameState]);
 
   /* ── Turn awareness ───────────────────────────────────────────────────── */
-  const isOpponentTurn = !game.isGameOver() && game.turn() !== (isWhite ? "w" : "b");
+  const isOpponentTurn =
+    !game.isGameOver() && game.turn() !== (isWhite ? "w" : "b");
   const isMyTurn = !game.isGameOver() && game.turn() === (isWhite ? "w" : "b");
   const isGameOver = game.isGameOver();
 
@@ -614,7 +641,9 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
       )}
 
       {/* Transient banner for draw-flow messages (offer sent / declined) */}
-      {drawNotice && <DrawNotice message={drawNotice} onDismiss={clearDrawNotice} />}
+      {drawNotice && (
+        <DrawNotice message={drawNotice} onDismiss={clearDrawNotice} />
+      )}
     </div>
   );
 }

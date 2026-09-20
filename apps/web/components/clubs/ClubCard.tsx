@@ -17,9 +17,7 @@ export default function ClubCard({ club }: Props) {
       </div>
       <div className={styles.body}>
         <h3 className={styles.name}>{club.name}</h3>
-        {club.description && (
-          <p className={styles.desc}>{club.description}</p>
-        )}
+        {club.description && <p className={styles.desc}>{club.description}</p>}
         <div className={styles.meta}>
           <span className={styles.metaItem}>
             <Users size={13} />

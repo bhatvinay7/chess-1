@@ -8,7 +8,7 @@ import {
   fetchTournament,
   fetchTournamentRounds,
   triggerManualRound,
-  TournamentRoundDetail
+  TournamentRoundDetail,
 } from "../../app/lib/api/tournaments";
 import { useAuth } from "../../hooks/useAuth";
 import { TOURNAMENT_TYPE_CONFIGS } from "./TournamentTypesSidebar";
@@ -44,7 +44,7 @@ export default function CreatorDashboard() {
   useEffect(() => {
     setLoading(true);
     fetchTournament(id)
-      .then(r => setTournament(r.data))
+      .then((r) => setTournament(r.data))
       .catch(() => setError("Tournament not found."))
       .finally(() => setLoading(false));
   }, [id]);
@@ -58,7 +58,10 @@ export default function CreatorDashboard() {
       showToast("Manual trigger sent! Round generation initiated.");
       refresh();
     } catch (err: any) {
-      showToast(err?.response?.data?.message ?? "Could not trigger round.", false);
+      showToast(
+        err?.response?.data?.message ?? "Could not trigger round.",
+        false,
+      );
     } finally {
       setTriggerLoading(false);
     }
@@ -80,7 +83,11 @@ export default function CreatorDashboard() {
       <div className={styles.page}>
         <div className={styles.errorState}>
           <p>{error ?? "Not authorized or tournament not found."}</p>
-          <button type="button" className={styles.backBtn} onClick={() => router.push(`/tournament/${id}`)}>
+          <button
+            type="button"
+            className={styles.backBtn}
+            onClick={() => router.push(`/tournament/${id}`)}
+          >
             <ArrowLeft size={14} /> Back to Tournament
           </button>
         </div>
@@ -88,77 +95,118 @@ export default function CreatorDashboard() {
     );
   }
 
-  const accentColor = TOURNAMENT_TYPE_CONFIGS.find(c => c.id === tournament.tournamentType)?.color ?? "#f28b38";
+  const accentColor =
+    TOURNAMENT_TYPE_CONFIGS.find((c) => c.id === tournament.tournamentType)
+      ?.color ?? "#f28b38";
 
   // Check if we can trigger the next round
   // Enable if tournament is IN_PROGRESS and no round is IN_PROGRESS (so previous round is COMPLETED)
   // Or if it's NOT_INITIALIZED / REGISTRATION_CLOSED and we want to start it
-  const canTrigger = ["REGISTRATION_CLOSED", "NOT_INITIALIZED", "IN_PROGRESS"].includes(tournament.status);
+  const canTrigger = [
+    "REGISTRATION_CLOSED",
+    "NOT_INITIALIZED",
+    "IN_PROGRESS",
+  ].includes(tournament.status);
 
   return (
     <div className={dashboard.pageShell}>
       <div className={dashboard.topbar}>
-        <button type="button" className={dashboard.backButton} onClick={() => router.push(`/tournament/${id}`)}>
-          <ArrowLeft size={15} /><span>Back to Tournament</span>
+        <button
+          type="button"
+          className={dashboard.backButton}
+          onClick={() => router.push(`/tournament/${id}`)}
+        >
+          <ArrowLeft size={15} />
+          <span>Back to Tournament</span>
         </button>
         <div>
-          <button type="button" className={dashboard.refreshButton} onClick={refresh} title="Refresh data" aria-label="Refresh tournament data">
+          <button
+            type="button"
+            className={dashboard.refreshButton}
+            onClick={refresh}
+            title="Refresh data"
+            aria-label="Refresh tournament data"
+          >
             <RefreshCw size={13} />
           </button>
         </div>
       </div>
 
-      <section className={dashboard.hero} style={{ "--tc": accentColor } as React.CSSProperties}>
-          <div>
-            <div className={dashboard.eyebrow}>Tournament administration</div>
-            <h1 className={dashboard.title}>{tournament.name}</h1>
-            <p className={dashboard.description}>Manage rounds, review games, and monitor standings.</p>
-          </div>
-          <div>
-             {canTrigger && (
-                <button 
-                  type="button" 
-                  className={dashboard.triggerButton}
-                  onClick={handleTriggerRound} 
-                  disabled={triggerLoading}
-                >
-                  <Zap size={15} style={{ marginRight: '5px', display: 'inline-block', verticalAlign: 'middle' }} />
-                  {triggerLoading ? "Triggering…" : "Trigger Next Round"}
-                </button>
-             )}
-          </div>
+      <section
+        className={dashboard.hero}
+        style={{ "--tc": accentColor } as React.CSSProperties}
+      >
+        <div>
+          <div className={dashboard.eyebrow}>Tournament administration</div>
+          <h1 className={dashboard.title}>{tournament.name}</h1>
+          <p className={dashboard.description}>
+            Manage rounds, review games, and monitor standings.
+          </p>
+        </div>
+        <div>
+          {canTrigger && (
+            <button
+              type="button"
+              className={dashboard.triggerButton}
+              onClick={handleTriggerRound}
+              disabled={triggerLoading}
+            >
+              <Zap
+                size={15}
+                style={{
+                  marginRight: "5px",
+                  display: "inline-block",
+                  verticalAlign: "middle",
+                }}
+              />
+              {triggerLoading ? "Triggering…" : "Trigger Next Round"}
+            </button>
+          )}
+        </div>
       </section>
 
       <main className={dashboard.content}>
         <section className={dashboard.section}>
-        <div className={dashboard.sectionHeader}><h2 className={dashboard.sectionTitle}>Games and round status</h2><span className={dashboard.sectionHint}>Live tournament operations</span></div>
-        <div className={dashboard.panel}>
-          <TournamentRounds
-            tournamentId={id}
-            accentColor={accentColor}
-            active={true}
-            liveData={liveData}
-            isLive={isActive}
-            userId={user?.id}
-          />
-        </div>
+          <div className={dashboard.sectionHeader}>
+            <h2 className={dashboard.sectionTitle}>Games and round status</h2>
+            <span className={dashboard.sectionHint}>
+              Live tournament operations
+            </span>
+          </div>
+          <div className={dashboard.panel}>
+            <TournamentRounds
+              tournamentId={id}
+              accentColor={accentColor}
+              active={true}
+              liveData={liveData}
+              isLive={isActive}
+              userId={user?.id}
+            />
+          </div>
         </section>
 
         <section className={dashboard.section}>
-        <div className={dashboard.sectionHeader}><h2 className={dashboard.sectionTitle}>Scorecard and standings</h2><span className={dashboard.sectionHint}>Current ranking and scores</span></div>
-        <div className={dashboard.panel}>
-          <TournamentStandings
-            liveData={liveData}
-            userId={user?.id}
-            accentColor={accentColor}
-            isActive={isActive}
-          />
-        </div>
+          <div className={dashboard.sectionHeader}>
+            <h2 className={dashboard.sectionTitle}>Scorecard and standings</h2>
+            <span className={dashboard.sectionHint}>
+              Current ranking and scores
+            </span>
+          </div>
+          <div className={dashboard.panel}>
+            <TournamentStandings
+              liveData={liveData}
+              userId={user?.id}
+              accentColor={accentColor}
+              isActive={isActive}
+            />
+          </div>
         </section>
       </main>
 
       {toast && (
-        <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+        <div
+          className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}
+        >
           {toast.msg}
         </div>
       )}

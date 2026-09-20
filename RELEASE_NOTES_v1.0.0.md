@@ -9,6 +9,7 @@ The system is designed to handle thousands of concurrent players, matches, and t
 ## ✨ Core Features
 
 ### Live Gameplay
+
 - **Real-Time Moves:** WebSocket-based move submission with sub-100ms latency
 - **Board State Synchronization:** Live FEN updates across all observers
 - **Multi-Format Support:** Blitz (3|0, 5|2), Rapid (10|0, 15|10), Classical (30|0+)
@@ -16,6 +17,7 @@ The system is designed to handle thousands of concurrent players, matches, and t
 - **Client-Side Analysis:** Stockfish WASM integration offloads analysis to browser
 
 ### Intelligent Matchmaking
+
 - **ELO-Based Pairing:** Actor-based matchmaker pairs players of similar ratings
 - **Time Control Pools:** Separate actors for each time control prevent race conditions
 - **Dynamic Rating Windows:** Expands ELO brackets over time to ensure match generation
@@ -23,6 +25,7 @@ The system is designed to handle thousands of concurrent players, matches, and t
 - **Automatic Pairing:** No manual intervention; matches form continuously
 
 ### Tournament System
+
 - **Swiss System Pairings:** Genuine Edmonds' blossom Maximum Weight Perfect Matching
 - **Round Robin Support:** Full permutation generation for club tournaments
 - **Color Balancing:** White/Black assignment avoids three consecutive same colors
@@ -31,6 +34,7 @@ The system is designed to handle thousands of concurrent players, matches, and t
 - **Tournament Lifecycle:** Full progression from creation → scheduling → pairing → results
 
 ### Observability & Analytics
+
 - **Live Leaderboards:** Real-time rating and tournament standings
 - **User Dashboard:** Tournament history, game statistics, rating trends
 - **Admin Panel:** Tournament management, pairings review, manual overrides
@@ -41,41 +45,46 @@ The system is designed to handle thousands of concurrent players, matches, and t
 ### Microservices Overview
 
 #### Frontend Services
+
 - **Web (Next.js + React):** Responsive marketplace, dashboard, auction room, admin UI
 - **WebSocket Server (Node.js):** Real-time game state, move submission, spectator feeds
 
 #### Core Backend Services
+
 - **HTTP API (Node.js):** RESTful endpoints for auth, profiles, tournament CRUD
 - **Game Server (Rust + gRPC):** Authoritative chess logic, move validation, endgame detection
 - **Matchmaker (Rust + Actix):** Actor-based ELO pairing with Redis Streams
 
 #### Asynchronous Workers
+
 - **CDC Pipeline (Rust):** PostgreSQL WAL tailing for tournament scheduling
 - **Sync Worker (Rust):** Swiss/Round Robin pairings, results processing, standings
 - **Notification Worker (Node.js):** Email and push notifications
 
 ### Service Responsibilities
 
-| Service | Responsibility | Protocol | Scaling |
-|---------|---|---|---|
-| **Web** | Responsive marketplace, discovery, dashboard | HTTPS | CDN + horizontal replicas |
-| **HTTP API** | Auth, profiles, tournament management | REST/HTTPS | Stateless; load balanced |
-| **WebSocket Server** | Real-time moves, spectator broadcast, room management | WSS + gRPC | Redis Socket.IO adapter |
-| **Game Server** | Move validation, FEN state, endgame logic | gRPC | Headless Service (client-side LB) |
-| **Matchmaker** | ELO pairing, queue management, match creation | Redis Streams | Actor isolation per time control |
-| **CDC** | PostgreSQL WAL tailing, tournament triggers | Logical replication | Single replica (sequential WAL) |
-| **Sync Worker** | Pairings, results, standings, scheduler | RabbitMQ + Redis | Horizontally scalable |
-| **Notification Worker** | Email and push delivery | RabbitMQ | Horizontally scalable |
+| Service                 | Responsibility                                        | Protocol            | Scaling                           |
+| ----------------------- | ----------------------------------------------------- | ------------------- | --------------------------------- |
+| **Web**                 | Responsive marketplace, discovery, dashboard          | HTTPS               | CDN + horizontal replicas         |
+| **HTTP API**            | Auth, profiles, tournament management                 | REST/HTTPS          | Stateless; load balanced          |
+| **WebSocket Server**    | Real-time moves, spectator broadcast, room management | WSS + gRPC          | Redis Socket.IO adapter           |
+| **Game Server**         | Move validation, FEN state, endgame logic             | gRPC                | Headless Service (client-side LB) |
+| **Matchmaker**          | ELO pairing, queue management, match creation         | Redis Streams       | Actor isolation per time control  |
+| **CDC**                 | PostgreSQL WAL tailing, tournament triggers           | Logical replication | Single replica (sequential WAL)   |
+| **Sync Worker**         | Pairings, results, standings, scheduler               | RabbitMQ + Redis    | Horizontally scalable             |
+| **Notification Worker** | Email and push delivery                               | RabbitMQ            | Horizontally scalable             |
 
 ### Data & Messaging Architecture
 
 **PostgreSQL** (System of Record)
+
 - User profiles and authentication
 - Tournament definitions and metadata
 - Persistent game history and results
 - Ratings and standings
 
 **Redis** (High-Speed State Layer)
+
 - Live game FENs and clocks (`game:state:*`)
 - Matchmaking queues (`QUEUE_ZSET`, `BTreeMap`)
 - Spectator tracking (`spectate:*`)
@@ -85,13 +94,16 @@ The system is designed to handle thousands of concurrent players, matches, and t
 - Redis Pub/Sub for cross-pod broadcasts
 
 **RabbitMQ** (Event-Driven Workflows)
+
 - Game notifications (`MatchNotificationEvent`)
 - Tournament events (`TournamentMatchingDlqEvent`)
 - Dead-letter queues for failed processing
 - Notification job distribution
 
 ### Kafka Integration (Future Enhancement)
+
 While not currently implemented, the architecture is designed to adopt Kafka for:
+
 - Durable event sourcing of all game decisions
 - Tournament progression audit trail
 - Long-term replay capability
@@ -99,6 +111,7 @@ While not currently implemented, the architecture is designed to adopt Kafka for
 ## ⚙️ Key Technical Components
 
 ### Actor-Based Matchmaking
+
 - **Framework:** Actix (Rust)
 - **State:** One actor per time-control pool (Bullet, Blitz, Rapid, Classical)
 - **Data Structure:** BTreeMap of candidates sorted by ELO
@@ -111,6 +124,7 @@ While not currently implemented, the architecture is designed to adopt Kafka for
   6. Match published; players atomically removed from pool
 
 ### Scheduling with CDC
+
 - **Change Data Capture:** PostgreSQL logical replication (pg_output)
 - **Zero Polling:** No `SELECT * FROM tournaments WHERE...`
 - **Recovery:** Last processed LSN (Log Sequence Number) stored in Redis
@@ -118,6 +132,7 @@ While not currently implemented, the architecture is designed to adopt Kafka for
 - **Worker:** Sync Worker consumes due jobs from Redis ZSET
 
 ### Two-Phase Scheduler
+
 ```
 PENDING_ZSET (score = due timestamp)
     ↓ Watchdog (every 5s checks for due jobs)
@@ -129,17 +144,20 @@ Redis Stream (scheduled work) → PostgreSQL updates
 ```
 
 ### gRPC Headless Service Pattern
+
 - **Problem:** HTTP/2 long-lived connections stick to single pod (uneven load)
 - **Solution:** Kubernetes Headless Service (`game-server-headless`)
 - **Benefit:** WebSocket server resolves all pod IPs, performs client-side round-robin
 - **Result:** Even load distribution across game servers
 
 ### WASM Stockfish Integration
+
 - **Offloading:** Stockfish analysis runs in browser via Web Workers
 - **Benefit:** Zero backend CPU for game analysis
 - **Trade-off:** Larger initial page load for WASM binary
 
 ### Swiss System Algorithm
+
 - **Implementation:** Edmonds' blossom Maximum Weight Perfect Matching
 - **Grouping:** Players grouped by score
 - **Pairing:** Optimal matching within score groups, avoiding repeats
@@ -149,6 +167,7 @@ Redis Stream (scheduled work) → PostgreSQL updates
 ## 🔄 Event & Data Flow
 
 ### Game Complete Flow
+
 ```
 Player 1 submits move (WebSocket)
     ↓ WS Server validates with Game Server (gRPC)
@@ -161,6 +180,7 @@ Player 1 submits move (WebSocket)
 ```
 
 ### Tournament Scheduling Flow
+
 ```
 Tournament created in PostgreSQL
     ↓ CDC tails WAL, detects INSERT
@@ -174,6 +194,7 @@ Tournament created in PostgreSQL
 ```
 
 ### Match Creation Flow
+
 ```
 Player A searches for match (3|0 Blitz)
     ↓ HTTP Server publishes to Redis Stream `matchmaker:stream`
@@ -192,30 +213,35 @@ Player A searches for match (3|0 Blitz)
 ### Crash Recovery Mechanisms
 
 **Matchmaker Pod Crash**
+
 - On restart, new actor instances invoke `sync_from_redis`
 - Recover queues from `QUEUE_ZSET` without dropping pending players
 - Resume pairing immediately
 
 **WebSocket Server Crash**
+
 - Clients auto-reconnect to another healthy pod
 - Live game state and spectator mappings remain in Redis
 - Rejoin room, resume receiving move updates
 
 **Sync Worker Crash**
+
 - Jobs remain in `PROCESSING_ZSET` with visibility timeout
 - Watchdog scans expired timeouts, re-queues jobs
 - Unacknowledged RabbitMQ messages redelivered
 
 **CDC Worker Crash**
+
 - Stores last processed LSN in Redis (`cdc:pending_lsns`)
 - On restart, resumes tailing from that LSN
 - No tournament scheduling events missed
 
 **Single Points of Failure**
+
 - **Redis:** High impact—matchmaking queues, live state, locks all lost
-  - *Mitigation:* Redis Cluster HA, AOF persistence, replicas
+  - _Mitigation:_ Redis Cluster HA, AOF persistence, replicas
 - **PostgreSQL:** High impact—persistent game history, tournament data
-  - *Mitigation:* Cloud provider backup/failover, read replicas
+  - _Mitigation:_ Cloud provider backup/failover, read replicas
 
 ## 📊 Scalability & Performance
 
@@ -234,21 +260,25 @@ Larger history              → PostgreSQL read replicas + partitioning
 ### Bottleneck Analysis
 
 **PostgreSQL** (Ultimate Bottleneck)
+
 - Heavily shielded by Redis caching
 - Handles persistent profiles, final results only
 - Scales via cloud provider managed service
 
 **Matchmaker** (Highly Concurrent)
+
 - Actor isolation eliminates shared locks
 - Individual time controls cannot be sharded (single actor per pool)
 - Add matchmakers up to max concurrent time control pools
 
 **WebSocket Server** (Horizontally Infinite)
+
 - Stateless clients, ephemeral connections
 - Redis Pub/Sub adapter broadcasts across pods
 - Scales to thousands of concurrent connections per pod
 
 **Game Server** (Stateless)
+
 - Validates moves, returns decisions
 - No per-game state stored locally
 - Scales horizontally behind Headless Service
@@ -256,65 +286,74 @@ Larger history              → PostgreSQL read replicas + partitioning
 ## 🎮 Game Formats Supported
 
 ### Rapid
+
 - 10|0 (10 minutes + 0 increment)
 - 15|10 (15 minutes + 10 second increment)
 
 ### Blitz
+
 - 3|0 (3 minutes, bullet-speed)
 - 5|2 (5 minutes + 2 second increment)
 
 ### Classical
+
 - 30|0+ (30 minutes + increment per move)
 
 ### Tournament Formats
+
 - **Swiss System** (standard multi-round)
 - **Round Robin** (all play all)
 
 ## 🛡️ Security & Consistency
 
 ### Move Validation
+
 - Only Game Server is authoritative for legality
 - WebSocket Server proxies to gRPC for validation
 - Board state immutable in Redis until move accepted
 
 ### Tournament Fairness
+
 - Swiss system prevents known opponent repeats
 - Color balancing within same-round games
 - Tiebreak rules (Buchholz, SB) fairly resolve ties
 
 ### Authentication & Authorization
+
 - JWT-based user sessions
 - Role-based access (player, admin, spectator)
 - HTTP-only cookies for credential storage
 - SealedSecrets for Kubernetes credential encryption
 
 ### Rate Limiting & DDoS
+
 - IP-based rate limiting at load balancer
 - User-based rate limiting via Redis counters
 - Circuit breakers on downstream services
 
 ## 📦 Technology Stack
 
-| Layer | Technology |
-|-------|---|
-| **Frontend** | Next.js, React, TypeScript, CSS, Socket.IO client |
-| **Web Service** | Node.js, Express.js (HTTP Server + WebSocket Server) |
-| **Rust Services** | Tokio async, Actix actors, Tonic gRPC, sqlx (PostgreSQL) |
-| **Matchmaking** | Actix actor framework, BTreeMap, Redis Streams |
-| **Chess Logic** | Standard FIDE rules, move validation, endgame detection |
-| **Analysis** | Stockfish WASM (client-side), Web Workers |
-| **State** | Redis (Streams, ZSET, Pub/Sub, Hashes, Locks) |
-| **Durable State** | PostgreSQL 16 (profiles, history, ratings, tournaments) |
-| **Messaging** | RabbitMQ (events, notifications, job distribution) |
-| **CDC** | PostgreSQL logical replication (pg_output) |
-| **Container Orchestration** | Kubernetes, Argo CD, Kustomize |
-| **Deployment** | GitHub Actions CI/CD, GHCR container registry |
-| **Observability** | Structured JSON logging, Prometheus metrics, traces |
-| **TLS & DNS** | cert-manager (ACME), NGINX Ingress |
+| Layer                       | Technology                                               |
+| --------------------------- | -------------------------------------------------------- |
+| **Frontend**                | Next.js, React, TypeScript, CSS, Socket.IO client        |
+| **Web Service**             | Node.js, Express.js (HTTP Server + WebSocket Server)     |
+| **Rust Services**           | Tokio async, Actix actors, Tonic gRPC, sqlx (PostgreSQL) |
+| **Matchmaking**             | Actix actor framework, BTreeMap, Redis Streams           |
+| **Chess Logic**             | Standard FIDE rules, move validation, endgame detection  |
+| **Analysis**                | Stockfish WASM (client-side), Web Workers                |
+| **State**                   | Redis (Streams, ZSET, Pub/Sub, Hashes, Locks)            |
+| **Durable State**           | PostgreSQL 16 (profiles, history, ratings, tournaments)  |
+| **Messaging**               | RabbitMQ (events, notifications, job distribution)       |
+| **CDC**                     | PostgreSQL logical replication (pg_output)               |
+| **Container Orchestration** | Kubernetes, Argo CD, Kustomize                           |
+| **Deployment**              | GitHub Actions CI/CD, GHCR container registry            |
+| **Observability**           | Structured JSON logging, Prometheus metrics, traces      |
+| **TLS & DNS**               | cert-manager (ACME), NGINX Ingress                       |
 
 ## 🚀 Deployment
 
 ### Local Development
+
 ```bash
 # Install dependencies
 npm install
@@ -329,6 +368,7 @@ npm run dev
 ```
 
 **Local Access:**
+
 - Marketplace: http://localhost:3000
 - HTTP API: http://localhost:8080
 - WebSocket: ws://localhost:8080/ws
@@ -338,6 +378,7 @@ npm run dev
 ### Kubernetes Deployment (Argo CD)
 
 **Manifests:** `chess-k8s/`
+
 - Services (ClusterIP for HTTP, Headless for gRPC)
 - Ingress (NGINX with cert-manager TLS)
 - StatefulSets (Redis, PostgreSQL external)
@@ -347,6 +388,7 @@ npm run dev
 - HorizontalPodAutoscalers (CPU-based scaling)
 
 **GitOps Workflow:**
+
 1. Developer pushes to `dev` branch
 2. GitHub Actions: Build images, run tests, push to GHCR
 3. Update image tags in `chess-k8s/apps/`
@@ -356,6 +398,7 @@ npm run dev
 ## 🧪 Testing & CI/CD
 
 **CI Pipeline (GitHub Actions):**
+
 - Docker builds for all 8 services
 - Rust tests (`cargo test --workspace`)
 - Web tests (TypeScript type checks, ESLint)
@@ -363,6 +406,7 @@ npm run dev
 - Image push to GHCR (on merge to dev)
 
 **Code Quality:**
+
 - ESLint configuration (`packages/eslint-config`)
 - Rust clippy lints
 - TypeScript strict mode
@@ -411,12 +455,14 @@ chess-k8s/                Kubernetes manifests, Argo CD configs
 ## 📈 Known Limitations & Future Enhancements
 
 **Current Limitations:**
+
 - Redis crash causes loss of live state (requires HA clustering)
 - Matchmaker actors bound to single thread (single hot time control cannot scale)
 - No long-term event sourcing (Kafka planned)
 - Limited to 32 concurrent time control pools (matches Kafka partition count)
 
 **Planned Enhancements:**
+
 - Kafka integration for durable event log
 - Redis Cluster HA with automatic failover
 - PostgreSQL read replicas for analytics queries
@@ -436,6 +482,7 @@ chess-k8s/                Kubernetes manifests, Argo CD configs
 ---
 
 **Build Information:**
+
 - Repository: https://github.com/bhatvinay7/chess-1
 - Default Branch: `dev`
 - Primary Languages: TypeScript (57.1%), CSS (21.4%), Rust (20%)

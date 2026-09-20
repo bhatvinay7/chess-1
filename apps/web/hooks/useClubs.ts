@@ -1,7 +1,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "../app/lib/api/clubs";
 
-export const useClubList = (params?: { page?: number; limit?: number; search?: string }) =>
+export const useClubList = (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) =>
   useQuery({
     queryKey: ["clubs", params],
     queryFn: () => api.listClubs(params),
@@ -25,8 +29,12 @@ export const useCreateClub = () => {
 export const useUpdateClub = (clubId: string) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (payload: { name?: string; description?: string; imageUrl?: string; requesterId: string }) =>
-      api.updateClub(clubId, payload),
+    mutationFn: (payload: {
+      name?: string;
+      description?: string;
+      imageUrl?: string;
+      requesterId: string;
+    }) => api.updateClub(clubId, payload),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["club", clubId] });
       qc.invalidateQueries({ queryKey: ["clubs"] });
@@ -80,8 +88,13 @@ export const useRemoveMember = (clubId: string) => {
 export const useSendCoordinatorInvite = (clubId: string) => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ invitedUserId, invitedById }: { invitedUserId: string; invitedById: string }) =>
-      api.sendCoordinatorInvite(clubId, invitedUserId, invitedById),
+    mutationFn: ({
+      invitedUserId,
+      invitedById,
+    }: {
+      invitedUserId: string;
+      invitedById: string;
+    }) => api.sendCoordinatorInvite(clubId, invitedUserId, invitedById),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["club", clubId] }),
   });
 };

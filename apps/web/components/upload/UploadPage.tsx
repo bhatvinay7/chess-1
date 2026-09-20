@@ -28,7 +28,7 @@ export default function UploadPage() {
               ...data.files.map((f) => f.url),
             ]);
           },
-        }
+        },
       );
     }
   };

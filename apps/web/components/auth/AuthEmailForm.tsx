@@ -1,10 +1,23 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, Lock, User, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  Loader2,
+  AlertCircle,
+  ArrowLeft,
+} from "lucide-react";
 
 interface AuthEmailFormProps {
-  onSubmit: (email: string, password: string, username?: string) => Promise<void>;
+  onSubmit: (
+    email: string,
+    password: string,
+    username?: string,
+  ) => Promise<void>;
   isLoading?: boolean;
   error?: string;
   submitLabel?: string;
@@ -127,12 +140,16 @@ export function AuthEmailForm({
                 "brightness(1.1)";
           }}
           onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)";
+            (e.currentTarget as HTMLButtonElement).style.filter =
+              "brightness(1)";
           }}
         >
           {isLoading ? (
             <>
-              <Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} />
+              <Loader2
+                size={16}
+                style={{ animation: "spin 1s linear infinite" }}
+              />
               Sending…
             </>
           ) : (

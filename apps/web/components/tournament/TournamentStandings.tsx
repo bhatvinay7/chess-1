@@ -1,14 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import type { TournamentSocketData, GroupStanding, RoundStanding } from "../../app/lib/api/tournaments";
+import type {
+  TournamentSocketData,
+  GroupStanding,
+  RoundStanding,
+} from "../../app/lib/api/tournaments";
 import styles from "./TournamentStandings.module.css";
 
 interface Props {
-  liveData:    TournamentSocketData | null;
-  userId?:     string;
+  liveData: TournamentSocketData | null;
+  userId?: string;
   accentColor: string;
-  isActive:    boolean;
+  isActive: boolean;
 }
 
 const MEDALS = ["🥇", "🥈", "🥉"];
@@ -37,7 +41,7 @@ function GroupTable({
   accentColor: string;
 }) {
   const sorted = [...group.standings].sort((a, b) => b.score - a.score);
-  const maxScore = Math.max(...sorted.map(p => p.score), 1);
+  const maxScore = Math.max(...sorted.map((p) => p.score), 1);
 
   return (
     <div className={styles.groupBlock}>
@@ -65,13 +69,18 @@ function GroupTable({
               <tr
                 key={p.playerId}
                 className={`${styles.tr} ${isMe ? styles.trMe : ""}`}
-                style={isMe ? { "--ac": accentColor } as React.CSSProperties : undefined}
+                style={
+                  isMe
+                    ? ({ "--ac": accentColor } as React.CSSProperties)
+                    : undefined
+                }
               >
                 <td className={styles.tdRank}>
-                  {i < 3
-                    ? <span className={styles.medal}>{MEDALS[i]}</span>
-                    : <span className={styles.rankNum}>{i + 1}</span>
-                  }
+                  {i < 3 ? (
+                    <span className={styles.medal}>{MEDALS[i]}</span>
+                  ) : (
+                    <span className={styles.rankNum}>{i + 1}</span>
+                  )}
                 </td>
                 <td className={styles.tdPlayer}>
                   <span className={styles.playerInfo}>
@@ -79,8 +88,10 @@ function GroupTable({
                     {p.byes > 0 && <span className={styles.byePill}>BYE</span>}
                   </span>
                 </td>
-                <td className={`${styles.tdNum} ${styles.tdScore}`}
-                    style={isMe ? { color: accentColor } : undefined}>
+                <td
+                  className={`${styles.tdNum} ${styles.tdScore}`}
+                  style={isMe ? { color: accentColor } : undefined}
+                >
                   {fmtScore(p.score)}
                 </td>
                 <td className={`${styles.tdNum} ${styles.tdW}`}>{p.wins}</td>
@@ -92,7 +103,9 @@ function GroupTable({
                       className={styles.barFill}
                       style={{
                         width: `${maxScore > 0 ? (p.score / maxScore) * 100 : 0}%`,
-                        background: isMe ? accentColor : "rgba(255,255,255,0.15)",
+                        background: isMe
+                          ? accentColor
+                          : "rgba(255,255,255,0.15)",
                       }}
                     />
                   </div>
@@ -102,7 +115,9 @@ function GroupTable({
           })}
           {sorted.length === 0 && (
             <tr>
-              <td colSpan={7} className={styles.emptyCell}>No results yet</td>
+              <td colSpan={7} className={styles.emptyCell}>
+                No results yet
+              </td>
             </tr>
           )}
         </tbody>
@@ -119,7 +134,7 @@ function RoundLeaderboard({
   accentColor,
 }: {
   standings: RoundStanding["roundStandings"];
-  userId?:   string;
+  userId?: string;
   accentColor: string;
 }) {
   if (!standings.length) return null;
@@ -128,7 +143,9 @@ function RoundLeaderboard({
     <div className={styles.groupBlock}>
       <div className={styles.groupHead}>
         <span className={styles.groupHeadLabel}>Advanced</span>
-        <span className={styles.groupHeadCount}>{standings.length} players</span>
+        <span className={styles.groupHeadCount}>
+          {standings.length} players
+        </span>
       </div>
       <table className={styles.table}>
         <thead>
@@ -146,19 +163,26 @@ function RoundLeaderboard({
               <tr
                 key={p.playerId}
                 className={`${styles.tr} ${isMe ? styles.trMe : ""}`}
-                style={isMe ? { "--ac": accentColor } as React.CSSProperties : undefined}
+                style={
+                  isMe
+                    ? ({ "--ac": accentColor } as React.CSSProperties)
+                    : undefined
+                }
               >
                 <td className={styles.tdRank}>
-                  {i < 3
-                    ? <span className={styles.medal}>{MEDALS[i]}</span>
-                    : <span className={styles.rankNum}>{i + 1}</span>
-                  }
+                  {i < 3 ? (
+                    <span className={styles.medal}>{MEDALS[i]}</span>
+                  ) : (
+                    <span className={styles.rankNum}>{i + 1}</span>
+                  )}
                 </td>
                 <td className={styles.tdPlayer}>
                   <span className={styles.playerName}>{p.username}</span>
                 </td>
-                <td className={`${styles.tdNum} ${styles.tdScore}`}
-                    style={isMe ? { color: accentColor } : undefined}>
+                <td
+                  className={`${styles.tdNum} ${styles.tdScore}`}
+                  style={isMe ? { color: accentColor } : undefined}
+                >
                   {fmtScore(p.groupScore)}
                 </td>
                 <td className={styles.tdNum}>#{p.groupRank}</td>
@@ -173,7 +197,12 @@ function RoundLeaderboard({
 
 // ── Main standings component ──────────────────────────────────────────────
 
-export default function TournamentStandings({ liveData, userId, accentColor, isActive }: Props) {
+export default function TournamentStandings({
+  liveData,
+  userId,
+  accentColor,
+  isActive,
+}: Props) {
   const [activeRound, setActiveRound] = useState(0);
 
   if (!liveData || !liveData.rounds.length) {
@@ -197,7 +226,11 @@ export default function TournamentStandings({ liveData, userId, accentColor, isA
               type="button"
               className={`${styles.roundTab} ${i === activeRound ? styles.roundTabActive : ""}`}
               onClick={() => setActiveRound(i)}
-              style={i === activeRound ? { borderBottomColor: accentColor, color: accentColor } : undefined}
+              style={
+                i === activeRound
+                  ? { borderBottomColor: accentColor, color: accentColor }
+                  : undefined
+              }
             >
               Round {r.roundNumber}
             </button>
@@ -209,7 +242,7 @@ export default function TournamentStandings({ liveData, userId, accentColor, isA
         <div className={styles.content}>
           {/* Group standings */}
           <div className={styles.groupsWrap}>
-            {round.groups.map(g => (
+            {round.groups.map((g) => (
               <GroupTable
                 key={g.groupId}
                 group={g}

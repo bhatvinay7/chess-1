@@ -82,9 +82,7 @@ export default function NotificationsPage() {
         {loading ? (
           <div className={inviteStyles.loadingWrap}>
             <div className={inviteStyles.spinner} />
-            <span className={styles.loadingText}>
-              Loading notifications...
-            </span>
+            <span className={styles.loadingText}>Loading notifications...</span>
           </div>
         ) : notifications.length === 0 ? (
           <motion.div

@@ -24,7 +24,9 @@ export function ThemeApplier() {
     const shouldUseDark = savedTheme === "dark";
 
     document.body.classList.toggle("dark-ui", shouldUseDark);
-    document.documentElement.style.colorScheme = shouldUseDark ? "dark" : "light";
+    document.documentElement.style.colorScheme = shouldUseDark
+      ? "dark"
+      : "light";
     initializedRef.current = true;
     dispatch(setDarkUI(shouldUseDark));
   }, [dispatch]);

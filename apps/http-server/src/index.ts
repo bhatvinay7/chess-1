@@ -29,17 +29,19 @@ const allowedOrigins = new Set(
     .map((origin) => origin.trim().replace(/\/$/, ""))
     .filter(Boolean),
 );
-app.use(cors({
-  origin(origin, callback) {
-    // Requests without Origin are non-browser/server-to-server requests.
-    if (!origin || allowedOrigins.has(origin.replace(/\/$/, ""))) {
-      callback(null, true);
-      return;
-    }
-    callback(new Error(`CORS origin is not allowed: ${origin}`));
-  },
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Requests without Origin are non-browser/server-to-server requests.
+      if (!origin || allowedOrigins.has(origin.replace(/\/$/, ""))) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error(`CORS origin is not allowed: ${origin}`));
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 registerMetrics(app);
 

@@ -73,7 +73,9 @@ function sameHour(a: string | undefined, b: string | undefined): boolean {
   if (!a || !b) return false;
   const da = new Date(a);
   const db = new Date(b);
-  return da.getHours() === db.getHours() && da.toDateString() === db.toDateString();
+  return (
+    da.getHours() === db.getHours() && da.toDateString() === db.toDateString()
+  );
 }
 
 // ─── Row ─────────────────────────────────────────────────────────────────────
@@ -100,7 +102,9 @@ function TournamentRow({
   const meta = STATUS_META[t.status] ?? { cls: "draft" };
   const tl = timeLeft(t, now);
   const dur = duration(t);
-  const canJoin = !isMine && (t.status === "REGISTRATION_OPEN" || t.status === "NOT_INITIALIZED");
+  const canJoin =
+    !isMine &&
+    (t.status === "REGISTRATION_OPEN" || t.status === "NOT_INITIALIZED");
 
   return (
     <>
@@ -109,7 +113,11 @@ function TournamentRow({
           <td colSpan={8}>
             <div className={styles.nowBar}>
               <span className={styles.nowTime}>
-                {now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}
+                {now.toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
               </span>
               <span className={styles.nowLine} />
             </div>
@@ -120,23 +128,31 @@ function TournamentRow({
         className={`${styles.row} ${isMine ? styles.rowMine : ""}`}
         onClick={() => router.push(`/tournament/${t.id}`)}
         tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && router.push(`/tournament/${t.id}`)}
+        onKeyDown={(e) =>
+          e.key === "Enter" && router.push(`/tournament/${t.id}`)
+        }
       >
         {/* Time */}
         <td className={styles.tdTime}>
           {showTime && t.timeManagement && (
             <span className={styles.timeLabel}>
-              {new Date(t.timeManagement.startTime).toLocaleTimeString("en-US", {
-                hour: "numeric",
-                hour12: true,
-              })}
+              {new Date(t.timeManagement.startTime).toLocaleTimeString(
+                "en-US",
+                {
+                  hour: "numeric",
+                  hour12: true,
+                },
+              )}
             </span>
           )}
         </td>
 
         {/* Type icon */}
         <td className={styles.tdType}>
-          <span className={styles.typeIcon} style={{ color: cfg?.color ?? "#7a7673" }}>
+          <span
+            className={styles.typeIcon}
+            style={{ color: cfg?.color ?? "#7a7673" }}
+          >
             {cfg?.icon}
           </span>
         </td>
@@ -172,7 +188,12 @@ function TournamentRow({
         {/* Players */}
         <td className={styles.tdPlayers}>
           <span className={styles.players}>
-            <svg viewBox="0 0 14 14" width="11" height="11" className={styles.personIcon}>
+            <svg
+              viewBox="0 0 14 14"
+              width="11"
+              height="11"
+              className={styles.personIcon}
+            >
               <path
                 fill="currentColor"
                 d="M7 7a3 3 0 100-6 3 3 0 000 6zm-6 6c0-3.314 2.686-6 6-6s6 2.686 6 6H1z"
@@ -228,7 +249,7 @@ export default function TournamentList({
   onRetry,
   now,
   emptyLabel = "No tournaments found",
-  emptySub   = "Try adjusting your filters or create a new tournament.",
+  emptySub = "Try adjusting your filters or create a new tournament.",
 }: Props) {
   if (loading) {
     return (
@@ -244,14 +265,20 @@ export default function TournamentList({
   const sorted = [...tournaments]
     .filter((t) => !myIds.has(t.id))
     .sort((a, b) => {
-      const at = a.timeManagement ? new Date(a.timeManagement.startTime).getTime() : 0;
-      const bt = b.timeManagement ? new Date(b.timeManagement.startTime).getTime() : 0;
+      const at = a.timeManagement
+        ? new Date(a.timeManagement.startTime).getTime()
+        : 0;
+      const bt = b.timeManagement
+        ? new Date(b.timeManagement.startTime).getTime()
+        : 0;
       return at - bt;
     });
 
   const nowMs = now.getTime();
   let nowRowIdx = sorted.findIndex(
-    (t) => t.timeManagement && new Date(t.timeManagement.startTime).getTime() > nowMs
+    (t) =>
+      t.timeManagement &&
+      new Date(t.timeManagement.startTime).getTime() > nowMs,
   );
   if (nowRowIdx === -1) nowRowIdx = sorted.length;
 
@@ -296,7 +323,7 @@ export default function TournamentList({
                     i === 0 ||
                     !sameHour(
                       t.timeManagement?.startTime,
-                      myTournaments[i - 1]?.timeManagement?.startTime
+                      myTournaments[i - 1]?.timeManagement?.startTime,
                     )
                   }
                   showNowLine={false}
@@ -345,7 +372,7 @@ export default function TournamentList({
                   i === 0 ||
                   !sameHour(
                     t.timeManagement?.startTime,
-                    sorted[i - 1]?.timeManagement?.startTime
+                    sorted[i - 1]?.timeManagement?.startTime,
                   )
                 }
                 showNowLine={i === nowRowIdx}

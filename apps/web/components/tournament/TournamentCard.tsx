@@ -1,6 +1,14 @@
 "use client";
 
-import { Users, Clock, Star, Lock, Shield, Zap, ChevronRight } from "lucide-react";
+import {
+  Users,
+  Clock,
+  Star,
+  Lock,
+  Shield,
+  Zap,
+  ChevronRight,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { TournamentListItem } from "./types";
 import { TOURNAMENT_TYPE_CONFIGS } from "./TournamentTypesSidebar";
@@ -25,7 +33,12 @@ const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
 
 function formatDate(iso: string) {
   const d = new Date(iso);
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function formatDuration(start: string, end?: string | null) {
@@ -37,13 +50,27 @@ function formatDuration(start: string, end?: string | null) {
   return `${m}m`;
 }
 
-export default function TournamentCard({ tournament: t, onJoin, joining, isMyTournament }: Props) {
+export default function TournamentCard({
+  tournament: t,
+  onJoin,
+  joining,
+  isMyTournament,
+}: Props) {
   const router = useRouter();
-  const typeConfig = TOURNAMENT_TYPE_CONFIGS.find((c) => c.id === t.tournamentType);
-  const statusInfo = STATUS_LABELS[t.status] ?? { label: t.status, cls: "draft" };
-  const fillPercent =
-    t.maxPlayers ? Math.min(100, Math.round((t.participantCount / t.maxPlayers) * 100)) : null;
-  const duration = formatDuration(t.timeManagement.startTime, t.timeManagement.endTime);
+  const typeConfig = TOURNAMENT_TYPE_CONFIGS.find(
+    (c) => c.id === t.tournamentType,
+  );
+  const statusInfo = STATUS_LABELS[t.status] ?? {
+    label: t.status,
+    cls: "draft",
+  };
+  const fillPercent = t.maxPlayers
+    ? Math.min(100, Math.round((t.participantCount / t.maxPlayers) * 100))
+    : null;
+  const duration = formatDuration(
+    t.timeManagement.startTime,
+    t.timeManagement.endTime,
+  );
 
   const canJoin =
     !isMyTournament &&
@@ -56,10 +83,17 @@ export default function TournamentCard({ tournament: t, onJoin, joining, isMyTou
       role="link"
       tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && router.push(`/tournament/${t.id}`)}
-      style={{ "--type-color": typeConfig?.color ?? "#f28b38" } as React.CSSProperties}
+      style={
+        {
+          "--type-color": typeConfig?.color ?? "#f28b38",
+        } as React.CSSProperties
+      }
     >
       {/* Left accent bar */}
-      <span className={styles.accentBar} style={{ background: typeConfig?.color ?? "#f28b38" }} />
+      <span
+        className={styles.accentBar}
+        style={{ background: typeConfig?.color ?? "#f28b38" }}
+      />
 
       {/* Banner image or type icon */}
       <span className={styles.typeIcon} style={{ color: typeConfig?.color }}>
@@ -69,21 +103,41 @@ export default function TournamentCard({ tournament: t, onJoin, joining, isMyTou
       {/* Main content */}
       <div className={styles.body}>
         <div className={styles.topRow}>
-          <span className={`${styles.statusBadge} ${styles[`status_${statusInfo.cls}`]}`}>
+          <span
+            className={`${styles.statusBadge} ${styles[`status_${statusInfo.cls}`]}`}
+          >
             {statusInfo.cls === "live" && <span className={styles.liveDot} />}
             {statusInfo.label}
           </span>
-          {t.isRated && <span className={styles.tag}><Star size={10} />Rated</span>}
-          {t.inviteOnly && <span className={styles.tag}><Lock size={10} />Invite</span>}
-          {t.premiumOnly && <span className={styles.tag}><Shield size={10} />Premium</span>}
-          {t.gameType === "CHESS960" && <span className={styles.tag}><Zap size={10} />960</span>}
+          {t.isRated && (
+            <span className={styles.tag}>
+              <Star size={10} />
+              Rated
+            </span>
+          )}
+          {t.inviteOnly && (
+            <span className={styles.tag}>
+              <Lock size={10} />
+              Invite
+            </span>
+          )}
+          {t.premiumOnly && (
+            <span className={styles.tag}>
+              <Shield size={10} />
+              Premium
+            </span>
+          )}
+          {t.gameType === "CHESS960" && (
+            <span className={styles.tag}>
+              <Zap size={10} />
+              960
+            </span>
+          )}
         </div>
 
         <h3 className={styles.name}>{t.name}</h3>
 
-        {t.description && (
-          <p className={styles.desc}>{t.description}</p>
-        )}
+        {t.description && <p className={styles.desc}>{t.description}</p>}
 
         <div className={styles.meta}>
           <span className={styles.metaItem}>
@@ -95,9 +149,7 @@ export default function TournamentCard({ tournament: t, onJoin, joining, isMyTou
             <Clock size={12} />
             {formatDate(t.timeManagement.startTime)}
           </span>
-          {duration && (
-            <span className={styles.metaItem}>⏱ {duration}</span>
-          )}
+          {duration && <span className={styles.metaItem}>⏱ {duration}</span>}
           {t.timeControl && (
             <span className={styles.metaItem}>🕐 {t.timeControl.label}</span>
           )}

@@ -13,26 +13,30 @@ export interface SpectateServerTimes {
 }
 
 interface SpectateMoveLive {
-  gameId:              string;
-  userId:              string;
-  move:                { from: string; to: string; promotion?: string };
-  newFen:              string;
-  gameStatus:          string;
+  gameId: string;
+  userId: string;
+  move: { from: string; to: string; promotion?: string };
+  newFen: string;
+  gameStatus: string;
   blackPlayerLeftTime: number;
   whitePlayerLeftTime: number;
-  timeTakenMs:         number;
-  increment:           number;
+  timeTakenMs: number;
+  increment: number;
 }
 
 export function useSpectateGame(gameId: string) {
   const { socket } = useSocket();
 
-  const [spectateState,  setSpectateState]  = useState<GameRoomState | null>(null);
-  const [movePairs,      setMovePairs]      = useState<MovePair[]>([]);
-  const [moveCount,      setMoveCount]      = useState(0);
-  const [serverTimes,    setServerTimes]    = useState<SpectateServerTimes | null>(null);
+  const [spectateState, setSpectateState] = useState<GameRoomState | null>(
+    null,
+  );
+  const [movePairs, setMovePairs] = useState<MovePair[]>([]);
+  const [moveCount, setMoveCount] = useState(0);
+  const [serverTimes, setServerTimes] = useState<SpectateServerTimes | null>(
+    null,
+  );
   const [spectatorCount, setSpectatorCount] = useState(0);
-  const [connected,      setConnected]      = useState(false);
+  const [connected, setConnected] = useState(false);
 
   // Running chess instance drives SAN computation for live moves
   const gameRef = useRef(new Chess());
@@ -44,8 +48,11 @@ export function useSpectateGame(gameId: string) {
       black: Number(state.blackPlayerLeftTime) * 1000,
     });
     try {
-      if (state.currentFen) gameRef.current = new Chess(toSafeFen(state.currentFen));
-    } catch { /* invalid fen — keep previous */ }
+      if (state.currentFen)
+        gameRef.current = new Chess(toSafeFen(state.currentFen));
+    } catch {
+      /* invalid fen — keep previous */
+    }
   }, []);
 
   useEffect(() => {
@@ -64,8 +71,8 @@ export function useSpectateGame(gameId: string) {
         prev
           ? {
               ...prev,
-              currentFen:          data.newFen,
-              gameState:           data.gameStatus,
+              currentFen: data.newFen,
+              gameState: data.gameStatus,
               blackPlayerLeftTime: data.blackPlayerLeftTime,
               whitePlayerLeftTime: data.whitePlayerLeftTime,
             }
@@ -81,12 +88,14 @@ export function useSpectateGame(gameId: string) {
       let san = `${data.move.from}-${data.move.to}`;
       try {
         const result = gameRef.current.move({
-          from:      data.move.from,
-          to:        data.move.to,
+          from: data.move.from,
+          to: data.move.to,
           promotion: data.move.promotion || undefined,
         });
         if (result) san = result.san;
-      } catch { /* illegal move in local state — use coordinate fallback */ }
+      } catch {
+        /* illegal move in local state — use coordinate fallback */
+      }
 
       const isWhiteMove = gameRef.current.turn() === "b"; // after the move, turn flipped
 
@@ -98,7 +107,11 @@ export function useSpectateGame(gameId: string) {
           next.push({ white: san, whiteTimeTakenMs: data.timeTakenMs });
         } else {
           // Complete the current pair with black's move
-          next[next.length - 1] = { ...last, black: san, blackTimeTakenMs: data.timeTakenMs };
+          next[next.length - 1] = {
+            ...last,
+            black: san,
+            blackTimeTakenMs: data.timeTakenMs,
+          };
         }
         return next;
       });
@@ -111,16 +124,16 @@ export function useSpectateGame(gameId: string) {
     }
 
     socket.on("spectate_game_state", onSpectateGameState);
-    socket.on("spectate_move",       onSpectateMove);
-    socket.on("spectator_count",     onSpectatorCount);
+    socket.on("spectate_move", onSpectateMove);
+    socket.on("spectator_count", onSpectatorCount);
 
     socket.emit("watch_game", { gameId });
 
     return () => {
       socket.emit("leave_spectate", { gameId });
       socket.off("spectate_game_state", onSpectateGameState);
-      socket.off("spectate_move",       onSpectateMove);
-      socket.off("spectator_count",     onSpectatorCount);
+      socket.off("spectate_move", onSpectateMove);
+      socket.off("spectator_count", onSpectatorCount);
     };
   }, [socket, gameId, applyServerState]);
 

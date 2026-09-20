@@ -3,37 +3,53 @@
 import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft, Users, Clock, RefreshCw, Swords, Trash2,
-  Trophy, Wifi, WifiOff, ChevronRight, LayoutList, BarChart2, Info,
+  ArrowLeft,
+  Users,
+  Clock,
+  RefreshCw,
+  Swords,
+  Trash2,
+  Trophy,
+  Wifi,
+  WifiOff,
+  ChevronRight,
+  LayoutList,
+  BarChart2,
+  Info,
   Settings,
 } from "lucide-react";
 import type { TournamentListItem } from "./types";
 import {
-  fetchTournament, joinTournament, leaveTournament,
-  deleteTournament, fetchMyTournamentGame,
+  fetchTournament,
+  joinTournament,
+  leaveTournament,
+  deleteTournament,
+  fetchMyTournamentGame,
 } from "../../app/lib/api/tournaments";
 import { useAuth } from "../../hooks/useAuth";
 import { useTournamentView } from "../../hooks/useTournamentView";
 import { TOURNAMENT_TYPE_CONFIGS } from "./TournamentTypesSidebar";
-import TournamentOverview   from "./TournamentOverview";
-import TournamentRounds     from "./TournamentRounds";
-import TournamentStandings  from "./TournamentStandings";
+import TournamentOverview from "./TournamentOverview";
+import TournamentRounds from "./TournamentRounds";
+import TournamentStandings from "./TournamentStandings";
 import styles from "./TournamentDetail.module.css";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type Tab = "overview" | "rounds" | "standings";
 
-interface Props { id: string }
+interface Props {
+  id: string;
+}
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
-  DRAFT:               { label: "Draft",               cls: "draft"     },
-  REGISTRATION_OPEN:   { label: "Registration Open",   cls: "open"      },
-  REGISTRATION_CLOSED: { label: "Registration Closed", cls: "closed"    },
-  NOT_INITIALIZED:     { label: "Starting Soon",       cls: "soon"      },
-  IN_PROGRESS:         { label: "Live",                cls: "live"      },
-  COMPLETED:           { label: "Completed",           cls: "done"      },
-  CANCELLED:           { label: "Cancelled",           cls: "cancelled" },
+  DRAFT: { label: "Draft", cls: "draft" },
+  REGISTRATION_OPEN: { label: "Registration Open", cls: "open" },
+  REGISTRATION_CLOSED: { label: "Registration Closed", cls: "closed" },
+  NOT_INITIALIZED: { label: "Starting Soon", cls: "soon" },
+  IN_PROGRESS: { label: "Live", cls: "live" },
+  COMPLETED: { label: "Completed", cls: "done" },
+  CANCELLED: { label: "Cancelled", cls: "cancelled" },
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -63,45 +79,80 @@ function fmtCountdown(ms: number): string {
 // ── My Match card ─────────────────────────────────────────────────────────────
 
 function MyMatchCard({
-  myMatch, userId, accentColor, onPlay,
+  myMatch,
+  userId,
+  accentColor,
+  onPlay,
 }: {
-  myMatch:     Record<string, string> & { gameId: string };
-  userId:      string;
+  myMatch: Record<string, string> & { gameId: string };
+  userId: string;
   accentColor: string;
-  onPlay:      (gameId: string) => void;
+  onPlay: (gameId: string) => void;
 }) {
-  const isWhite  = myMatch.white_player_id === userId;
-  const me  = { username: isWhite ? myMatch.player1_username   : myMatch.player2_username,   rating: isWhite ? myMatch.player1_rating   : myMatch.player2_rating,   img: isWhite ? myMatch.player1_profile_image_url : myMatch.player2_profile_image_url };
-  const opp = { username: isWhite ? myMatch.player2_username   : myMatch.player1_username,   rating: isWhite ? myMatch.player2_rating   : myMatch.player1_rating,   img: isWhite ? myMatch.player2_profile_image_url : myMatch.player1_profile_image_url };
+  const isWhite = myMatch.white_player_id === userId;
+  const me = {
+    username: isWhite ? myMatch.player1_username : myMatch.player2_username,
+    rating: isWhite ? myMatch.player1_rating : myMatch.player2_rating,
+    img: isWhite
+      ? myMatch.player1_profile_image_url
+      : myMatch.player2_profile_image_url,
+  };
+  const opp = {
+    username: isWhite ? myMatch.player2_username : myMatch.player1_username,
+    rating: isWhite ? myMatch.player2_rating : myMatch.player1_rating,
+    img: isWhite
+      ? myMatch.player2_profile_image_url
+      : myMatch.player1_profile_image_url,
+  };
 
-  const startMs   = myMatch.left_game_start_time ? Number(myMatch.left_game_start_time) : null;
-  const countdown = useCountdown(startMs && startMs > Date.now() ? startMs : null);
-  const isLive    = myMatch.game_state === "IN_PROGRESS";
-  const isWaiting = myMatch.game_state === "INITIALIZED" || myMatch.game_state === "WAITING";
-  const canPlay   = isLive || isWaiting;
+  const startMs = myMatch.left_game_start_time
+    ? Number(myMatch.left_game_start_time)
+    : null;
+  const countdown = useCountdown(
+    startMs && startMs > Date.now() ? startMs : null,
+  );
+  const isLive = myMatch.game_state === "IN_PROGRESS";
+  const isWaiting =
+    myMatch.game_state === "INITIALIZED" || myMatch.game_state === "WAITING";
+  const canPlay = isLive || isWaiting;
 
   return (
-    <div className={styles.myMatchCard} style={{ "--match-color": accentColor } as React.CSSProperties}>
-      <div className={styles.myMatchStripe} style={{ background: accentColor }} />
+    <div
+      className={styles.myMatchCard}
+      style={{ "--match-color": accentColor } as React.CSSProperties}
+    >
+      <div
+        className={styles.myMatchStripe}
+        style={{ background: accentColor }}
+      />
       <div className={styles.myMatchHeader}>
         <span className={styles.myMatchLabel}>Your Match</span>
-        {isLive && <span className={styles.liveChip}><span className={styles.liveDot} />Live</span>}
+        {isLive && (
+          <span className={styles.liveChip}>
+            <span className={styles.liveDot} />
+            Live
+          </span>
+        )}
         {isWaiting && countdown !== null && countdown > 0 && (
-          <span className={styles.countdownChip}><Clock size={11} /> in {fmtCountdown(countdown)}</span>
+          <span className={styles.countdownChip}>
+            <Clock size={11} /> in {fmtCountdown(countdown)}
+          </span>
         )}
         <span className={styles.myMatchMeta}>{myMatch.time_slot ?? ""}</span>
       </div>
 
       <div className={styles.matchup}>
         {[
-          { player: me,  color: isWhite ? "white" : "black" },
+          { player: me, color: isWhite ? "white" : "black" },
           { player: opp, color: isWhite ? "black" : "white" },
         ].map(({ player, color }, idx) => (
           <div key={idx} className={styles.matchupPlayer}>
             <div className={styles.playerAvatar}>
-              {player.img
-                ? <img src={player.img} alt={player.username} />
-                : <span>{(player.username ?? "?")[0]?.toUpperCase()}</span>}
+              {player.img ? (
+                <img src={player.img} alt={player.username} />
+              ) : (
+                <span>{(player.username ?? "?")[0]?.toUpperCase()}</span>
+              )}
             </div>
             <span className={styles.playerName}>{player.username}</span>
             <span className={styles.playerRating}>{player.rating}</span>
@@ -133,17 +184,19 @@ export default function TournamentDetail({ id }: Props) {
   const router = useRouter();
   const { user } = useAuth();
 
-  const [tournament,     setTournament]     = useState<TournamentListItem | null>(null);
-  const [loading,        setLoading]        = useState(true);
-  const [error,          setError]          = useState<string | null>(null);
-  const [actionLoading,  setActionLoading]  = useState(false);
-  const [playLoading,    setPlayLoading]    = useState(false);
-  const [deleteConfirm,  setDeleteConfirm]  = useState(false);
-  const [toast,          setToast]          = useState<{ msg: string; ok: boolean } | null>(null);
-  const [activeTab,      setActiveTab]      = useState<Tab>("overview");
+  const [tournament, setTournament] = useState<TournamentListItem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [playLoading, setPlayLoading] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [activeTab, setActiveTab] = useState<Tab>("overview");
 
   // Track which tabs have been visited so lazy tabs only load once
-  const [visitedTabs, setVisitedTabs] = useState<Set<Tab>>(new Set(["overview"]));
+  const [visitedTabs, setVisitedTabs] = useState<Set<Tab>>(
+    new Set(["overview"]),
+  );
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -152,31 +205,32 @@ export default function TournamentDetail({ id }: Props) {
 
   const switchTab = (tab: Tab) => {
     setActiveTab(tab);
-    setVisitedTabs(prev => new Set([...prev, tab]));
+    setVisitedTabs((prev) => new Set([...prev, tab]));
   };
 
   useEffect(() => {
     setLoading(true);
     fetchTournament(id)
-      .then(r => setTournament(r.data))
+      .then((r) => setTournament(r.data))
       .catch(() => setError("Tournament not found."))
       .finally(() => setLoading(false));
   }, [id]);
 
-  const isActive      = tournament?.status === "IN_PROGRESS";
+  const isActive = tournament?.status === "IN_PROGRESS";
   const isParticipant = !!tournament?.userRole;
-  const regClosed     = tournament
+  const regClosed = tournament
     ? new Date() > new Date(tournament.timeManagement.registrationCloseAt)
     : false;
 
   const accentColor = useMemo(() => {
-    const cfg = TOURNAMENT_TYPE_CONFIGS.find(c => c.id === tournament?.tournamentType);
+    const cfg = TOURNAMENT_TYPE_CONFIGS.find(
+      (c) => c.id === tournament?.tournamentType,
+    );
     return cfg?.color ?? "#f28b38";
   }, [tournament?.tournamentType]);
 
-  const { liveData, loadingRounds, socketConnected, refresh } = useTournamentView(
-    id, user?.id, isParticipant, isActive,
-  );
+  const { liveData, loadingRounds, socketConnected, refresh } =
+    useTournamentView(id, user?.id, isParticipant, isActive);
 
   // ── Handlers ────────────────────────────────────────────────────────────────
 
@@ -188,8 +242,13 @@ export default function TournamentDetail({ id }: Props) {
       const r = await fetchTournament(id);
       setTournament(r.data);
     } catch (err: any) {
-      showToast(err?.response?.data?.message ?? "Could not join tournament.", false);
-    } finally { setActionLoading(false); }
+      showToast(
+        err?.response?.data?.message ?? "Could not join tournament.",
+        false,
+      );
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handleLeave = async () => {
@@ -201,7 +260,9 @@ export default function TournamentDetail({ id }: Props) {
       setTournament(r.data);
     } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Could not leave.", false);
-    } finally { setActionLoading(false); }
+    } finally {
+      setActionLoading(false);
+    }
   };
 
   const handlePlay = async () => {
@@ -212,7 +273,9 @@ export default function TournamentDetail({ id }: Props) {
       else showToast("No active game right now — check back shortly.", false);
     } catch {
       showToast("Could not fetch your game. Please try again.", false);
-    } finally { setPlayLoading(false); }
+    } finally {
+      setPlayLoading(false);
+    }
   };
 
   const handleDelete = async () => {
@@ -223,7 +286,10 @@ export default function TournamentDetail({ id }: Props) {
       setTimeout(() => router.push("/tournament"), 1200);
     } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Could not delete.", false);
-    } finally { setActionLoading(false); setDeleteConfirm(false); }
+    } finally {
+      setActionLoading(false);
+      setDeleteConfirm(false);
+    }
   };
 
   // ── Loading / error states ───────────────────────────────────────────────
@@ -244,7 +310,11 @@ export default function TournamentDetail({ id }: Props) {
       <div className={styles.page}>
         <div className={styles.errorState}>
           <p>{error ?? "Tournament not found."}</p>
-          <button type="button" className={styles.backBtn} onClick={() => router.push("/tournament")}>
+          <button
+            type="button"
+            className={styles.backBtn}
+            onClick={() => router.push("/tournament")}
+          >
             <ArrowLeft size={14} /> Back
           </button>
         </div>
@@ -252,24 +322,33 @@ export default function TournamentDetail({ id }: Props) {
     );
   }
 
-  const t          = tournament;
-  const typeConfig = TOURNAMENT_TYPE_CONFIGS.find(c => c.id === t.tournamentType);
-  const statusInfo = STATUS_LABELS[t.status] ?? { label: t.status, cls: "draft" };
-  const isJoined   = !!t.userRole;
-  const canJoin    = !isJoined && t.status === "REGISTRATION_OPEN" && !regClosed;
-  const isCreator  = !!user && t.creator.id === user.id;
-  const canDelete  = isCreator && !["NOT_INITIALIZED","IN_PROGRESS"].includes(t.status);
-  const fillPct    = t.maxPlayers ? Math.min(100, Math.round((t.participantCount / t.maxPlayers) * 100)) : null;
+  const t = tournament;
+  const typeConfig = TOURNAMENT_TYPE_CONFIGS.find(
+    (c) => c.id === t.tournamentType,
+  );
+  const statusInfo = STATUS_LABELS[t.status] ?? {
+    label: t.status,
+    cls: "draft",
+  };
+  const isJoined = !!t.userRole;
+  const canJoin = !isJoined && t.status === "REGISTRATION_OPEN" && !regClosed;
+  const isCreator = !!user && t.creator.id === user.id;
+  const canDelete =
+    isCreator && !["NOT_INITIALIZED", "IN_PROGRESS"].includes(t.status);
+  const fillPct = t.maxPlayers
+    ? Math.min(100, Math.round((t.participantCount / t.maxPlayers) * 100))
+    : null;
 
   function blockedReason(): string | null {
     if (isJoined) return null;
-    if (regClosed && t.status === "REGISTRATION_OPEN") return "Registration window has closed.";
-    if (t.status === "DRAFT")               return "Registration has not opened yet.";
+    if (regClosed && t.status === "REGISTRATION_OPEN")
+      return "Registration window has closed.";
+    if (t.status === "DRAFT") return "Registration has not opened yet.";
     if (t.status === "REGISTRATION_CLOSED") return "Registration is closed.";
-    if (t.status === "NOT_INITIALIZED")     return "Tournament is being prepared.";
-    if (t.status === "IN_PROGRESS")         return "Tournament is already in progress.";
-    if (t.status === "COMPLETED")           return "Tournament has ended.";
-    if (t.status === "CANCELLED")           return "Tournament has been cancelled.";
+    if (t.status === "NOT_INITIALIZED") return "Tournament is being prepared.";
+    if (t.status === "IN_PROGRESS") return "Tournament is already in progress.";
+    if (t.status === "COMPLETED") return "Tournament has ended.";
+    if (t.status === "CANCELLED") return "Tournament has been cancelled.";
     return null;
   }
 
@@ -277,18 +356,31 @@ export default function TournamentDetail({ id }: Props) {
 
   return (
     <div className={styles.page}>
-
       {/* Nav */}
       <div className={styles.nav}>
-        <button type="button" className={styles.navBack} onClick={() => router.push("/tournament")}>
-          <ArrowLeft size={15} /><span>All Tournaments</span>
+        <button
+          type="button"
+          className={styles.navBack}
+          onClick={() => router.push("/tournament")}
+        >
+          <ArrowLeft size={15} />
+          <span>All Tournaments</span>
         </button>
         {isActive && isParticipant && (
           <div className={styles.navRight}>
-            <button type="button" className={styles.refreshBtn} onClick={refresh} title="Refresh standings">
+            <button
+              type="button"
+              className={styles.refreshBtn}
+              onClick={refresh}
+              title="Refresh standings"
+            >
               <RefreshCw size={13} />
             </button>
-            <span className={socketConnected ? styles.connectedDot : styles.disconnectedDot}>
+            <span
+              className={
+                socketConnected ? styles.connectedDot : styles.disconnectedDot
+              }
+            >
               {socketConnected ? <Wifi size={12} /> : <WifiOff size={12} />}
               {socketConnected ? "Live" : "Offline"}
             </span>
@@ -297,26 +389,48 @@ export default function TournamentDetail({ id }: Props) {
       </div>
 
       {/* Hero */}
-      <div className={styles.hero} style={{ "--tc": accentColor } as React.CSSProperties}>
-        <div className={styles.heroBg}
-             style={{ background: `radial-gradient(ellipse at 60% 0%, ${accentColor}22 0%, transparent 65%)` }} />
+      <div
+        className={styles.hero}
+        style={{ "--tc": accentColor } as React.CSSProperties}
+      >
+        <div
+          className={styles.heroBg}
+          style={{
+            background: `radial-gradient(ellipse at 60% 0%, ${accentColor}22 0%, transparent 65%)`,
+          }}
+        />
         <div className={styles.heroContent}>
           <div className={styles.heroLeft}>
-            <span className={styles.heroTypeIcon} style={{ color: accentColor }}>
+            <span
+              className={styles.heroTypeIcon}
+              style={{ color: accentColor }}
+            >
               {typeConfig?.icon ?? <Swords size={28} />}
             </span>
             <div>
               <div className={styles.heroTypeLine}>
-                <span className={`${styles.statusBadge} ${styles[`status_${statusInfo.cls}`]}`}>
-                  {statusInfo.cls === "live" && <span className={styles.liveDot} />}
+                <span
+                  className={`${styles.statusBadge} ${styles[`status_${statusInfo.cls}`]}`}
+                >
+                  {statusInfo.cls === "live" && (
+                    <span className={styles.liveDot} />
+                  )}
                   {statusInfo.label}
                 </span>
-                <span className={styles.typePill} style={{ color: accentColor, borderColor: `${accentColor}44` }}>
+                <span
+                  className={styles.typePill}
+                  style={{
+                    color: accentColor,
+                    borderColor: `${accentColor}44`,
+                  }}
+                >
                   {typeConfig?.label ?? t.tournamentType}
                 </span>
               </div>
               <h1 className={styles.heroTitle}>{t.name}</h1>
-              {t.description && <p className={styles.heroDesc}>{t.description}</p>}
+              {t.description && (
+                <p className={styles.heroDesc}>{t.description}</p>
+              )}
               <p className={styles.heroCreator}>by {t.creator.username}</p>
             </div>
           </div>
@@ -327,31 +441,50 @@ export default function TournamentDetail({ id }: Props) {
               <div className={styles.joinedBlock}>
                 <span className={styles.joinedBadge}>✓ Registered</span>
                 {t.status === "IN_PROGRESS" && (
-                  <button type="button" className={styles.playBtn}
-                          onClick={handlePlay} disabled={playLoading}>
+                  <button
+                    type="button"
+                    className={styles.playBtn}
+                    onClick={handlePlay}
+                    disabled={playLoading}
+                  >
                     {playLoading ? "Finding…" : "▶ Play"}
                   </button>
                 )}
-                {(t.status === "REGISTRATION_OPEN" || t.status === "DRAFT") && !regClosed && (
-                  <button type="button" className={styles.leaveBtn}
-                          onClick={handleLeave} disabled={actionLoading}>
-                    {actionLoading ? "…" : "Leave"}
-                  </button>
-                )}
+                {(t.status === "REGISTRATION_OPEN" || t.status === "DRAFT") &&
+                  !regClosed && (
+                    <button
+                      type="button"
+                      className={styles.leaveBtn}
+                      onClick={handleLeave}
+                      disabled={actionLoading}
+                    >
+                      {actionLoading ? "…" : "Leave"}
+                    </button>
+                  )}
                 {regClosed && t.status !== "IN_PROGRESS" && (
-                  <span className={styles.joinBlocked}>Registration closed</span>
+                  <span className={styles.joinBlocked}>
+                    Registration closed
+                  </span>
                 )}
               </div>
             ) : canJoin ? (
-              <button type="button" className={styles.joinBtn}
-                      onClick={handleJoin} disabled={actionLoading}>
+              <button
+                type="button"
+                className={styles.joinBtn}
+                onClick={handleJoin}
+                disabled={actionLoading}
+              >
                 {actionLoading ? "Joining…" : "Join Tournament"}
               </button>
             ) : (
               <div className={styles.joinedBlock}>
-                {blockedReason() && <span className={styles.joinBlocked}>{blockedReason()}</span>}
+                {blockedReason() && (
+                  <span className={styles.joinBlocked}>{blockedReason()}</span>
+                )}
                 {(t.status === "IN_PROGRESS" || t.status === "COMPLETED") && (
-                  <button type="button" className={styles.watchBtnLg}>Watch</button>
+                  <button type="button" className={styles.watchBtnLg}>
+                    Watch
+                  </button>
                 )}
               </div>
             )}
@@ -360,21 +493,47 @@ export default function TournamentDetail({ id }: Props) {
               <div className={styles.joinedBlock}>
                 {deleteConfirm ? (
                   <>
-                    <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>Delete?</span>
-                    <button type="button" className={styles.leaveBtn}
-                            style={{ background: "#7a1e1e", borderColor: "#c0392b", color: "#f48771" }}
-                            onClick={handleDelete} disabled={actionLoading}>
+                    <span
+                      style={{
+                        fontSize: "0.78rem",
+                        color: "var(--text-muted)",
+                      }}
+                    >
+                      Delete?
+                    </span>
+                    <button
+                      type="button"
+                      className={styles.leaveBtn}
+                      style={{
+                        background: "#7a1e1e",
+                        borderColor: "#c0392b",
+                        color: "#f48771",
+                      }}
+                      onClick={handleDelete}
+                      disabled={actionLoading}
+                    >
                       {actionLoading ? "…" : "Confirm"}
                     </button>
-                    <button type="button" className={styles.leaveBtn}
-                            onClick={() => setDeleteConfirm(false)} disabled={actionLoading}>
+                    <button
+                      type="button"
+                      className={styles.leaveBtn}
+                      onClick={() => setDeleteConfirm(false)}
+                      disabled={actionLoading}
+                    >
                       Cancel
                     </button>
                   </>
                 ) : (
-                  <button type="button" className={styles.leaveBtn}
-                          style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}
-                          onClick={() => setDeleteConfirm(true)}>
+                  <button
+                    type="button"
+                    className={styles.leaveBtn}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.35rem",
+                    }}
+                    onClick={() => setDeleteConfirm(true)}
+                  >
                     <Trash2 size={13} /> Delete
                   </button>
                 )}
@@ -382,9 +541,17 @@ export default function TournamentDetail({ id }: Props) {
             )}
             {isCreator && (
               <div className={styles.joinedBlock}>
-                <button type="button" className={styles.leaveBtn}
-                        style={{ display: "flex", alignItems: "center", gap: "0.35rem", background: "var(--surface-light)" }}
-                        onClick={() => router.push(`/tournament/${id}/dashboard`)}>
+                <button
+                  type="button"
+                  className={styles.leaveBtn}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    background: "var(--surface-light)",
+                  }}
+                  onClick={() => router.push(`/tournament/${id}/dashboard`)}
+                >
                   <Settings size={13} /> Creator Dashboard
                 </button>
               </div>
@@ -395,10 +562,14 @@ export default function TournamentDetail({ id }: Props) {
         {fillPct !== null && (
           <div className={styles.heroFillWrap}>
             <div className={styles.heroFillBar}>
-              <div className={styles.heroFillProgress}
-                   style={{ width: `${fillPct}%`, background: accentColor }} />
+              <div
+                className={styles.heroFillProgress}
+                style={{ width: `${fillPct}%`, background: accentColor }}
+              />
             </div>
-            <span className={styles.heroFillLabel}>{t.participantCount}/{t.maxPlayers} players</span>
+            <span className={styles.heroFillLabel}>
+              {t.participantCount}/{t.maxPlayers} players
+            </span>
           </div>
         )}
       </div>
@@ -410,29 +581,47 @@ export default function TournamentDetail({ id }: Props) {
             myMatch={liveData.myMatch}
             userId={user.id}
             accentColor={accentColor}
-            onPlay={gameId => router.push(`/arena/${gameId}`)}
+            onPlay={(gameId) => router.push(`/arena/${gameId}`)}
           />
         </div>
       )}
 
       {/* Tab bar */}
       <div className={styles.tabBar}>
-        <button type="button"
-                className={`${styles.tab} ${activeTab === "overview"  ? styles.tabActive : ""}`}
-                style={activeTab === "overview" ? { borderBottomColor: accentColor, color: accentColor } : undefined}
-                onClick={() => switchTab("overview")}>
+        <button
+          type="button"
+          className={`${styles.tab} ${activeTab === "overview" ? styles.tabActive : ""}`}
+          style={
+            activeTab === "overview"
+              ? { borderBottomColor: accentColor, color: accentColor }
+              : undefined
+          }
+          onClick={() => switchTab("overview")}
+        >
           <Info size={14} /> Overview
         </button>
-        <button type="button"
-                className={`${styles.tab} ${activeTab === "rounds"    ? styles.tabActive : ""}`}
-                style={activeTab === "rounds" ? { borderBottomColor: accentColor, color: accentColor } : undefined}
-                onClick={() => switchTab("rounds")}>
+        <button
+          type="button"
+          className={`${styles.tab} ${activeTab === "rounds" ? styles.tabActive : ""}`}
+          style={
+            activeTab === "rounds"
+              ? { borderBottomColor: accentColor, color: accentColor }
+              : undefined
+          }
+          onClick={() => switchTab("rounds")}
+        >
           <LayoutList size={14} /> Rounds
         </button>
-        <button type="button"
-                className={`${styles.tab} ${activeTab === "standings" ? styles.tabActive : ""}`}
-                style={activeTab === "standings" ? { borderBottomColor: accentColor, color: accentColor } : undefined}
-                onClick={() => switchTab("standings")}>
+        <button
+          type="button"
+          className={`${styles.tab} ${activeTab === "standings" ? styles.tabActive : ""}`}
+          style={
+            activeTab === "standings"
+              ? { borderBottomColor: accentColor, color: accentColor }
+              : undefined
+          }
+          onClick={() => switchTab("standings")}
+        >
           <BarChart2 size={14} /> Standings
         </button>
       </div>
@@ -463,7 +652,9 @@ export default function TournamentDetail({ id }: Props) {
       </div>
 
       {toast && (
-        <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+        <div
+          className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}
+        >
           {toast.msg}
         </div>
       )}

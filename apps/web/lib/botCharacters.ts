@@ -1,4 +1,3 @@
-
 export interface BotCharacter {
   id: string;
   name: string;
@@ -8,7 +7,7 @@ export interface BotCharacter {
   avatar: string;
   accentColor: string;
   skillLevel: number; // Stockfish UCI Skill Level 0-20
-  depth: number;      // Stockfish search depth
+  depth: number; // Stockfish search depth
 }
 
 export const BOT_CHARACTERS: BotCharacter[] = [
@@ -83,18 +82,20 @@ export const BOT_CHARACTERS: BotCharacter[] = [
     name: "Grand Viktor",
     title: "Grandmaster",
     elo: 2500,
-    description: "Grandmaster-level precision. No blunders, deep calculation, unforgiving endgames.",
+    description:
+      "Grandmaster-level precision. No blunders, deep calculation, unforgiving endgames.",
     avatar: "🏆",
     accentColor: "#f0c040",
     skillLevel: 20,
-    depth:16,
+    depth: 16,
   },
   {
     id: "turing",
     name: "Alan T.",
     title: "Super-GM",
     elo: 2800,
-    description: "Engine at full power. Virtually unbeatable — play for the experience.",
+    description:
+      "Engine at full power. Virtually unbeatable — play for the experience.",
     avatar: "🤖",
     accentColor: "#00d4ff",
     skillLevel: 20,

@@ -18,14 +18,21 @@ export interface UserSearchResult extends Omit<UserProfile, "email"> {
   friendshipStatus?: FriendshipStatus;
 }
 
-export async function getPublicUserProfile(userId: string): Promise<PublicUserProfile> {
-  const { data } = await axiosInstance.get<PublicUserProfile>(`/users/${userId}/profile`);
+export async function getPublicUserProfile(
+  userId: string,
+): Promise<PublicUserProfile> {
+  const { data } = await axiosInstance.get<PublicUserProfile>(
+    `/users/${userId}/profile`,
+  );
   return data;
 }
 
 export async function searchUsers(query: string): Promise<UserSearchResult[]> {
-  const { data } = await axiosInstance.get<{ users: UserSearchResult[] }>("/users/search", {
-    params: { query },
-  });
+  const { data } = await axiosInstance.get<{ users: UserSearchResult[] }>(
+    "/users/search",
+    {
+      params: { query },
+    },
+  );
   return data.users;
 }

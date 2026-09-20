@@ -53,7 +53,7 @@ export default function ClubsPage() {
           setForm({ name: "", description: "", imageUrl: "" });
           setImgPreview(null);
         },
-      }
+      },
     );
   };
 
@@ -215,9 +215,7 @@ export default function ClubsPage() {
               <button
                 type="button"
                 className={styles.pageBtn}
-                onClick={() =>
-                  setPage((p) => Math.min(data.totalPages, p + 1))
-                }
+                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page === data.totalPages}
               >
                 Next

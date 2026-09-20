@@ -24,7 +24,9 @@ export interface OfferDrawErrorResponse {
   action: "not_allowed";
 }
 
-export type OfferDrawResponse = OfferDrawSuccessResponse | OfferDrawErrorResponse;
+export type OfferDrawResponse =
+  | OfferDrawSuccessResponse
+  | OfferDrawErrorResponse;
 
 export interface ClaimDrawSuccessResponse {
   game_state: string;
@@ -46,7 +48,9 @@ export interface ClaimDrawErrorResponse {
   action: "not_allowed";
 }
 
-export type ClaimDrawResponse = ClaimDrawSuccessResponse | ClaimDrawErrorResponse;
+export type ClaimDrawResponse =
+  | ClaimDrawSuccessResponse
+  | ClaimDrawErrorResponse;
 
 export interface DeclineDrawResponse {
   message: string;
@@ -62,7 +66,7 @@ export interface OfferDrawRequest {
 
 export interface ClaimDrawRequest {
   userId: string;
-  opponentId:string
+  opponentId: string;
 }
 
 export interface DeclineDrawRequest {

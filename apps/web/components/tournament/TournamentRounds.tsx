@@ -16,11 +16,11 @@ import styles from "./TournamentRounds.module.css";
 
 interface Props {
   tournamentId: string;
-  accentColor:  string;
-  active:       boolean;
-  liveData:     TournamentSocketData | null;
-  isLive:       boolean;
-  userId?:      string;
+  accentColor: string;
+  active: boolean;
+  liveData: TournamentSocketData | null;
+  isLive: boolean;
+  userId?: string;
 }
 
 // ── Formatters ────────────────────────────────────────────────────────────────
@@ -28,11 +28,16 @@ interface Props {
 const TERMINAL = new Set(["WHITE_WIN", "BLACK_WIN", "DRAW", "ABANDONED"]);
 const IN_PROGRESS_STATES = new Set(["IN_PROGRESS", "ACTIVE"]);
 
-function gameResult(state: string, white: { id: string } | null, black: { id: string } | null, winnerId: string | null): string {
-  if (state === "WHITE_WIN")  return "1 – 0";
-  if (state === "BLACK_WIN")  return "0 – 1";
-  if (state === "DRAW")       return "½ – ½";
-  if (state === "ABANDONED")  return "ABN";
+function gameResult(
+  state: string,
+  white: { id: string } | null,
+  black: { id: string } | null,
+  winnerId: string | null,
+): string {
+  if (state === "WHITE_WIN") return "1 – 0";
+  if (state === "BLACK_WIN") return "0 – 1";
+  if (state === "DRAW") return "½ – ½";
+  if (state === "ABANDONED") return "ABN";
   return "· · ·";
 }
 
@@ -42,17 +47,24 @@ function fmtScore(n: number) {
 
 function scheduledTime(ms: number | null): string {
   if (!ms) return "";
-  return new Date(ms).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return new Date(ms).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 }
 
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 // ── MatchRow ──────────────────────────────────────────────────────────────────
 
-function MatchRow({ match, accentColor, userId }: {
-  match:       UnifiedMatch;
+function MatchRow({
+  match,
+  accentColor,
+  userId,
+}: {
+  match: UnifiedMatch;
   accentColor: string;
-  userId?:     string;
+  userId?: string;
 }) {
   const isLive = IN_PROGRESS_STATES.has(match.gameState);
   const isDone = TERMINAL.has(match.gameState);
@@ -61,31 +73,49 @@ function MatchRow({ match, accentColor, userId }: {
   return (
     <div
       className={`${styles.matchRow} ${isLive ? styles.matchLive : ""} ${isMine ? styles.matchMine : ""}`}
-      style={isMine ? { "--ac": accentColor } as React.CSSProperties : undefined}
+      style={
+        isMine ? ({ "--ac": accentColor } as React.CSSProperties) : undefined
+      }
     >
       {/* White player */}
       <div className={styles.matchSide}>
         <span className={`${styles.colorPip} ${styles.pipWhite}`} />
-        <span className={`${styles.matchName} ${match.white?.id === userId ? styles.matchNameMe : ""}`}>
+        <span
+          className={`${styles.matchName} ${match.white?.id === userId ? styles.matchNameMe : ""}`}
+        >
           {match.white?.username ?? "—"}
         </span>
       </div>
 
       {/* Result / live badge */}
-      <div className={`${styles.matchScore} ${isLive ? styles.matchScoreLive : isDone ? styles.matchScoreDone : styles.matchScorePending}`}>
-        {isLive
-          ? <><span className={styles.livePip} style={{ background: accentColor }} />Live</>
-          : isDone
-          ? gameResult(match.gameState, match.white, match.black, match.winnerId)
-          : match.scheduledStartMs
-          ? <><Clock size={9} />{scheduledTime(match.scheduledStartMs)}</>
-          : "–"
-        }
+      <div
+        className={`${styles.matchScore} ${isLive ? styles.matchScoreLive : isDone ? styles.matchScoreDone : styles.matchScorePending}`}
+      >
+        {isLive ? (
+          <>
+            <span
+              className={styles.livePip}
+              style={{ background: accentColor }}
+            />
+            Live
+          </>
+        ) : isDone ? (
+          gameResult(match.gameState, match.white, match.black, match.winnerId)
+        ) : match.scheduledStartMs ? (
+          <>
+            <Clock size={9} />
+            {scheduledTime(match.scheduledStartMs)}
+          </>
+        ) : (
+          "–"
+        )}
       </div>
 
       {/* Black player */}
       <div className={`${styles.matchSide} ${styles.matchSideRight}`}>
-        <span className={`${styles.matchName} ${match.black?.id === userId ? styles.matchNameMe : ""}`}>
+        <span
+          className={`${styles.matchName} ${match.black?.id === userId ? styles.matchNameMe : ""}`}
+        >
           {match.black?.username ?? "BYE"}
         </span>
         <span className={`${styles.colorPip} ${styles.pipBlack}`} />
@@ -96,14 +126,19 @@ function MatchRow({ match, accentColor, userId }: {
 
 // ── StandingsTable ────────────────────────────────────────────────────────────
 
-function StandingsTable({ standings, userId, accentColor, isComplete }: {
-  standings:   UnifiedPlayerRow[];
-  userId?:     string;
+function StandingsTable({
+  standings,
+  userId,
+  accentColor,
+  isComplete,
+}: {
+  standings: UnifiedPlayerRow[];
+  userId?: string;
   accentColor: string;
-  isComplete:  boolean;
+  isComplete: boolean;
 }) {
   if (!standings.length) return null;
-  const maxScore = Math.max(...standings.map(p => p.score), 0.5);
+  const maxScore = Math.max(...standings.map((p) => p.score), 0.5);
 
   return (
     <table className={styles.standTable}>
@@ -125,23 +160,34 @@ function StandingsTable({ standings, userId, accentColor, isComplete }: {
             <tr
               key={p.playerId}
               className={`${styles.standRow} ${isMe ? styles.standRowMe : ""} ${isComplete && i === 0 ? styles.standRowFirst : ""}`}
-              style={isMe ? { "--ac": accentColor } as React.CSSProperties : undefined}
+              style={
+                isMe
+                  ? ({ "--ac": accentColor } as React.CSSProperties)
+                  : undefined
+              }
             >
               <td className={styles.tdRank}>
-                {isComplete && i < 3
-                  ? <span className={styles.medal}>{MEDALS[i]}</span>
-                  : <span className={styles.rankNum}>{i + 1}</span>
-                }
+                {isComplete && i < 3 ? (
+                  <span className={styles.medal}>{MEDALS[i]}</span>
+                ) : (
+                  <span className={styles.rankNum}>{i + 1}</span>
+                )}
               </td>
               <td className={styles.tdPlayer}>
-                <span className={`${styles.standName} ${isMe ? styles.standNameMe : ""}`}
-                      style={isMe ? { color: accentColor } : undefined}>
+                <span
+                  className={`${styles.standName} ${isMe ? styles.standNameMe : ""}`}
+                  style={isMe ? { color: accentColor } : undefined}
+                >
                   {p.username}
                 </span>
                 {p.byes > 0 && <span className={styles.byePill}>BYE</span>}
               </td>
-              <td className={`${styles.tdNum} ${styles.tdScore}`}
-                  style={isMe ? { color: accentColor, fontWeight: 700 } : undefined}>
+              <td
+                className={`${styles.tdNum} ${styles.tdScore}`}
+                style={
+                  isMe ? { color: accentColor, fontWeight: 700 } : undefined
+                }
+              >
                 {fmtScore(p.score)}
               </td>
               <td className={`${styles.tdNum} ${styles.tdW}`}>{p.wins}</td>
@@ -149,11 +195,13 @@ function StandingsTable({ standings, userId, accentColor, isComplete }: {
               <td className={`${styles.tdNum} ${styles.tdL}`}>{p.losses}</td>
               <td className={styles.tdBar}>
                 <div className={styles.barTrack}>
-                  <div className={styles.barFill}
-                       style={{
-                         width: `${(p.score / maxScore) * 100}%`,
-                         background: isMe ? accentColor : undefined,
-                       }} />
+                  <div
+                    className={styles.barFill}
+                    style={{
+                      width: `${(p.score / maxScore) * 100}%`,
+                      background: isMe ? accentColor : undefined,
+                    }}
+                  />
                 </div>
               </td>
             </tr>
@@ -166,31 +214,44 @@ function StandingsTable({ standings, userId, accentColor, isComplete }: {
 
 // ── GroupPanel ────────────────────────────────────────────────────────────────
 
-function GroupPanel({ group, accentColor, userId }: {
-  group:       UnifiedGroup;
+function GroupPanel({
+  group,
+  accentColor,
+  userId,
+}: {
+  group: UnifiedGroup;
   accentColor: string;
-  userId?:     string;
+  userId?: string;
 }) {
-  const done  = group.matches.filter(m => TERMINAL.has(m.gameState)).length;
-  const live  = group.matches.filter(m => IN_PROGRESS_STATES.has(m.gameState)).length;
+  const done = group.matches.filter((m) => TERMINAL.has(m.gameState)).length;
+  const live = group.matches.filter((m) =>
+    IN_PROGRESS_STATES.has(m.gameState),
+  ).length;
   const total = group.matches.length;
 
   return (
-    <div className={`${styles.groupPanel} ${group.isComplete ? styles.groupDone : ""}`}>
+    <div
+      className={`${styles.groupPanel} ${group.isComplete ? styles.groupDone : ""}`}
+    >
       {/* Group header */}
       <div className={styles.groupHeader}>
         <span className={styles.groupLabel}>Group {group.groupNumber}</span>
         <div className={styles.groupMeta}>
           {live > 0 && (
             <span className={styles.liveChip} style={{ color: accentColor }}>
-              <span className={styles.livePip} style={{ background: accentColor }} />
+              <span
+                className={styles.livePip}
+                style={{ background: accentColor }}
+              />
               {live} live
             </span>
           )}
           <span className={styles.progressChip}>
             {done}/{total} done
           </span>
-          {group.isComplete && <span className={styles.doneChip}>✓ Complete</span>}
+          {group.isComplete && (
+            <span className={styles.doneChip}>✓ Complete</span>
+          )}
         </div>
       </div>
 
@@ -210,17 +271,18 @@ function GroupPanel({ group, accentColor, userId }: {
       <div className={styles.matchSection}>
         <span className={styles.matchSectionLabel}>Games</span>
         <div className={styles.matchList}>
-          {group.matches.length === 0
-            ? <span className={styles.noMatches}>No games scheduled</span>
-            : group.matches.map(m => (
-                <MatchRow
-                  key={m.matchId}
-                  match={m}
-                  accentColor={accentColor}
-                  userId={userId}
-                />
-              ))
-          }
+          {group.matches.length === 0 ? (
+            <span className={styles.noMatches}>No games scheduled</span>
+          ) : (
+            group.matches.map((m) => (
+              <MatchRow
+                key={m.matchId}
+                match={m}
+                accentColor={accentColor}
+                userId={userId}
+              />
+            ))
+          )}
         </div>
       </div>
     </div>
@@ -229,10 +291,14 @@ function GroupPanel({ group, accentColor, userId }: {
 
 // ── RoundStandingsPanel ───────────────────────────────────────────────────────
 
-function RoundStandingsPanel({ round, accentColor, userId }: {
-  round:       UnifiedRound;
+function RoundStandingsPanel({
+  round,
+  accentColor,
+  userId,
+}: {
+  round: UnifiedRound;
   accentColor: string;
-  userId?:     string;
+  userId?: string;
 }) {
   if (!round.roundStandings.length) return null;
 
@@ -253,24 +319,43 @@ function RoundStandingsPanel({ round, accentColor, userId }: {
         </thead>
         <tbody>
           {round.roundStandings
-            .sort((a, b) => b.groupScore - a.groupScore || a.groupRank - b.groupRank)
+            .sort(
+              (a, b) =>
+                b.groupScore - a.groupScore || a.groupRank - b.groupRank,
+            )
             .map((p, i) => {
               const isMe = p.playerId === userId;
               return (
-                <tr key={p.playerId}
-                    className={`${styles.standRow} ${isMe ? styles.standRowMe : ""}`}
-                    style={isMe ? { "--ac": accentColor } as React.CSSProperties : undefined}>
+                <tr
+                  key={p.playerId}
+                  className={`${styles.standRow} ${isMe ? styles.standRowMe : ""}`}
+                  style={
+                    isMe
+                      ? ({ "--ac": accentColor } as React.CSSProperties)
+                      : undefined
+                  }
+                >
                   <td className={styles.tdRank}>
-                    {i < 3 ? <span className={styles.medal}>{MEDALS[i]}</span> : <span className={styles.rankNum}>{i + 1}</span>}
+                    {i < 3 ? (
+                      <span className={styles.medal}>{MEDALS[i]}</span>
+                    ) : (
+                      <span className={styles.rankNum}>{i + 1}</span>
+                    )}
                   </td>
                   <td className={styles.tdPlayer}>
-                    <span className={`${styles.standName} ${isMe ? styles.standNameMe : ""}`}
-                          style={isMe ? { color: accentColor } : undefined}>
+                    <span
+                      className={`${styles.standName} ${isMe ? styles.standNameMe : ""}`}
+                      style={isMe ? { color: accentColor } : undefined}
+                    >
                       {p.username}
                     </span>
                   </td>
-                  <td className={`${styles.tdNum} ${styles.tdScore}`}
-                      style={isMe ? { color: accentColor, fontWeight: 700 } : undefined}>
+                  <td
+                    className={`${styles.tdNum} ${styles.tdScore}`}
+                    style={
+                      isMe ? { color: accentColor, fontWeight: 700 } : undefined
+                    }
+                  >
                     {fmtScore(p.groupScore)}
                   </td>
                   <td className={styles.tdNum}>#{p.groupRank}</td>
@@ -288,7 +373,14 @@ import { Trophy } from "lucide-react";
 
 // ── TournamentRounds (main) ───────────────────────────────────────────────────
 
-export default function TournamentRounds({ tournamentId, accentColor, active, liveData, isLive, userId }: Props) {
+export default function TournamentRounds({
+  tournamentId,
+  accentColor,
+  active,
+  liveData,
+  isLive,
+  userId,
+}: Props) {
   const [activeRound, setActiveRound] = useState(0);
 
   const { rounds, loading, source, refresh } = useTournamentRounds({
@@ -332,12 +424,24 @@ export default function TournamentRounds({ tournamentId, accentColor, active, li
       {/* Source badge + refresh */}
       <div className={styles.topBar}>
         <div className={styles.sourceBadge}>
-          {source === "socket"
-            ? <><Wifi size={11} style={{ color: accentColor }} /><span style={{ color: accentColor }}>Live</span></>
-            : <><span className={styles.sourceDot} />From DB</>
-          }
+          {source === "socket" ? (
+            <>
+              <Wifi size={11} style={{ color: accentColor }} />
+              <span style={{ color: accentColor }}>Live</span>
+            </>
+          ) : (
+            <>
+              <span className={styles.sourceDot} />
+              From DB
+            </>
+          )}
         </div>
-        <button type="button" className={styles.refreshBtn} onClick={refresh} title="Refresh">
+        <button
+          type="button"
+          className={styles.refreshBtn}
+          onClick={refresh}
+          title="Refresh"
+        >
           <RefreshCw size={12} className={loading ? styles.spin : undefined} />
         </button>
       </div>
@@ -350,12 +454,21 @@ export default function TournamentRounds({ tournamentId, accentColor, active, li
             type="button"
             className={`${styles.roundTab} ${i === activeRound ? styles.roundTabActive : ""}`}
             onClick={() => setActiveRound(i)}
-            style={i === activeRound ? { borderBottomColor: accentColor, color: accentColor } : undefined}
+            style={
+              i === activeRound
+                ? { borderBottomColor: accentColor, color: accentColor }
+                : undefined
+            }
           >
             Round {r.roundNumber}
-            {r.status === "COMPLETED"   && <span className={styles.roundDone}>✓</span>}
+            {r.status === "COMPLETED" && (
+              <span className={styles.roundDone}>✓</span>
+            )}
             {r.status === "IN_PROGRESS" && (
-              <span className={styles.roundLivePip} style={{ background: accentColor }} />
+              <span
+                className={styles.roundLivePip}
+                style={{ background: accentColor }}
+              />
             )}
           </button>
         ))}
@@ -366,7 +479,7 @@ export default function TournamentRounds({ tournamentId, accentColor, active, li
         <>
           {/* Groups grid */}
           <div className={styles.groupsGrid}>
-            {round.groups.map(g => (
+            {round.groups.map((g) => (
               <GroupPanel
                 key={g.groupId}
                 group={g}
@@ -383,7 +496,11 @@ export default function TournamentRounds({ tournamentId, accentColor, active, li
 
           {/* Round final standings (shown when round is complete) */}
           {round.status === "COMPLETED" && (
-            <RoundStandingsPanel round={round} accentColor={accentColor} userId={userId} />
+            <RoundStandingsPanel
+              round={round}
+              accentColor={accentColor}
+              userId={userId}
+            />
           )}
         </>
       )}

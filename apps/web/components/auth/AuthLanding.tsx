@@ -33,7 +33,9 @@ export function AuthLanding({ mode, onContinueWithEmail }: AuthLandingProps) {
       {/* Hero pawn */}
       <div style={s.heroWrap}>
         <div style={s.heroGlowOuter} />
-        <span style={s.heroPawn} aria-hidden="true">♟</span>
+        <span style={s.heroPawn} aria-hidden="true">
+          ♟
+        </span>
         <div style={s.heroGlowBelow} />
       </div>
 
@@ -43,7 +45,8 @@ export function AuthLanding({ mode, onContinueWithEmail }: AuthLandingProps) {
         onClick={onContinueWithEmail}
         style={s.emailBtn}
         onMouseEnter={(e) => {
-          (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.1)";
+          (e.currentTarget as HTMLButtonElement).style.filter =
+            "brightness(1.1)";
         }}
         onMouseLeave={(e) => {
           (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)";
@@ -147,7 +150,8 @@ const s: Record<string, React.CSSProperties> = {
     width: "100px",
     height: "100px",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(129,182,76,0.18) 0%, transparent 70%)",
+    background:
+      "radial-gradient(circle, rgba(129,182,76,0.18) 0%, transparent 70%)",
   },
   heroPawn: {
     fontSize: "3.2rem",
@@ -164,7 +168,8 @@ const s: Record<string, React.CSSProperties> = {
     transform: "translateX(-50%)",
     width: "72px",
     height: "14px",
-    background: "radial-gradient(ellipse, rgba(129,182,76,0.3) 0%, transparent 70%)",
+    background:
+      "radial-gradient(ellipse, rgba(129,182,76,0.3) 0%, transparent 70%)",
     borderRadius: "50%",
   },
   emailBtn: {

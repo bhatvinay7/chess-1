@@ -1,7 +1,10 @@
 import React from "react";
 import type { TopMove } from "../../hooks/useAnalysis";
 
-export function squareToBadgeStyle(toSquare: string, orientation: "white" | "black"): React.CSSProperties {
+export function squareToBadgeStyle(
+  toSquare: string,
+  orientation: "white" | "black",
+): React.CSSProperties {
   if (!toSquare || toSquare.length < 2) return { top: 4, right: 4 };
   const file = toSquare.charCodeAt(0) - 97;
   const rank = parseInt(toSquare.charAt(1)) - 1;
@@ -10,12 +13,15 @@ export function squareToBadgeStyle(toSquare: string, orientation: "white" | "bla
   const row = orientation === "white" ? 7 - rank : rank;
   return {
     left: `calc(${(col + 1) * 12.5}% - 27px)`,
-    top:  `${row * 12.5}%`,
+    top: `${row * 12.5}%`,
   };
 }
 
 export function engineEvalStr(top: TopMove): string {
-  if (top.eval.type === "mate") return top.eval.value > 0 ? `M${top.eval.value}` : `-M${Math.abs(top.eval.value)}`;
+  if (top.eval.type === "mate")
+    return top.eval.value > 0
+      ? `M${top.eval.value}`
+      : `-M${Math.abs(top.eval.value)}`;
   const cp = top.eval.value / 100;
   return cp >= 0 ? `+${cp.toFixed(2)}` : `${cp.toFixed(2)}`;
 }

@@ -1,5 +1,9 @@
 import { Router } from "express";
-import { getNotifications, markAsRead, markAllAsRead } from "../controllers/notifications/notificationController.js";
+import {
+  getNotifications,
+  markAsRead,
+  markAllAsRead,
+} from "../controllers/notifications/notificationController.js";
 
 const router: Router = Router();
 

@@ -62,7 +62,8 @@ export function PromotionPicker({
         }}
       >
         {PROMOTION_PIECES.map(({ key, label }, i) => {
-          const code = `${color}${key.toUpperCase()}` as keyof typeof defaultPieces;
+          const code =
+            `${color}${key.toUpperCase()}` as keyof typeof defaultPieces;
           const PieceComponent = defaultPieces[code];
           const bg = i % 2 === 0 ? "#f0d9b5" : "#b58863";
 
@@ -88,7 +89,8 @@ export function PromotionPicker({
                 transition: "filter 0.1s",
               }}
               onMouseEnter={(e) => {
-                (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.18)";
+                (e.currentTarget as HTMLButtonElement).style.filter =
+                  "brightness(1.18)";
               }}
               onMouseLeave={(e) => {
                 (e.currentTarget as HTMLButtonElement).style.filter = "";

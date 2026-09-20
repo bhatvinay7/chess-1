@@ -1,4 +1,4 @@
-import { PrismaClient } from '@repo/postgres-db';
+import { PrismaClient } from "@repo/postgres-db";
 const prisma = new PrismaClient();
 async function main() {
   const result = await prisma.$queryRaw`

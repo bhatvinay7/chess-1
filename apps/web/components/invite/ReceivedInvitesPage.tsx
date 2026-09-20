@@ -20,7 +20,11 @@ const containerVariants: Variants = {
 
 const itemVariants: Variants = {
   hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 350, damping: 25 } },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { type: "spring", stiffness: 350, damping: 25 },
+  },
 };
 
 export default function ReceivedInvitesPage() {
@@ -45,7 +49,9 @@ export default function ReceivedInvitesPage() {
     }
   }, [fetchReceived, darkUI]);
 
-  const pendingInvites = receivedInvites.filter((inv) => inv.status === "PENDING");
+  const pendingInvites = receivedInvites.filter(
+    (inv) => inv.status === "PENDING",
+  );
   const pastInvites = receivedInvites.filter((inv) => inv.status !== "PENDING");
 
   return (
@@ -73,7 +79,9 @@ export default function ReceivedInvitesPage() {
         {loadingReceived ? (
           <div className={styles.loadingWrap}>
             <div className={styles.spinner} />
-            <span style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.4)" }}>
+            <span
+              style={{ fontSize: "0.82rem", color: "rgba(255,255,255,0.4)" }}
+            >
               Loading invitations…
             </span>
           </div>
@@ -90,7 +98,11 @@ export default function ReceivedInvitesPage() {
             </span>
           </motion.div>
         ) : (
-          <motion.div variants={containerVariants} initial="hidden" animate="show">
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="show"
+          >
             {/* Pending */}
             {pendingInvites.length > 0 && (
               <div style={{ marginBottom: "1.5rem" }}>
@@ -116,7 +128,10 @@ export default function ReceivedInvitesPage() {
             {/* Past */}
             {pastInvites.length > 0 && (
               <div>
-                <div className={styles.sectionHeading} style={{ color: "rgba(255,255,255,0.25)" }}>
+                <div
+                  className={styles.sectionHeading}
+                  style={{ color: "rgba(255,255,255,0.25)" }}
+                >
                   Past ({pastInvites.length})
                 </div>
                 <div className={styles.cardList}>

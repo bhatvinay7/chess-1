@@ -76,42 +76,57 @@ export function useInvites() {
     }
   }, []);
 
-  const sendInvite = useCallback(async (body: {
-    receiverId: string;
-    timeControl: string;
-    gameMode: string;
-    color: string;
-    scheduledTime: string;
-  }) => {
-    await axio.post(`/invites`, body, OPT);
-  }, []);
+  const sendInvite = useCallback(
+    async (body: {
+      receiverId: string;
+      timeControl: string;
+      gameMode: string;
+      color: string;
+      scheduledTime: string;
+    }) => {
+      await axio.post(`/invites`, body, OPT);
+    },
+    [],
+  );
 
-  const acceptInvite = useCallback(async (id: string) => {
-    setActionLoading(id);
-    try {
-      await axio.post(`/invites/${id}/accept`, {}, OPT);
-      await fetchReceived();
-    } finally {
-      setActionLoading(null);
-    }
-  }, [fetchReceived]);
+  const acceptInvite = useCallback(
+    async (id: string) => {
+      setActionLoading(id);
+      try {
+        await axio.post(`/invites/${id}/accept`, {}, OPT);
+        await fetchReceived();
+      } finally {
+        setActionLoading(null);
+      }
+    },
+    [fetchReceived],
+  );
 
-  const rejectInvite = useCallback(async (id: string) => {
-    setActionLoading(id);
-    try {
-      await axio.post(`/invites/${id}/reject`, {}, OPT);
-      await fetchReceived();
-    } finally {
-      setActionLoading(null);
-    }
-  }, [fetchReceived]);
+  const rejectInvite = useCallback(
+    async (id: string) => {
+      setActionLoading(id);
+      try {
+        await axio.post(`/invites/${id}/reject`, {}, OPT);
+        await fetchReceived();
+      } finally {
+        setActionLoading(null);
+      }
+    },
+    [fetchReceived],
+  );
 
   return {
-    sentInvites, receivedInvites,
-    loadingSent, loadingReceived,
-    actionLoading, error,
-    fetchSent, fetchReceived,
-    sendInvite, acceptInvite, rejectInvite,
+    sentInvites,
+    receivedInvites,
+    loadingSent,
+    loadingReceived,
+    actionLoading,
+    error,
+    fetchSent,
+    fetchReceived,
+    sendInvite,
+    acceptInvite,
+    rejectInvite,
   };
 }
 
@@ -134,7 +149,9 @@ export function useNotifications() {
 
   const markAsRead = useCallback(async (id: string) => {
     await axio.patch(`/notifications/${id}/read`, {}, OPT);
-    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, isRead: true } : n));
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
+    );
     setUnreadCount((c) => Math.max(0, c - 1));
   }, []);
 
@@ -144,5 +161,12 @@ export function useNotifications() {
     setUnreadCount(0);
   }, []);
 
-  return { notifications, loading, unreadCount, fetchNotifications, markAsRead, markAllAsRead };
+  return {
+    notifications,
+    loading,
+    unreadCount,
+    fetchNotifications,
+    markAsRead,
+    markAllAsRead,
+  };
 }

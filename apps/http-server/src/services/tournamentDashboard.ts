@@ -118,7 +118,11 @@ async function fetchLiveDashboard(
   // ── Fan-out 1 ──────────────────────────────────────────────────────────────
   const nowMs = Date.now();
   const [activeGamesRaw, roundsRaw] = await Promise.all([
-    redisClient.zRange(`user:active:games:${userId}`, nowMs, 0, { BY: "SCORE", REV: true, LIMIT: { offset: 0, count: 1 } }),
+    redisClient.zRange(`user:active:games:${userId}`, nowMs, 0, {
+      BY: "SCORE",
+      REV: true,
+      LIMIT: { offset: 0, count: 1 },
+    }),
     redisClient.zRangeWithScores(`tournament:${tournamentId}:rounds`, 0, -1),
   ]);
 
@@ -131,11 +135,18 @@ async function fetchLiveDashboard(
 
   // ── Fan-out 2 ──────────────────────────────────────────────────────────────
   const [gameFields, playerRoundStateRaw, roundStatusRow] = await Promise.all([
-    gameId ? redisClient.hGetAll(`game:state:${gameId}`) : Promise.resolve<Record<string, string>>({}),
-    roundId ? redisClient.hGet(`tournament:round:${roundId}:state`, userId) : Promise.resolve(null),
+    gameId
+      ? redisClient.hGetAll(`game:state:${gameId}`)
+      : Promise.resolve<Record<string, string>>({}),
+    roundId
+      ? redisClient.hGet(`tournament:round:${roundId}:state`, userId)
+      : Promise.resolve(null),
     // One DB read for round status — not stored in Redis
     roundId
-      ? prisma.round.findUnique({ where: { id: roundId }, select: { status: true } })
+      ? prisma.round.findUnique({
+          where: { id: roundId },
+          select: { status: true },
+        })
       : Promise.resolve(null),
   ]);
 
@@ -145,14 +156,16 @@ async function fetchLiveDashboard(
     : null;
 
   const groupId: string | null =
-    playerRoundState?.groupId ??
-    gameFields?.group_id ??
-    null;
+    playerRoundState?.groupId ?? gameFields?.group_id ?? null;
 
   // ── Fan-out 3 ──────────────────────────────────────────────────────────────
   const [groupStateRaw, roundStateRaw] = await Promise.all([
-    groupId ? redisClient.hGetAll(`tournament:group:${groupId}:state`) : Promise.resolve<Record<string, string>>({}),
-    roundId ? redisClient.hGetAll(`tournament:round:${roundId}:state`) : Promise.resolve<Record<string, string>>({}),
+    groupId
+      ? redisClient.hGetAll(`tournament:group:${groupId}:state`)
+      : Promise.resolve<Record<string, string>>({}),
+    roundId
+      ? redisClient.hGetAll(`tournament:round:${roundId}:state`)
+      : Promise.resolve<Record<string, string>>({}),
   ]);
 
   const groupStandings: PlayerStanding[] = Object.values(groupStateRaw)
@@ -168,7 +181,12 @@ async function fetchLiveDashboard(
     isLive: true,
     myGame: buildMyGameFromRedis(gameId!, gameFields, userId),
     currentRound: roundId
-      ? { roundId, roundNumber, status: roundStatusRow?.status ?? "IN_PROGRESS", myGroupId: groupId }
+      ? {
+          roundId,
+          roundNumber,
+          status: roundStatusRow?.status ?? "IN_PROGRESS",
+          myGroupId: groupId,
+        }
       : null,
     groupStandings,
     leaderboard,
@@ -186,13 +204,19 @@ async function fetchCompletedDashboard(
   try {
     const cached = await redisClient.get(cacheKey);
     if (cached) return JSON.parse(cached);
-  } catch { /* Redis unavailable — fall through to DB */ }
+  } catch {
+    /* Redis unavailable — fall through to DB */
+  }
 
   const dashboard = await buildDashboardFromDb(tournamentId, userId);
 
   try {
-    await redisClient.set(cacheKey, JSON.stringify(dashboard), { EX: COMPLETED_TTL_SEC });
-  } catch { /* ignore cache write failure */ }
+    await redisClient.set(cacheKey, JSON.stringify(dashboard), {
+      EX: COMPLETED_TTL_SEC,
+    });
+  } catch {
+    /* ignore cache write failure */
+  }
 
   return dashboard;
 }
@@ -217,8 +241,12 @@ async function buildDashboardFromDb(
       },
       orderBy: { createdAt: "desc" },
       include: {
-        whitePlayer: { select: { id: true, username: true, profileImageUrl: true } },
-        blackPlayer: { select: { id: true, username: true, profileImageUrl: true } },
+        whitePlayer: {
+          select: { id: true, username: true, profileImageUrl: true },
+        },
+        blackPlayer: {
+          select: { id: true, username: true, profileImageUrl: true },
+        },
       },
     }),
     prisma.tournamentParticipant.findMany({
@@ -248,8 +276,12 @@ async function buildDashboardFromDb(
       include: {
         game: {
           include: {
-            whitePlayer: { select: { id: true, username: true, profileImageUrl: true } },
-            blackPlayer: { select: { id: true, username: true, profileImageUrl: true } },
+            whitePlayer: {
+              select: { id: true, username: true, profileImageUrl: true },
+            },
+            blackPlayer: {
+              select: { id: true, username: true, profileImageUrl: true },
+            },
           },
         },
       },
@@ -269,26 +301,34 @@ async function buildDashboardFromDb(
       groupRank: 0,
       groupScore: p.stats!.score,
     }))
-    .sort((a: { groupScore: number }, b: { groupScore: number }) => b.groupScore - a.groupScore)
-    .map((e: Omit<LeaderboardEntry, 'groupRank'> & { groupRank: number }, i: number) => ({ ...e, groupRank: i + 1 }));
+    .sort(
+      (a: { groupScore: number }, b: { groupScore: number }) =>
+        b.groupScore - a.groupScore,
+    )
+    .map(
+      (
+        e: Omit<LeaderboardEntry, "groupRank"> & { groupRank: number },
+        i: number,
+      ) => ({ ...e, groupRank: i + 1 }),
+    );
 
   const myGame: MyGame | null = myLastGame
     ? {
-      gameId: myLastGame.id,
-      gameState: myLastGame.status,
-      myColor: myLastGame.whitePlayerId === userId ? "WHITE" : "BLACK",
-      whitePlayerId: myLastGame.whitePlayerId,
-      blackPlayerId: myLastGame.blackPlayerId ?? "",
-      whiteUsername: myLastGame.whitePlayer.username,
-      blackUsername: myLastGame.blackPlayer?.username ?? "",
-      whiteRating: myLastGame.whiteRating ?? 0,
-      blackRating: myLastGame.blackRating ?? 0,
-      scheduledStartMs: myLastGame.startedAt?.getTime() ?? 0,
-      timeSlot: myLastGame.timeControl,
-      increment: 0,
-      roundId: lastRoundRow?.id ?? "",
-      groupId: myGroupId ?? "",
-    }
+        gameId: myLastGame.id,
+        gameState: myLastGame.status,
+        myColor: myLastGame.whitePlayerId === userId ? "WHITE" : "BLACK",
+        whitePlayerId: myLastGame.whitePlayerId,
+        blackPlayerId: myLastGame.blackPlayerId ?? "",
+        whiteUsername: myLastGame.whitePlayer.username,
+        blackUsername: myLastGame.blackPlayer?.username ?? "",
+        whiteRating: myLastGame.whiteRating ?? 0,
+        blackRating: myLastGame.blackRating ?? 0,
+        scheduledStartMs: myLastGame.startedAt?.getTime() ?? 0,
+        timeSlot: myLastGame.timeControl,
+        increment: 0,
+        roundId: lastRoundRow?.id ?? "",
+        groupId: myGroupId ?? "",
+      }
     : null;
 
   return {
@@ -296,7 +336,12 @@ async function buildDashboardFromDb(
     isLive: false,
     myGame,
     currentRound: lastRoundRow
-      ? { roundId: lastRoundRow.id, roundNumber: lastRoundRow.roundNumber, status: lastRoundRow.status, myGroupId }
+      ? {
+          roundId: lastRoundRow.id,
+          roundNumber: lastRoundRow.roundNumber,
+          status: lastRoundRow.status,
+          myGroupId,
+        }
       : null,
     groupStandings,
     leaderboard,
@@ -339,12 +384,25 @@ function buildGroupStandingsFromDb(matches: any[]): PlayerStanding[] {
     profileImageUrl?: string | null,
   ): PlayerStanding => {
     if (!map.has(id)) {
-      map.set(id, { playerId: id, username, profileImageUrl, score: 0, wins: 0, draws: 0, losses: 0, byes: 0, games: [] });
+      map.set(id, {
+        playerId: id,
+        username,
+        profileImageUrl,
+        score: 0,
+        wins: 0,
+        draws: 0,
+        losses: 0,
+        byes: 0,
+        games: [],
+      });
     }
     return map.get(id)!;
   };
 
-  const resultLabel = (status: string, isWhite: boolean): GameEntry["result"] => {
+  const resultLabel = (
+    status: string,
+    isWhite: boolean,
+  ): GameEntry["result"] => {
     if (status === "WHITE_WIN") return isWhite ? "WIN" : "LOSS";
     if (status === "BLACK_WIN") return isWhite ? "LOSS" : "WIN";
     if (status === "DRAW") return "DRAW";
@@ -356,18 +414,47 @@ function buildGroupStandingsFromDb(matches: any[]): PlayerStanding[] {
     const { game } = m;
     if (!game.whitePlayer || !game.blackPlayer) continue;
 
-    const wp = ensure(game.whitePlayer.id, game.whitePlayer.username, game.whitePlayer.profileImageUrl);
-    const bp = ensure(game.blackPlayer.id, game.blackPlayer.username, game.blackPlayer.profileImageUrl);
+    const wp = ensure(
+      game.whitePlayer.id,
+      game.whitePlayer.username,
+      game.whitePlayer.profileImageUrl,
+    );
+    const bp = ensure(
+      game.blackPlayer.id,
+      game.blackPlayer.username,
+      game.blackPlayer.profileImageUrl,
+    );
 
-    if (game.status === "WHITE_WIN") { wp.wins++; bp.losses++; }
-    else if (game.status === "BLACK_WIN") { bp.wins++; wp.losses++; }
-    else if (game.status === "DRAW") { wp.draws++; bp.draws++; }
+    if (game.status === "WHITE_WIN") {
+      wp.wins++;
+      bp.losses++;
+    } else if (game.status === "BLACK_WIN") {
+      bp.wins++;
+      wp.losses++;
+    } else if (game.status === "DRAW") {
+      wp.draws++;
+      bp.draws++;
+    }
 
     wp.score = wp.wins + wp.draws * 0.5;
     bp.score = bp.wins + bp.draws * 0.5;
 
-    wp.games.push({ gameId: game.id, opponentId: game.blackPlayer.id, opponentUsername: game.blackPlayer.username, result: resultLabel(game.status, true), color: "WHITE", gameState: game.status });
-    bp.games.push({ gameId: game.id, opponentId: game.whitePlayer.id, opponentUsername: game.whitePlayer.username, result: resultLabel(game.status, false), color: "BLACK", gameState: game.status });
+    wp.games.push({
+      gameId: game.id,
+      opponentId: game.blackPlayer.id,
+      opponentUsername: game.blackPlayer.username,
+      result: resultLabel(game.status, true),
+      color: "WHITE",
+      gameState: game.status,
+    });
+    bp.games.push({
+      gameId: game.id,
+      opponentId: game.whitePlayer.id,
+      opponentUsername: game.whitePlayer.username,
+      result: resultLabel(game.status, false),
+      color: "BLACK",
+      gameState: game.status,
+    });
   }
 
   return Array.from(map.values()).sort((a, b) => b.score - a.score);

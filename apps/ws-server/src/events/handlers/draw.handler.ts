@@ -1,11 +1,17 @@
 import { Server, Socket } from "socket.io";
 import { PubSub } from "@repo/redis-client";
 import {
-  claimDraw, offerDraw, declineOfferDraw, getPendingDrawOffer,
+  claimDraw,
+  offerDraw,
+  declineOfferDraw,
+  getPendingDrawOffer,
 } from "../../utils/drawValidator.js";
 import { getActiveGameId } from "../../shared/game-state.js";
 import type {
-  OfferDrawRequest, ClaimDrawRequest, DeclineDrawRequest, CheckDrawOfferRequest,
+  OfferDrawRequest,
+  ClaimDrawRequest,
+  DeclineDrawRequest,
+  CheckDrawOfferRequest,
   OfferDrawSuccessResponse,
 } from "@repo/socket-types";
 import { userSocketMap } from "../../shared/socket-store.js";
@@ -18,23 +24,31 @@ export class DrawHandler {
 
   register(): void {
     this.socket.on("offer-draw", (payload: OfferDrawRequest) =>
-      this.onOfferDraw(payload));
+      this.onOfferDraw(payload),
+    );
 
     this.socket.on("claim-draw", (payload: ClaimDrawRequest) =>
-      this.onClaimDraw(payload));
+      this.onClaimDraw(payload),
+    );
 
     this.socket.on("decline-draw", (payload: DeclineDrawRequest) =>
-      this.onDeclineDraw(payload));
+      this.onDeclineDraw(payload),
+    );
 
     this.socket.on("check_draw_offer", (payload: CheckDrawOfferRequest) =>
-      this.onCheckDrawOffer(payload));
+      this.onCheckDrawOffer(payload),
+    );
   }
 
   private async onOfferDraw(payload: OfferDrawRequest): Promise<void> {
     const gameId = await getActiveGameId(payload.userId);
     if (!gameId) return;
 
-    const response = await offerDraw(gameId, payload.userId, payload.opponentId);
+    const response = await offerDraw(
+      gameId,
+      payload.userId,
+      payload.opponentId,
+    );
     if (response.action === "allowed") {
       await PubSub.publish(`offer-draw:${gameId}`, JSON.stringify(response));
     } else {
@@ -47,7 +61,11 @@ export class DrawHandler {
     if (!gameId) return;
 
     try {
-      const response = await claimDraw(payload.userId, gameId, payload.opponentId);
+      const response = await claimDraw(
+        payload.userId,
+        gameId,
+        payload.opponentId,
+      );
       if ("action" in response && response.action === "not_allowed") {
         this.socket.emit("error", { message: response.message });
         return;
@@ -64,17 +82,26 @@ export class DrawHandler {
     const gameId = await getActiveGameId(payload.userId);
     if (!gameId) return;
 
-    const response = await declineOfferDraw(payload.userId, gameId, payload.opponentId);
+    const response = await declineOfferDraw(
+      payload.userId,
+      gameId,
+      payload.opponentId,
+    );
     await PubSub.publish(`decline-draw:${gameId}`, JSON.stringify(response));
   }
 
-  private async onCheckDrawOffer(payload: CheckDrawOfferRequest): Promise<void> {
+  private async onCheckDrawOffer(
+    payload: CheckDrawOfferRequest,
+  ): Promise<void> {
     const gameId = await getActiveGameId(payload.userId);
     if (!gameId) return;
 
     const pendingOffer = await getPendingDrawOffer(payload.userId, gameId);
     if (pendingOffer) {
-      const response: OfferDrawSuccessResponse = { payload: pendingOffer, action: "allowed" };
+      const response: OfferDrawSuccessResponse = {
+        payload: pendingOffer,
+        action: "allowed",
+      };
       this.socket.emit("draw-request", response);
     }
   }

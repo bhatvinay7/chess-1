@@ -6,13 +6,18 @@ import styles from "./SettingsPage.module.css";
 
 interface GameplaySettingsProps {
   settings: AppSettings;
-  onUpdateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
+  onUpdateSetting: <K extends keyof AppSettings>(
+    key: K,
+    value: AppSettings[K],
+  ) => void;
 }
 
-export function GameplaySettings({ settings, onUpdateSetting }: GameplaySettingsProps) {
+export function GameplaySettings({
+  settings,
+  onUpdateSetting,
+}: GameplaySettingsProps) {
   return (
     <div className={styles.sectionRoot}>
-
       {/* ── Sound & Alerts ── */}
       <div className={styles.optionGroup}>
         <div className={styles.optionGroupTitle}>Sound &amp; Alerts</div>

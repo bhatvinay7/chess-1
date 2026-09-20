@@ -75,9 +75,12 @@ export async function getGameHistory(
   limit = 8,
   filter: HistoryFilter = "all",
 ): Promise<GameHistoryResponse> {
-  const { data } = await axiosInstance.get<GameHistoryResponse>("/games/history", {
-    params: { page, limit, filter },
-  });
+  const { data } = await axiosInstance.get<GameHistoryResponse>(
+    "/games/history",
+    {
+      params: { page, limit, filter },
+    },
+  );
   return data;
 }
 
@@ -87,9 +90,12 @@ export async function getUserGameHistory(
   limit = 8,
   filter: HistoryFilter = "all",
 ): Promise<GameHistoryResponse> {
-  const { data } = await axiosInstance.get<GameHistoryResponse>(`/users/${userId}/history`, {
-    params: { page, limit, filter },
-  });
+  const { data } = await axiosInstance.get<GameHistoryResponse>(
+    `/users/${userId}/history`,
+    {
+      params: { page, limit, filter },
+    },
+  );
   return data;
 }
 
@@ -99,7 +105,9 @@ export interface RatingPoint {
 }
 
 export async function getRatingHistory(): Promise<{ points: RatingPoint[] }> {
-  const { data } = await axiosInstance.get<{ points: RatingPoint[] }>("/games/rating-history");
+  const { data } = await axiosInstance.get<{ points: RatingPoint[] }>(
+    "/games/rating-history",
+  );
   return data;
 }
 
@@ -110,6 +118,8 @@ export interface CategoryRatingHistory {
 }
 
 export async function getRatingHistoryByCategory(): Promise<CategoryRatingHistory> {
-  const { data } = await axiosInstance.get<CategoryRatingHistory>("/games/rating-history/by-category");
+  const { data } = await axiosInstance.get<CategoryRatingHistory>(
+    "/games/rating-history/by-category",
+  );
   return data;
 }

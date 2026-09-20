@@ -1,5 +1,11 @@
 import { Router, IRouter } from "express";
-import { getMyGameHistory, getGameById, saveGameAnalysis, getRatingHistory, getRatingHistoryByCategory } from "../controllers/game/gameController.js";
+import {
+  getMyGameHistory,
+  getGameById,
+  saveGameAnalysis,
+  getRatingHistory,
+  getRatingHistoryByCategory,
+} from "../controllers/game/gameController.js";
 
 const router: IRouter = Router();
 

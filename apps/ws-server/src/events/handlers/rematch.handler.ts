@@ -1,9 +1,15 @@
 import { Server, Socket } from "socket.io";
 import { PubSub } from "@repo/redis-client";
 import {
-  requestRematch, declineRematchRequest, exceptRematch, checkPendingRematchRequest,
+  requestRematch,
+  declineRematchRequest,
+  exceptRematch,
+  checkPendingRematchRequest,
 } from "../../utils/rematchHandle.js";
-import type { RematchRequestPayload, CheckRematchRequest } from "@repo/socket-types";
+import type {
+  RematchRequestPayload,
+  CheckRematchRequest,
+} from "@repo/socket-types";
 import { userSocketMap } from "../../shared/socket-store.js";
 
 export class RematchHandler {
@@ -14,22 +20,32 @@ export class RematchHandler {
 
   register(): void {
     this.socket.on("rematch-request", (payload: RematchRequestPayload) =>
-      this.onRematchRequest(payload));
+      this.onRematchRequest(payload),
+    );
 
     this.socket.on("check-rematch-request", (payload: CheckRematchRequest) =>
-      this.onCheckRematch(payload));
+      this.onCheckRematch(payload),
+    );
 
     this.socket.on("accept-rematch", (payload: RematchRequestPayload) =>
-      this.onAcceptRematch(payload));
+      this.onAcceptRematch(payload),
+    );
 
-    this.socket.on("decline-rematch-request", (payload: RematchRequestPayload) =>
-      this.onDeclineRematch(payload));
+    this.socket.on(
+      "decline-rematch-request",
+      (payload: RematchRequestPayload) => this.onDeclineRematch(payload),
+    );
   }
 
-  private async onRematchRequest(payload: RematchRequestPayload): Promise<void> {
+  private async onRematchRequest(
+    payload: RematchRequestPayload,
+  ): Promise<void> {
     const response = await requestRematch(payload);
     if (response) {
-      await PubSub.publish(`rematch-request:${payload.opponentId}`, JSON.stringify(response));
+      await PubSub.publish(
+        `rematch-request:${payload.opponentId}`,
+        JSON.stringify(response),
+      );
     }
   }
 
@@ -44,7 +60,9 @@ export class RematchHandler {
     await exceptRematch(payload);
   }
 
-  private async onDeclineRematch(payload: RematchRequestPayload): Promise<void> {
+  private async onDeclineRematch(
+    payload: RematchRequestPayload,
+  ): Promise<void> {
     await declineRematchRequest(payload);
   }
 }

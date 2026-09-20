@@ -1,5 +1,5 @@
+use crate::types::{GameStateHash, MoveHistoryEntry};
 use uuid::Uuid;
-use crate::types::{MoveHistoryEntry, GameStateHash};
 
 pub async fn check_game_finalized(
     tx: &mut sqlx::Transaction<'_, sqlx::Postgres>,

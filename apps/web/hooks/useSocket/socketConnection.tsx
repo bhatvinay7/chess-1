@@ -12,11 +12,14 @@ export class SocketService {
     if (typeof window === "undefined") return;
     if (this.socket) return;
 
-    this.socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8080", {
-      transports: ["websocket"],
-      reconnection: true,
-      reconnectionAttempts: 5,
-    });
+    this.socket = io(
+      process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8080",
+      {
+        transports: ["websocket"],
+        reconnection: true,
+        reconnectionAttempts: 5,
+      },
+    );
 
     this.socket.on("connect", () => {
       console.log("Socket connected:", this.socket?.id);
@@ -61,7 +64,10 @@ interface SocketContextValue {
   socket: Socket | null;
 }
 
-const SocketContext = createContext<SocketContextValue>({ socketService, socket: null });
+const SocketContext = createContext<SocketContextValue>({
+  socketService,
+  socket: null,
+});
 
 export function useSocket(): SocketContextValue {
   return useContext(SocketContext);

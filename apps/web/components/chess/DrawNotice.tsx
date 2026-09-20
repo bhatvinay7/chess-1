@@ -13,7 +13,11 @@ interface DrawNoticeProps {
 
 /** Small auto-dismissing banner used to surface draw-flow messages
  *  (e.g. "Draw offer sent", "Your draw offer was declined"). */
-export function DrawNotice({ message, onDismiss, durationMs = 4000 }: DrawNoticeProps) {
+export function DrawNotice({
+  message,
+  onDismiss,
+  durationMs = 4000,
+}: DrawNoticeProps) {
   useEffect(() => {
     const timer = setTimeout(onDismiss, durationMs);
     return () => clearTimeout(timer);

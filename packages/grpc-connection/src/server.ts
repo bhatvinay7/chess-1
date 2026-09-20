@@ -4,12 +4,8 @@ import { Chess } from "chess.js";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 import dotenv from "dotenv";
-dotenv.config()
-import {
-  redisClient,
-  connectRedisClient,
-  PubSub,
-} from "@repo/redis-client";
+dotenv.config();
+import { redisClient, connectRedisClient, PubSub } from "@repo/redis-client";
 import type {
   MoveRequest,
   MoveResponse,
@@ -21,7 +17,10 @@ import type {
 // Games that have at least one spectator — populated by RegisterSpectatedGame.
 const watchedGames = new Set<string>();
 
-async function removeGameFromSchedule(userId: string, gameId: string): Promise<void> {
+async function removeGameFromSchedule(
+  userId: string,
+  gameId: string,
+): Promise<void> {
   try {
     if (!userId) return;
     const key = `matchmaking:gameId:${userId}`;
@@ -57,7 +56,7 @@ export function toSafeFen(fen: string): string {
 
 const processMove: ProcessMoveHandler = async (call, callback) => {
   const { game_id, user_id, from, to, promotion } = call.request;
-  
+
   const invalidResponse = (reason: string): MoveResponse => ({
     valid: false,
     new_fen: "",
@@ -74,10 +73,10 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
     move_promotion: promotion,
     game_mode: "standard",
   });
-  
+
   try {
     const hashKey = `game:state:${game_id}`;
-    
+
     const gameData = await redisClient.hGetAll(hashKey);
     if (!gameData.current_fen) {
       const reason = `Game state not found for game ${game_id}`;
@@ -85,7 +84,7 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
       callback(null, invalidResponse(reason));
       return;
     }
-    
+
     let chess = new Chess(toSafeFen(gameData.current_fen));
     const turn = chess.turn() === "w" ? "WHITE_TO_MOVE" : "BLACK_TO_MOVE";
     let moveResult: ReturnType<typeof chess.move> | null = null;
@@ -113,15 +112,18 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
       return;
     }
 
-
     const newFen = chess.fen();
     const isGameOver = chess.isGameOver();
     const isCheckmate = chess.isCheckmate();
     const isDraw = chess.isDraw();
 
     const currentTime = Date.now() / 1000;
-    let black_player_left_time = parseFloat(gameData.black_player_left_time ?? "300");
-    let white_player_left_time = parseFloat(gameData.white_player_left_time ?? "300");
+    let black_player_left_time = parseFloat(
+      gameData.black_player_left_time ?? "300",
+    );
+    let white_player_left_time = parseFloat(
+      gameData.white_player_left_time ?? "300",
+    );
     const lastGameMoveTime = parseFloat(gameData.last_move_time ?? "0");
     const increment = parseFloat(gameData.increment ?? "0");
     const MOVE_COMPENSATION_S = 0.1; // 100ms lag compensation per move
@@ -137,11 +139,12 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
     let timeoutWinnerId: string | null = null;
     let timeoutStatus: "WHITE_WIN" | "BLACK_WIN" | null = null;
 
-    const timeElapsed = lastGameMoveTime > 0 ? Math.max(0, currentTime - lastGameMoveTime) : 0;
+    const timeElapsed =
+      lastGameMoveTime > 0 ? Math.max(0, currentTime - lastGameMoveTime) : 0;
 
     const updates: Record<string, string> = {
-        current_fen: newFen,
-        game_state: finalState,
+      current_fen: newFen,
+      game_state: finalState,
     };
 
     if (finalState === "IN_PROGRESS") {
@@ -149,7 +152,10 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
 
       if (chess.turn() === "b") {
         // Black to move next → white just moved → deduct from white's clock
-        white_player_left_time = Math.max(0, (white_player_left_time + increment) - timeElapsed);
+        white_player_left_time = Math.max(
+          0,
+          white_player_left_time + increment - timeElapsed,
+        );
         updates.white_player_left_time = String(white_player_left_time);
         if (white_player_left_time === 0) {
           finalState = "TIMEOUT";
@@ -158,7 +164,10 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
         }
       } else {
         // White to move next → black just moved → deduct from black's clock
-        black_player_left_time = Math.max(0, (black_player_left_time + increment) - timeElapsed);
+        black_player_left_time = Math.max(
+          0,
+          black_player_left_time + increment - timeElapsed,
+        );
         updates.black_player_left_time = String(black_player_left_time);
         if (black_player_left_time === 0) {
           finalState = "TIMEOUT";
@@ -170,13 +179,21 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
       updates.game_state = finalState;
     }
 
-  const redisOperations: Promise<any>[] = [
+    const redisOperations: Promise<any>[] = [
       redisClient.hSet(hashKey, updates),
       redisClient.xAdd(`game:moveshistory:${game_id}`, "*", {
-      userId: user_id,
-      move: JSON.stringify({ from, to, promotion, fen_after: newFen, san: "", moveNumber: chess.moveNumber(), time_taken: timeElapsed }),
-    })
-  ];
+        userId: user_id,
+        move: JSON.stringify({
+          from,
+          to,
+          promotion,
+          fen_after: newFen,
+          san: "",
+          moveNumber: chess.moveNumber(),
+          time_taken: timeElapsed,
+        }),
+      }),
+    ];
     if (finalState !== "IN_PROGRESS") {
       let winnerId: string | null;
       let status: string;
@@ -186,9 +203,10 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
         status = timeoutStatus!;
       } else if (isCheckmate) {
         // after chess.move(), chess.turn() is the checkmated player → winner is the other
-        winnerId = chess.turn() === "w"
-          ? (gameData.black_player_id ?? null)
-          : (gameData.white_player_id ?? null);
+        winnerId =
+          chess.turn() === "w"
+            ? (gameData.black_player_id ?? null)
+            : (gameData.white_player_id ?? null);
         status = chess.turn() === "w" ? "BLACK_WIN" : "WHITE_WIN";
       } else {
         winnerId = null;
@@ -198,7 +216,7 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
       redisOperations.push(
         // Trigger full DB sync in sync-worker (moves, Game update, ratings, tournament stats,
         // scheduling cleanup: game:schedule / user:active:games).
-        redisClient.xAdd('match:process:results', "*", {
+        redisClient.xAdd("match:process:results", "*", {
           payload: JSON.stringify({ gameId: game_id, winnerId, status }),
         }),
         // Remove matchmaking game-ID pointers so arena join sees no active game.
@@ -211,7 +229,10 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
 
       // Rematch context is only meaningful for casual (non-tournament) games.
       if (!gameData.tournament_id) {
-        const [smallerId, largerId] = gameData.player1_id! < gameData.player2_id! ? [gameData.player1_id, gameData.player2_id] : [gameData.player2_id, gameData.player1_id];
+        const [smallerId, largerId] =
+          gameData.player1_id! < gameData.player2_id!
+            ? [gameData.player1_id, gameData.player2_id]
+            : [gameData.player2_id, gameData.player1_id];
         const key = `game:rematch:${smallerId}:${largerId}`;
         redisOperations.push(
           redisClient.hSet(key, {
@@ -239,7 +260,10 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
       // join_arena find the next scheduled game (e.g. game 2 of an RR pair) without
       // waiting.  All ZREM / HDEL calls are idempotent (return 0 when already absent).
       if (gameData.tournament_id) {
-        for (const uid of [gameData.white_player_id, gameData.black_player_id]) {
+        for (const uid of [
+          gameData.white_player_id,
+          gameData.black_player_id,
+        ]) {
           if (!uid) continue;
           redisOperations.push(
             redisClient.zRem(`game:schedule:${uid}`, game_id),
@@ -263,7 +287,10 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
       try {
         await redisClient.zRem("live:games", game_id);
       } catch (e) {
-        console.error("[gRPC ProcessMove] Failed to remove from live:games:", e);
+        console.error(
+          "[gRPC ProcessMove] Failed to remove from live:games:",
+          e,
+        );
       }
     }
 
@@ -306,8 +333,8 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
       game_status: finalState,
       turn,
       is_game_over: isGameOver,
-      black_player_left_time:black_player_left_time,
-      white_player_left_time:white_player_left_time,
+      black_player_left_time: black_player_left_time,
+      white_player_left_time: white_player_left_time,
       error_reason: "",
       game_id,
       user_id,
@@ -317,14 +344,16 @@ const processMove: ProcessMoveHandler = async (call, callback) => {
       game_mode: gameData.gameMode || "standard",
     });
   } catch (err) {
-    console.error(`[gRPC ProcessMove] Unexpected error for game ${game_id}:`, err);
+    console.error(
+      `[gRPC ProcessMove] Unexpected error for game ${game_id}:`,
+      err,
+    );
     callback({
       code: grpc.status.INTERNAL,
       message: err instanceof Error ? err.message : "Internal server error",
     });
   }
 };
-
 
 const registerSpectatedGame = async (
   call: grpc.ServerUnaryCall<SpectateRequest, SpectateResponse>,
@@ -343,7 +372,10 @@ const registerSpectatedGame = async (
       await redisClient.copy(src, dst);
     }
   } catch (err) {
-    console.error(`[gRPC RegisterSpectatedGame] copy failed for ${game_id}:`, err);
+    console.error(
+      `[gRPC RegisterSpectatedGame] copy failed for ${game_id}:`,
+      err,
+    );
   }
 
   console.log(`[gRPC] Spectate registered for game ${game_id}`);
@@ -358,8 +390,8 @@ export async function startGrpcServer(
 
   const packageDef = protoLoader.loadSync(PROTO_PATH, {
     keepCase: true,
-    
-       // field names match proto snake_case
+
+    // field names match proto snake_case
     longs: String,
     enums: String,
     defaults: true,
@@ -383,9 +415,11 @@ export async function startGrpcServer(
       `0.0.0.0:${port}`,
       grpc.ServerCredentials.createInsecure(),
 
-
       (err) => {
-        if (err) { reject(err); return; }
+        if (err) {
+          reject(err);
+          return;
+        }
         resolve();
       },
     );

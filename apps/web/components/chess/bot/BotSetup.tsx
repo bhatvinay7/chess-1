@@ -12,7 +12,11 @@ import { ColorPicker, type ColorChoice } from "./ColorPicker";
 import styles from "./BotSetup.module.css";
 
 interface BotSetupProps {
-  onStart: (bot: BotCharacter, playerColor: "white" | "black", timeSlot: string) => void;
+  onStart: (
+    bot: BotCharacter,
+    playerColor: "white" | "black",
+    timeSlot: string,
+  ) => void;
 }
 
 function skillToStars(level: number): number {
@@ -24,27 +28,36 @@ function skillToPct(level: number): number {
 }
 
 function ColorLabel({ choice }: { choice: ColorChoice }) {
-  if (choice === "random") return <span className={styles.matchSummaryAccent}>Random</span>;
-  return <span className={styles.matchSummaryAccent}>{choice === "white" ? "♔ White" : "♚ Black"}</span>;
+  if (choice === "random")
+    return <span className={styles.matchSummaryAccent}>Random</span>;
+  return (
+    <span className={styles.matchSummaryAccent}>
+      {choice === "white" ? "♔ White" : "♚ Black"}
+    </span>
+  );
 }
 
 export function BotSetup({ onStart }: BotSetupProps) {
   const darkUI = useSelector((state: RootState) => state.sidebar.darkUI);
-  const [selectedBot, setSelectedBot] = useState<BotCharacter>(BOT_CHARACTERS[2]!);
+  const [selectedBot, setSelectedBot] = useState<BotCharacter>(
+    BOT_CHARACTERS[2]!,
+  );
   const [colorChoice, setColorChoice] = useState<ColorChoice>("white");
-  const [timeSlot, setTimeSlot]       = useState("10+0");
+  const [timeSlot, setTimeSlot] = useState("10+0");
   const [settingsOpen, setSettingsOpen] = useState(true);
 
   const handleStart = () => {
     const color: "white" | "black" =
       colorChoice === "random"
-        ? Math.random() < 0.5 ? "white" : "black"
+        ? Math.random() < 0.5
+          ? "white"
+          : "black"
         : colorChoice;
     onStart(selectedBot, color, timeSlot);
   };
 
-  const stars     = skillToStars(selectedBot.skillLevel);
-  const diffPct   = skillToPct(selectedBot.skillLevel);
+  const stars = skillToStars(selectedBot.skillLevel);
+  const diffPct = skillToPct(selectedBot.skillLevel);
   const accentHex = selectedBot.accentColor;
 
   return (
@@ -53,12 +66,13 @@ export function BotSetup({ onStart }: BotSetupProps) {
         {/* Header */}
         <div className={styles.header}>
           <h1 className={styles.headerTitle}>Play vs Bot</h1>
-          <span className={styles.headerSub}>Challenge the engine · Train your skills</span>
+          <span className={styles.headerSub}>
+            Challenge the engine · Train your skills
+          </span>
         </div>
 
         {/* Body */}
         <div className={styles.body}>
-
           {/* Left column */}
           <div className={styles.leftCol}>
             <AnimatePresence mode="wait">
@@ -115,10 +129,14 @@ export function BotSetup({ onStart }: BotSetupProps) {
                       >
                         {selectedBot.title}
                       </span>
-                      <span className={styles.heroEloBadge}>{selectedBot.elo} ELO</span>
+                      <span className={styles.heroEloBadge}>
+                        {selectedBot.elo} ELO
+                      </span>
                     </div>
 
-                    <div className={styles.heroDesc}>{selectedBot.description}</div>
+                    <div className={styles.heroDesc}>
+                      {selectedBot.description}
+                    </div>
 
                     <div className={styles.difficultyRow}>
                       <span className={styles.difficultyLabel}>Difficulty</span>
@@ -128,14 +146,17 @@ export function BotSetup({ onStart }: BotSetupProps) {
                           initial={{ width: "0%" }}
                           animate={{ width: `${diffPct}%` }}
                           transition={{ duration: 0.5, ease: "easeOut" }}
-                          style={{ background: `linear-gradient(90deg, ${accentHex}88, ${accentHex})` }}
+                          style={{
+                            background: `linear-gradient(90deg, ${accentHex}88, ${accentHex})`,
+                          }}
                         />
                       </div>
                       <span
                         className={styles.difficultyStars}
                         style={{ color: accentHex }}
                       >
-                        {"★".repeat(stars)}{"☆".repeat(5 - stars)}
+                        {"★".repeat(stars)}
+                        {"☆".repeat(5 - stars)}
                       </span>
                     </div>
                   </div>
@@ -172,7 +193,11 @@ export function BotSetup({ onStart }: BotSetupProps) {
               onClick={() => setSettingsOpen(!settingsOpen)}
               title={settingsOpen ? "Collapse settings" : "Expand settings"}
             >
-              {settingsOpen ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+              {settingsOpen ? (
+                <ChevronRight size={14} />
+              ) : (
+                <ChevronLeft size={14} />
+              )}
             </button>
 
             {/* Collapsed vertical label */}
@@ -204,14 +229,20 @@ export function BotSetup({ onStart }: BotSetupProps) {
                 >
                   <div className={styles.settingSection}>
                     <div className={styles.sectionLabel}>⏱ Time Control</div>
-                    <FloatingTimeControls selected={timeSlot} onSelect={setTimeSlot} />
+                    <FloatingTimeControls
+                      selected={timeSlot}
+                      onSelect={setTimeSlot}
+                    />
                   </div>
 
                   <div className={styles.settingsDivider} />
 
                   <div className={styles.settingSection}>
                     <div className={styles.sectionLabel}>♟ Your Color</div>
-                    <ColorPicker value={colorChoice} onChange={setColorChoice} />
+                    <ColorPicker
+                      value={colorChoice}
+                      onChange={setColorChoice}
+                    />
                   </div>
 
                   <div className={styles.settingsDivider} />
@@ -219,11 +250,16 @@ export function BotSetup({ onStart }: BotSetupProps) {
                   <div className={styles.matchSummary}>
                     <ColorLabel choice={colorChoice} />
                     <span>vs</span>
-                    <span className={styles.matchSummaryAccent} style={{ color: accentHex }}>
+                    <span
+                      className={styles.matchSummaryAccent}
+                      style={{ color: accentHex }}
+                    >
                       {selectedBot.avatar} {selectedBot.name}
                     </span>
                     <span style={{ color: "var(--text-faint)" }}>·</span>
-                    <span className={styles.matchSummaryAccent}>{timeSlot}</span>
+                    <span className={styles.matchSummaryAccent}>
+                      {timeSlot}
+                    </span>
                   </div>
 
                   <motion.button

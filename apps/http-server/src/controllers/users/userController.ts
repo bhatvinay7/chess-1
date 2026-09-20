@@ -30,7 +30,9 @@ async function friendshipStatus(currentUserId: string, targetUserId: string) {
   if (!friendship) return "NONE";
   if (friendship.status === "ACCEPTED") return "FRIENDS";
   if (friendship.status !== "PENDING") return friendship.status;
-  return friendship.requesterId === currentUserId ? "OUTGOING_REQUEST" : "INCOMING_REQUEST";
+  return friendship.requesterId === currentUserId
+    ? "OUTGOING_REQUEST"
+    : "INCOMING_REQUEST";
 }
 
 export async function searchUsers(req: Request, res: Response): Promise<void> {
@@ -72,7 +74,10 @@ export async function searchUsers(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function getPublicUserProfile(req: Request, res: Response): Promise<void> {
+export async function getPublicUserProfile(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const currentUserId = getAuthenticatedUserId(req);
   if (!currentUserId) {
     res.status(401).json({ message: "Unauthorized" });

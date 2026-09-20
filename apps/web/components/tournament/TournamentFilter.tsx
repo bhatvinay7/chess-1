@@ -1,7 +1,12 @@
 "use client";
 
 import { SlidersHorizontal } from "lucide-react";
-import type { TournamentFilters, TournamentStatus, TournamentType, TournamentAccessType } from "./types";
+import type {
+  TournamentFilters,
+  TournamentStatus,
+  TournamentType,
+  TournamentAccessType,
+} from "./types";
 import styles from "./TournamentFilter.module.css";
 
 interface Props {
@@ -25,15 +30,16 @@ const ACCESS_TYPES: { value: TournamentAccessType | "ALL"; label: string }[] = [
   { value: "PRIVATE", label: "Private" },
 ];
 
-const TYPES: { value: TournamentType | "ALL"; label: string; color: string }[] = [
-  { value: "ALL", label: "All formats", color: "#f28b38" },
-  { value: "ARENA", label: "Arena", color: "#e85d5d" },
-  { value: "CLUB_SWISS", label: "Club Swiss", color: "#4b9de8" },
-  { value: "GLOBAL_SWISS", label: "Global Swiss", color: "#9b6fe8" },
-  { value: "CLUB_ROUND_ROBIN", label: "Round Robin", color: "#3ecf8e" },
-  { value: "GLOBAL_ROUND_ROBIN", label: "Global R.R.", color: "#06b6d4" },
-  { value: "DAILY", label: "Daily", color: "#f59e0b" },
-];
+const TYPES: { value: TournamentType | "ALL"; label: string; color: string }[] =
+  [
+    { value: "ALL", label: "All formats", color: "#f28b38" },
+    { value: "ARENA", label: "Arena", color: "#e85d5d" },
+    { value: "CLUB_SWISS", label: "Club Swiss", color: "#4b9de8" },
+    { value: "GLOBAL_SWISS", label: "Global Swiss", color: "#9b6fe8" },
+    { value: "CLUB_ROUND_ROBIN", label: "Round Robin", color: "#3ecf8e" },
+    { value: "GLOBAL_ROUND_ROBIN", label: "Global R.R.", color: "#06b6d4" },
+    { value: "DAILY", label: "Daily", color: "#f59e0b" },
+  ];
 
 export default function TournamentFilter({ filters, onChange }: Props) {
   const statusVal = filters.status ?? "ALL";
@@ -79,7 +85,12 @@ export default function TournamentFilter({ filters, onChange }: Props) {
                 name="type"
                 className={styles.radio}
                 checked={typeVal === t.value}
-                onChange={() => onChange({ ...filters, type: t.value as TournamentType | "ALL" })}
+                onChange={() =>
+                  onChange({
+                    ...filters,
+                    type: t.value as TournamentType | "ALL",
+                  })
+                }
               />
               <span
                 className={styles.typeDot}
@@ -104,7 +115,12 @@ export default function TournamentFilter({ filters, onChange }: Props) {
                 name="access"
                 className={styles.radio}
                 checked={accessVal === a.value}
-                onChange={() => onChange({ ...filters, accessType: a.value as TournamentAccessType | "ALL" })}
+                onChange={() =>
+                  onChange({
+                    ...filters,
+                    accessType: a.value as TournamentAccessType | "ALL",
+                  })
+                }
               />
               <span className={styles.optionLabel}>{a.label}</span>
             </label>
@@ -117,7 +133,9 @@ export default function TournamentFilter({ filters, onChange }: Props) {
       <button
         type="button"
         className={styles.resetBtn}
-        onClick={() => onChange({ status: "ALL", type: "ALL", accessType: "ALL" })}
+        onClick={() =>
+          onChange({ status: "ALL", type: "ALL", accessType: "ALL" })
+        }
       >
         Reset filters
       </button>

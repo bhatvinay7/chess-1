@@ -40,7 +40,9 @@ const RESEND_COOLDOWN = 60;
 
 export default function AuthForm({ type }: AuthFormProps) {
   const router = useRouter();
-  const [step, setStep] = useState<Step>(type === "signup" ? "landing" : "email");
+  const [step, setStep] = useState<Step>(
+    type === "signup" ? "landing" : "email",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
@@ -64,19 +66,30 @@ export default function AuthForm({ type }: AuthFormProps) {
     if (step === "forgot-otp") forgotOtpRef.current?.focus();
   }, [step]);
 
-  useEffect(() => () => { if (timerRef.current) clearInterval(timerRef.current); }, []);
+  useEffect(
+    () => () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    },
+    [],
+  );
 
   const startCooldown = () => {
     setCooldown(RESEND_COOLDOWN);
     timerRef.current = setInterval(() => {
       setCooldown((prev) => {
-        if (prev <= 1) { clearInterval(timerRef.current!); return 0; }
+        if (prev <= 1) {
+          clearInterval(timerRef.current!);
+          return 0;
+        }
         return prev - 1;
       });
     }, 1000);
   };
 
-  const setErr = (msg: string) => { setStatus("error"); setErrorMsg(msg); };
+  const setErr = (msg: string) => {
+    setStatus("error");
+    setErrorMsg(msg);
+  };
 
   /* ── Login with email + password ── */
   const handleLogin = async (e: React.FormEvent) => {
@@ -95,7 +108,11 @@ export default function AuthForm({ type }: AuthFormProps) {
   };
 
   /* ── Signup: send OTP ── */
-  const handleSignupSendOtp = async (emailVal: string, pw: string, usernameVal?: string) => {
+  const handleSignupSendOtp = async (
+    emailVal: string,
+    pw: string,
+    usernameVal?: string,
+  ) => {
     setEmail(emailVal);
     setPassword(pw);
     if (usernameVal) setUsername(usernameVal);
@@ -108,30 +125,45 @@ export default function AuthForm({ type }: AuthFormProps) {
       startCooldown();
     } catch (err) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
-      setErr(axiosErr.response?.data?.message || "Failed to send verification code.");
+      setErr(
+        axiosErr.response?.data?.message || "Failed to send verification code.",
+      );
     }
   };
 
   /* ── Signup: verify OTP ── */
   const handleSignupVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (otp.length !== 6) { setErr("Enter the 6-digit code from your email."); return; }
+    if (otp.length !== 6) {
+      setErr("Enter the 6-digit code from your email.");
+      return;
+    }
     setStatus("loading");
     setErrorMsg("");
     try {
-      const data = await authApi.signupVerifyOtp(email, otp, username, password);
+      const data = await authApi.signupVerifyOtp(
+        email,
+        otp,
+        username,
+        password,
+      );
       setUserSession(data.token, data.user);
       setStatus("success");
       router.replace("/");
     } catch (err) {
       const axiosErr = err as { response?: { data?: { message?: string } } };
-      setErr(axiosErr.response?.data?.message || "Verification failed. Please try again.");
+      setErr(
+        axiosErr.response?.data?.message ||
+          "Verification failed. Please try again.",
+      );
     }
   };
 
   const handleResendSignup = async () => {
     if (cooldown > 0) return;
-    setStatus("loading"); setErrorMsg(""); setOtp("");
+    setStatus("loading");
+    setErrorMsg("");
+    setOtp("");
     try {
       await authApi.requestOtp(email);
       setStatus("idle");
@@ -145,7 +177,8 @@ export default function AuthForm({ type }: AuthFormProps) {
   /* ── Forgot password: request OTP ── */
   const handleForgotRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus("loading"); setErrorMsg("");
+    setStatus("loading");
+    setErrorMsg("");
     try {
       await authApi.requestPasswordReset(forgotEmail);
       setStep("forgot-otp");
@@ -160,10 +193,20 @@ export default function AuthForm({ type }: AuthFormProps) {
   /* ── Forgot password: reset ── */
   const handleForgotReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (forgotOtp.length !== 6) { setErr("Enter the 6-digit code from your email."); return; }
-    if (newPassword.length < 6) { setErr("Password must be at least 6 characters."); return; }
-    if (newPassword !== confirmPassword) { setErr("Passwords do not match."); return; }
-    setStatus("loading"); setErrorMsg("");
+    if (forgotOtp.length !== 6) {
+      setErr("Enter the 6-digit code from your email.");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setErr("Password must be at least 6 characters.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setErr("Passwords do not match.");
+      return;
+    }
+    setStatus("loading");
+    setErrorMsg("");
     try {
       await authApi.resetPassword(forgotEmail, forgotOtp, newPassword);
       setStep("forgot-done");
@@ -174,18 +217,25 @@ export default function AuthForm({ type }: AuthFormProps) {
     }
   };
 
-  const slideIn = { initial: { opacity: 0, x: 16 }, animate: { opacity: 1, x: 0 }, exit: { opacity: 0, x: -16 }, transition: { duration: 0.2 } };
+  const slideIn = {
+    initial: { opacity: 0, x: 16 },
+    animate: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: -16 },
+    transition: { duration: 0.2 },
+  };
 
   return (
     <div style={pageStyles.page}>
       <div style={pageStyles.bgPattern} aria-hidden="true" />
       <div style={pageStyles.card}>
         <AnimatePresence mode="wait">
-
           {/* ── Signup Landing ── */}
           {step === "landing" && (
             <motion.div key="landing" {...slideIn}>
-              <AuthLanding mode="signup" onContinueWithEmail={() => setStep("email")} />
+              <AuthLanding
+                mode="signup"
+                onContinueWithEmail={() => setStep("email")}
+              />
             </motion.div>
           )}
 
@@ -199,7 +249,11 @@ export default function AuthForm({ type }: AuthFormProps) {
                 submitLabel="Send Verification Code"
                 isLoading={status === "loading"}
                 error={status === "error" ? errorMsg : undefined}
-                onBack={() => { setStep("landing"); setStatus("idle"); setErrorMsg(""); }}
+                onBack={() => {
+                  setStep("landing");
+                  setStatus("idle");
+                  setErrorMsg("");
+                }}
                 onSubmit={handleSignupSendOtp}
               />
             </motion.div>
@@ -218,10 +272,18 @@ export default function AuthForm({ type }: AuthFormProps) {
                 heading="Verify your email"
                 subheading="We sent a 6-digit code to"
                 submitLabel="Verify & Create Account"
-                onOtpChange={(v) => { setOtp(v); if (status === "error") setStatus("idle"); }}
+                onOtpChange={(v) => {
+                  setOtp(v);
+                  if (status === "error") setStatus("idle");
+                }}
                 onSubmit={handleSignupVerify}
                 onResend={handleResendSignup}
-                onBack={() => { setStep("email"); setStatus("idle"); setOtp(""); setErrorMsg(""); }}
+                onBack={() => {
+                  setStep("email");
+                  setStatus("idle");
+                  setOtp("");
+                  setErrorMsg("");
+                }}
               />
             </motion.div>
           )}
@@ -232,7 +294,7 @@ export default function AuthForm({ type }: AuthFormProps) {
               <div style={cardStyles.header}>
                 <Logo />
               </div>
-              
+
               <GoogleAuthButton mode="login" />
 
               <div style={cardStyles.divider}>
@@ -252,7 +314,9 @@ export default function AuthForm({ type }: AuthFormProps) {
                   required
                 />
                 <div style={cardStyles.inputWrap}>
-                  <span style={cardStyles.inputIcon}><Lock size={15} /></span>
+                  <span style={cardStyles.inputIcon}>
+                    <Lock size={15} />
+                  </span>
                   <input
                     type={showPw ? "text" : "password"}
                     placeholder="Password"
@@ -262,7 +326,12 @@ export default function AuthForm({ type }: AuthFormProps) {
                     autoComplete="current-password"
                     style={{ ...cardStyles.input, paddingRight: "2.6rem" }}
                   />
-                  <button type="button" onClick={() => setShowPw((v) => !v)} style={cardStyles.eyeBtn} tabIndex={-1}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPw((v) => !v)}
+                    style={cardStyles.eyeBtn}
+                    tabIndex={-1}
+                  >
                     {showPw ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
@@ -275,7 +344,12 @@ export default function AuthForm({ type }: AuthFormProps) {
                   <button
                     type="button"
                     style={cardStyles.forgotBtn}
-                    onClick={() => { setForgotEmail(email); setStep("forgot-email"); setStatus("idle"); setErrorMsg(""); }}
+                    onClick={() => {
+                      setForgotEmail(email);
+                      setStep("forgot-email");
+                      setStatus("idle");
+                      setErrorMsg("");
+                    }}
                   >
                     Forgot Password?
                   </button>
@@ -284,9 +358,19 @@ export default function AuthForm({ type }: AuthFormProps) {
                 <ErrorBox status={status} errorMsg={errorMsg} />
 
                 <PrimaryBtn disabled={status === "loading"}>
-                  {status === "loading"
-                    ? <><Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> Signing in…</>
-                    : <>Log In <ArrowRight size={15} /></>}
+                  {status === "loading" ? (
+                    <>
+                      <Loader2
+                        size={16}
+                        style={{ animation: "spin 1s linear infinite" }}
+                      />{" "}
+                      Signing in…
+                    </>
+                  ) : (
+                    <>
+                      Log In <ArrowRight size={15} />
+                    </>
+                  )}
                 </PrimaryBtn>
 
                 <p style={cardStyles.footerText}>
@@ -305,7 +389,9 @@ export default function AuthForm({ type }: AuthFormProps) {
               <div style={cardStyles.header}>
                 <Logo />
                 <h1 style={cardStyles.heading}>Reset Password</h1>
-                <p style={cardStyles.subheading}>Enter your email to receive a reset code</p>
+                <p style={cardStyles.subheading}>
+                  Enter your email to receive a reset code
+                </p>
               </div>
               <form onSubmit={handleForgotRequest} style={cardStyles.form}>
                 <InputField
@@ -319,13 +405,25 @@ export default function AuthForm({ type }: AuthFormProps) {
                 />
                 <ErrorBox status={status} errorMsg={errorMsg} />
                 <PrimaryBtn disabled={status === "loading"}>
-                  {status === "loading"
-                    ? <><Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> Sending…</>
-                    : "Send Reset Code"}
+                  {status === "loading" ? (
+                    <>
+                      <Loader2
+                        size={16}
+                        style={{ animation: "spin 1s linear infinite" }}
+                      />{" "}
+                      Sending…
+                    </>
+                  ) : (
+                    "Send Reset Code"
+                  )}
                 </PrimaryBtn>
                 <button
                   type="button"
-                  onClick={() => { setStep("email"); setStatus("idle"); setErrorMsg(""); }}
+                  onClick={() => {
+                    setStep("email");
+                    setStatus("idle");
+                    setErrorMsg("");
+                  }}
                   style={cardStyles.backLink}
                 >
                   ← Back to login
@@ -341,7 +439,15 @@ export default function AuthForm({ type }: AuthFormProps) {
                 <Logo />
                 <h1 style={cardStyles.heading}>Set New Password</h1>
                 <p style={cardStyles.subheading}>We sent a code to</p>
-                <p style={{ color: "#81b64c", fontWeight: 700, fontSize: "0.9rem", textAlign: "center", margin: 0 }}>
+                <p
+                  style={{
+                    color: "#81b64c",
+                    fontWeight: 700,
+                    fontSize: "0.9rem",
+                    textAlign: "center",
+                    margin: 0,
+                  }}
+                >
                   {forgotEmail}
                 </p>
               </div>
@@ -354,12 +460,17 @@ export default function AuthForm({ type }: AuthFormProps) {
                   maxLength={6}
                   placeholder="000000"
                   value={forgotOtp}
-                  onChange={(e) => { setForgotOtp(e.target.value.replace(/\D/g, "").slice(0, 6)); if (status === "error") setStatus("idle"); }}
+                  onChange={(e) => {
+                    setForgotOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
+                    if (status === "error") setStatus("idle");
+                  }}
                   required
                   style={cardStyles.otpInput}
                 />
                 <div style={cardStyles.inputWrap}>
-                  <span style={cardStyles.inputIcon}><Lock size={15} /></span>
+                  <span style={cardStyles.inputIcon}>
+                    <Lock size={15} />
+                  </span>
                   <input
                     type={showNewPw ? "text" : "password"}
                     placeholder="New password (min 6 chars)"
@@ -369,7 +480,12 @@ export default function AuthForm({ type }: AuthFormProps) {
                     minLength={6}
                     style={{ ...cardStyles.input, paddingRight: "2.6rem" }}
                   />
-                  <button type="button" onClick={() => setShowNewPw((v) => !v)} style={cardStyles.eyeBtn} tabIndex={-1}>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPw((v) => !v)}
+                    style={cardStyles.eyeBtn}
+                    tabIndex={-1}
+                  >
                     {showNewPw ? <EyeOff size={14} /> : <Eye size={14} />}
                   </button>
                 </div>
@@ -385,13 +501,29 @@ export default function AuthForm({ type }: AuthFormProps) {
 
                 <ErrorBox status={status} errorMsg={errorMsg} />
 
-                <PrimaryBtn disabled={status === "loading" || forgotOtp.length !== 6}>
-                  {status === "loading"
-                    ? <><Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> Resetting…</>
-                    : "Reset Password"}
+                <PrimaryBtn
+                  disabled={status === "loading" || forgotOtp.length !== 6}
+                >
+                  {status === "loading" ? (
+                    <>
+                      <Loader2
+                        size={16}
+                        style={{ animation: "spin 1s linear infinite" }}
+                      />{" "}
+                      Resetting…
+                    </>
+                  ) : (
+                    "Reset Password"
+                  )}
                 </PrimaryBtn>
 
-                <div style={{ textAlign: "center", fontSize: "0.84rem", color: "var(--text-muted)" }}>
+                <div
+                  style={{
+                    textAlign: "center",
+                    fontSize: "0.84rem",
+                    color: "var(--text-muted)",
+                  }}
+                >
                   {cooldown > 0 ? (
                     <span>Resend in {cooldown}s</span>
                   ) : (
@@ -403,7 +535,9 @@ export default function AuthForm({ type }: AuthFormProps) {
                           await authApi.requestPasswordReset(forgotEmail);
                           setStatus("idle");
                           startCooldown();
-                        } catch { setErr("Failed to resend."); }
+                        } catch {
+                          setErr("Failed to resend.");
+                        }
                       }}
                       style={cardStyles.resendBtn}
                     >
@@ -412,7 +546,16 @@ export default function AuthForm({ type }: AuthFormProps) {
                   )}
                 </div>
 
-                <button type="button" onClick={() => { setStep("forgot-email"); setStatus("idle"); setForgotOtp(""); setErrorMsg(""); }} style={cardStyles.backLink}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep("forgot-email");
+                    setStatus("idle");
+                    setForgotOtp("");
+                    setErrorMsg("");
+                  }}
+                  style={cardStyles.backLink}
+                >
                   ← Change email
                 </button>
               </form>
@@ -426,14 +569,24 @@ export default function AuthForm({ type }: AuthFormProps) {
                 <Logo />
                 <CheckCircle2 size={48} color="#81b64c" />
                 <h1 style={cardStyles.heading}>Password Reset!</h1>
-                <p style={cardStyles.subheading}>Your password has been updated. You can now log in.</p>
+                <p style={cardStyles.subheading}>
+                  Your password has been updated. You can now log in.
+                </p>
               </div>
-              <PrimaryBtn onClick={() => { setStep("email"); setStatus("idle"); setErrorMsg(""); setForgotOtp(""); setNewPassword(""); setConfirmPassword(""); }}>
+              <PrimaryBtn
+                onClick={() => {
+                  setStep("email");
+                  setStatus("idle");
+                  setErrorMsg("");
+                  setForgotOtp("");
+                  setNewPassword("");
+                  setConfirmPassword("");
+                }}
+              >
                 Go to Login
               </PrimaryBtn>
             </motion.div>
           )}
-
         </AnimatePresence>
       </div>
     </div>
@@ -453,7 +606,13 @@ function Logo() {
 }
 
 function InputField({
-  icon, type, placeholder, value, onChange, autoComplete, required,
+  icon,
+  type,
+  placeholder,
+  value,
+  onChange,
+  autoComplete,
+  required,
 }: {
   icon: React.ReactNode;
   type: string;
@@ -483,7 +642,12 @@ function ErrorBox({ status, errorMsg }: { status: string; errorMsg: string }) {
   return (
     <AnimatePresence>
       {status === "error" && (
-        <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={cardStyles.errorBox}>
+        <motion.div
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          style={cardStyles.errorBox}
+        >
           <AlertCircle size={14} />
           {errorMsg}
         </motion.div>
@@ -492,15 +656,29 @@ function ErrorBox({ status, errorMsg }: { status: string; errorMsg: string }) {
   );
 }
 
-function PrimaryBtn({ children, disabled, onClick }: { children: React.ReactNode; disabled?: boolean; onClick?: () => void }) {
+function PrimaryBtn({
+  children,
+  disabled,
+  onClick,
+}: {
+  children: React.ReactNode;
+  disabled?: boolean;
+  onClick?: () => void;
+}) {
   return (
     <button
       type={onClick ? "button" : "submit"}
       disabled={disabled}
       onClick={onClick}
       style={cardStyles.primaryBtn}
-      onMouseEnter={(e) => { if (!disabled) (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.1)"; }}
-      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)"; }}
+      onMouseEnter={(e) => {
+        if (!disabled)
+          (e.currentTarget as HTMLButtonElement).style.filter =
+            "brightness(1.1)";
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)";
+      }}
     >
       {children}
     </button>
@@ -508,13 +686,33 @@ function PrimaryBtn({ children, disabled, onClick }: { children: React.ReactNode
 }
 
 function OtpStep({
-  email, otp, status, errorMsg, cooldown, otpRef, heading, subheading, submitLabel,
-  onOtpChange, onSubmit, onResend, onBack,
+  email,
+  otp,
+  status,
+  errorMsg,
+  cooldown,
+  otpRef,
+  heading,
+  subheading,
+  submitLabel,
+  onOtpChange,
+  onSubmit,
+  onResend,
+  onBack,
 }: {
-  email: string; otp: string; status: Status; errorMsg: string; cooldown: number;
-  otpRef: React.RefObject<HTMLInputElement | null>; heading: string; subheading: string; submitLabel: string;
-  onOtpChange: (v: string) => void; onSubmit: (e: React.FormEvent) => void;
-  onResend: () => void; onBack: () => void;
+  email: string;
+  otp: string;
+  status: Status;
+  errorMsg: string;
+  cooldown: number;
+  otpRef: React.RefObject<HTMLInputElement | null>;
+  heading: string;
+  subheading: string;
+  submitLabel: string;
+  onOtpChange: (v: string) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  onResend: () => void;
+  onBack: () => void;
 }) {
   return (
     <>
@@ -522,7 +720,17 @@ function OtpStep({
         <Logo />
         <h1 style={cardStyles.heading}>{heading}</h1>
         <p style={cardStyles.subheading}>{subheading}</p>
-        <p style={{ color: "#81b64c", fontWeight: 700, fontSize: "0.9rem", textAlign: "center", margin: 0 }}>{email}</p>
+        <p
+          style={{
+            color: "#81b64c",
+            fontWeight: 700,
+            fontSize: "0.9rem",
+            textAlign: "center",
+            margin: 0,
+          }}
+        >
+          {email}
+        </p>
       </div>
       <form onSubmit={onSubmit} style={cardStyles.form}>
         <input
@@ -533,43 +741,90 @@ function OtpStep({
           maxLength={6}
           placeholder="000000"
           value={otp}
-          onChange={(e) => onOtpChange(e.target.value.replace(/\D/g, "").slice(0, 6))}
+          onChange={(e) =>
+            onOtpChange(e.target.value.replace(/\D/g, "").slice(0, 6))
+          }
           required
           style={cardStyles.otpInput}
         />
         <AnimatePresence>
           {status === "error" && (
-            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} style={cardStyles.errorBox}>
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              style={cardStyles.errorBox}
+            >
               <AlertCircle size={14} /> {errorMsg}
             </motion.div>
           )}
           {status === "success" && (
-            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} style={{ ...cardStyles.errorBox, background: "rgba(80,200,80,0.1)", border: "1px solid rgba(80,200,80,0.2)", color: "#80d080" }}>
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              style={{
+                ...cardStyles.errorBox,
+                background: "rgba(80,200,80,0.1)",
+                border: "1px solid rgba(80,200,80,0.2)",
+                color: "#80d080",
+              }}
+            >
               <CheckCircle2 size={14} /> Verified! Signing you in…
             </motion.div>
           )}
         </AnimatePresence>
         <button
           type="submit"
-          disabled={status === "loading" || status === "success" || otp.length !== 6}
+          disabled={
+            status === "loading" || status === "success" || otp.length !== 6
+          }
           style={cardStyles.primaryBtn}
-          onMouseEnter={(e) => { if (status === "idle") (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.1)"; }}
-          onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)"; }}
+          onMouseEnter={(e) => {
+            if (status === "idle")
+              (e.currentTarget as HTMLButtonElement).style.filter =
+                "brightness(1.1)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.filter =
+              "brightness(1)";
+          }}
         >
-          {status === "loading"
-            ? <><Loader2 size={16} style={{ animation: "spin 1s linear infinite" }} /> Verifying…</>
-            : <><CheckCircle2 size={16} /> {submitLabel}</>}
+          {status === "loading" ? (
+            <>
+              <Loader2
+                size={16}
+                style={{ animation: "spin 1s linear infinite" }}
+              />{" "}
+              Verifying…
+            </>
+          ) : (
+            <>
+              <CheckCircle2 size={16} /> {submitLabel}
+            </>
+          )}
         </button>
-        <div style={{ textAlign: "center", fontSize: "0.84rem", color: "rgba(255,255,255,0.45)" }}>
+        <div
+          style={{
+            textAlign: "center",
+            fontSize: "0.84rem",
+            color: "rgba(255,255,255,0.45)",
+          }}
+        >
           {cooldown > 0 ? (
             <span>Resend in {cooldown}s</span>
           ) : (
-            <button type="button" onClick={onResend} style={cardStyles.resendBtn}>
+            <button
+              type="button"
+              onClick={onResend}
+              style={cardStyles.resendBtn}
+            >
               <RotateCcw size={13} /> Resend code
             </button>
           )}
         </div>
-        <button type="button" onClick={onBack} style={cardStyles.backLink}>← Change email</button>
+        <button type="button" onClick={onBack} style={cardStyles.backLink}>
+          ← Change email
+        </button>
       </form>
     </>
   );
@@ -628,11 +883,31 @@ const cardStyles: Record<string, React.CSSProperties> = {
     gap: "0.18rem",
     marginBottom: "0.35rem",
   },
-  logoPawn: { fontSize: "1.2rem", color: "#81b64c", filter: "drop-shadow(0 0 4px rgba(129,182,76,0.5))" },
-  logoWord: { fontSize: "1.15rem", fontWeight: 800, color: "var(--text-primary)" },
+  logoPawn: {
+    fontSize: "1.2rem",
+    color: "#81b64c",
+    filter: "drop-shadow(0 0 4px rgba(129,182,76,0.5))",
+  },
+  logoWord: {
+    fontSize: "1.15rem",
+    fontWeight: 800,
+    color: "var(--text-primary)",
+  },
   logoDot: { fontSize: "0.8rem", color: "var(--text-muted)" },
-  heading: { fontSize: "1.35rem", fontWeight: 800, color: "var(--text-primary)", textAlign: "center", lineHeight: 1.25, margin: 0 },
-  subheading: { fontSize: "0.83rem", color: "var(--text-muted)", textAlign: "center", margin: 0 },
+  heading: {
+    fontSize: "1.35rem",
+    fontWeight: 800,
+    color: "var(--text-primary)",
+    textAlign: "center",
+    lineHeight: 1.25,
+    margin: 0,
+  },
+  subheading: {
+    fontSize: "0.83rem",
+    color: "var(--text-muted)",
+    textAlign: "center",
+    margin: 0,
+  },
   form: { display: "flex", flexDirection: "column", gap: "0.6rem" },
   inputWrap: {
     position: "relative",
@@ -642,7 +917,13 @@ const cardStyles: Record<string, React.CSSProperties> = {
     border: "1px solid var(--auth-input-border)",
     borderRadius: "6px",
   },
-  inputIcon: { display: "flex", alignItems: "center", padding: "0 0.7rem", color: "var(--text-muted)", flexShrink: 0 },
+  inputIcon: {
+    display: "flex",
+    alignItems: "center",
+    padding: "0 0.7rem",
+    color: "var(--text-muted)",
+    flexShrink: 0,
+  },
   input: {
     flex: 1,
     background: "transparent",
@@ -652,36 +933,126 @@ const cardStyles: Record<string, React.CSSProperties> = {
     color: "var(--text-primary)",
     fontSize: "0.9rem",
   },
-  eyeBtn: { position: "absolute", right: "0.7rem", background: "transparent", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center", padding: 0 },
-  rememberRow: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem", fontSize: "0.82rem", color: "var(--text-muted)" },
-  rememberLabel: { display: "flex", alignItems: "center", gap: "0.4rem", cursor: "pointer" },
-  forgotBtn: { background: "none", border: "none", color: "#81b64c", fontSize: "0.82rem", cursor: "pointer", padding: 0, fontWeight: 600 },
+  eyeBtn: {
+    position: "absolute",
+    right: "0.7rem",
+    background: "transparent",
+    border: "none",
+    color: "var(--text-muted)",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    padding: 0,
+  },
+  rememberRow: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "0.5rem",
+    fontSize: "0.82rem",
+    color: "var(--text-muted)",
+  },
+  rememberLabel: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.4rem",
+    cursor: "pointer",
+  },
+  forgotBtn: {
+    background: "none",
+    border: "none",
+    color: "#81b64c",
+    fontSize: "0.82rem",
+    cursor: "pointer",
+    padding: 0,
+    fontWeight: 600,
+  },
   errorBox: {
-    display: "flex", alignItems: "center", gap: "0.5rem",
-    color: "#c0392b", fontSize: "0.81rem",
-    background: "rgba(192,57,43,0.08)", border: "1px solid rgba(192,57,43,0.2)",
-    borderRadius: "6px", padding: "0.55rem 0.75rem",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    color: "#c0392b",
+    fontSize: "0.81rem",
+    background: "rgba(192,57,43,0.08)",
+    border: "1px solid rgba(192,57,43,0.2)",
+    borderRadius: "6px",
+    padding: "0.55rem 0.75rem",
   },
   primaryBtn: {
-    width: "100%", padding: "0.78rem",
+    width: "100%",
+    padding: "0.78rem",
     background: "linear-gradient(135deg, #81b64c, #5a8a2a)",
-    border: "none", borderRadius: "6px", color: "#fff",
-    fontWeight: 800, fontSize: "0.95rem", cursor: "pointer",
-    display: "flex", alignItems: "center", justifyContent: "center", gap: "0.45rem",
-    transition: "filter 0.15s", boxShadow: "0 4px 16px rgba(100,180,40,0.28)",
-    marginTop: "0.2rem", letterSpacing: "0.01em",
+    border: "none",
+    borderRadius: "6px",
+    color: "#fff",
+    fontWeight: 800,
+    fontSize: "0.95rem",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "0.45rem",
+    transition: "filter 0.15s",
+    boxShadow: "0 4px 16px rgba(100,180,40,0.28)",
+    marginTop: "0.2rem",
+    letterSpacing: "0.01em",
   },
-  backLink: { background: "none", border: "none", color: "var(--text-muted)", fontSize: "0.8rem", cursor: "pointer", textAlign: "center" },
-  resendBtn: { color: "#81b64c", fontWeight: 700, background: "none", border: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", gap: "0.3rem" },
-  footerText: { fontSize: "0.8rem", color: "var(--text-muted)", textAlign: "center", margin: "0.2rem 0 0" },
+  backLink: {
+    background: "none",
+    border: "none",
+    color: "var(--text-muted)",
+    fontSize: "0.8rem",
+    cursor: "pointer",
+    textAlign: "center",
+  },
+  resendBtn: {
+    color: "#81b64c",
+    fontWeight: 700,
+    background: "none",
+    border: "none",
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.3rem",
+  },
+  footerText: {
+    fontSize: "0.8rem",
+    color: "var(--text-muted)",
+    textAlign: "center",
+    margin: "0.2rem 0 0",
+  },
   footerLink: { color: "#81b64c", fontWeight: 700, textDecoration: "none" },
   otpInput: {
-    width: "100%", padding: "1rem", fontSize: "2.2rem", fontWeight: 800,
-    letterSpacing: "0.75rem", textAlign: "center", borderRadius: "8px",
-    background: "var(--auth-input-overlay)", border: "1px solid var(--auth-input-border)",
-    color: "var(--text-primary)", outline: "none", fontFamily: "monospace", transition: "border-color 0.2s",
+    width: "100%",
+    padding: "1rem",
+    fontSize: "2.2rem",
+    fontWeight: 800,
+    letterSpacing: "0.75rem",
+    textAlign: "center",
+    borderRadius: "8px",
+    background: "var(--auth-input-overlay)",
+    border: "1px solid var(--auth-input-border)",
+    color: "var(--text-primary)",
+    outline: "none",
+    fontFamily: "monospace",
+    transition: "border-color 0.2s",
   },
-  divider: { display: "flex", alignItems: "center", gap: "0.7rem", width: "100%", marginBottom: "0.3rem" },
-  dividerLine: { flex: 1, height: "1px", background: "var(--auth-input-border)" },
-  dividerText: { fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 700, letterSpacing: "0.1em" },
+  divider: {
+    display: "flex",
+    alignItems: "center",
+    gap: "0.7rem",
+    width: "100%",
+    marginBottom: "0.3rem",
+  },
+  dividerLine: {
+    flex: 1,
+    height: "1px",
+    background: "var(--auth-input-border)",
+  },
+  dividerText: {
+    fontSize: "0.7rem",
+    color: "var(--text-muted)",
+    fontWeight: 700,
+    letterSpacing: "0.1em",
+  },
 };

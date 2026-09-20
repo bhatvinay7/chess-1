@@ -15,7 +15,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "ruy-lopez",
     name: "Ruy López",
     eco: "C60",
-    description: "The most classical 1.e4 opening. Control the center and pressure the e5 pawn.",
+    description:
+      "The most classical 1.e4 opening. Control the center and pressure the e5 pawn.",
     playerColor: "white",
     emoji: "⚔️",
     accentColor: "#c0392b",
@@ -25,7 +26,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "italian",
     name: "Italian Game",
     eco: "C50",
-    description: "Fast development targeting f7. Rich positional and tactical play.",
+    description:
+      "Fast development targeting f7. Rich positional and tactical play.",
     playerColor: "white",
     emoji: "🏛️",
     accentColor: "#e67e22",
@@ -35,7 +37,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "kings-gambit",
     name: "King's Gambit",
     eco: "C30",
-    description: "Sacrifice a pawn for explosive center control and rapid development.",
+    description:
+      "Sacrifice a pawn for explosive center control and rapid development.",
     playerColor: "white",
     emoji: "🔥",
     accentColor: "#e74c3c",
@@ -45,7 +48,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "vienna",
     name: "Vienna Game",
     eco: "C25",
-    description: "Flexible and tricky. Avoid early theory while keeping good play.",
+    description:
+      "Flexible and tricky. Avoid early theory while keeping good play.",
     playerColor: "white",
     emoji: "🎻",
     accentColor: "#9b59b6",
@@ -55,7 +59,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "four-knights",
     name: "Four Knights Game",
     eco: "C46",
-    description: "Symmetrical development of all minor pieces. Classical and solid.",
+    description:
+      "Symmetrical development of all minor pieces. Classical and solid.",
     playerColor: "white",
     emoji: "♞",
     accentColor: "#2980b9",
@@ -65,7 +70,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "queens-gambit",
     name: "Queen's Gambit",
     eco: "D20",
-    description: "The cornerstone of 1.d4 openings. Fight for the center with c4.",
+    description:
+      "The cornerstone of 1.d4 openings. Fight for the center with c4.",
     playerColor: "white",
     emoji: "♛",
     accentColor: "#27ae60",
@@ -75,7 +81,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "london",
     name: "London System",
     eco: "D02",
-    description: "Solid, reliable, and low on theory. Build a strong pawn structure.",
+    description:
+      "Solid, reliable, and low on theory. Build a strong pawn structure.",
     playerColor: "white",
     emoji: "🏰",
     accentColor: "#7f8c8d",
@@ -85,7 +92,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "catalan",
     name: "Catalan Opening",
     eco: "E00",
-    description: "Combine the Queen's Gambit with a fianchettoed bishop. Long-term pressure.",
+    description:
+      "Combine the Queen's Gambit with a fianchettoed bishop. Long-term pressure.",
     playerColor: "white",
     emoji: "🔶",
     accentColor: "#f39c12",
@@ -95,7 +103,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "english",
     name: "English Opening",
     eco: "A10",
-    description: "Hypermodern flank opening. Control the center with pieces, not pawns.",
+    description:
+      "Hypermodern flank opening. Control the center with pieces, not pawns.",
     playerColor: "white",
     emoji: "🌿",
     accentColor: "#1abc9c",
@@ -105,7 +114,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "colle",
     name: "Colle System",
     eco: "D05",
-    description: "A solid d4 system ideal for beginners. Consistent setup with attack potential.",
+    description:
+      "A solid d4 system ideal for beginners. Consistent setup with attack potential.",
     playerColor: "white",
     emoji: "🧱",
     accentColor: "#795548",
@@ -117,7 +127,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "sicilian",
     name: "Sicilian Defense",
     eco: "B20",
-    description: "The most popular and combative Black response to 1.e4. Rich in theory.",
+    description:
+      "The most popular and combative Black response to 1.e4. Rich in theory.",
     playerColor: "black",
     emoji: "🐉",
     accentColor: "#8e44ad",
@@ -127,7 +138,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "french",
     name: "French Defense",
     eco: "C00",
-    description: "Solid and counterattacking. Accept a space disadvantage for long-term chances.",
+    description:
+      "Solid and counterattacking. Accept a space disadvantage for long-term chances.",
     playerColor: "black",
     emoji: "🗼",
     accentColor: "#2980b9",
@@ -137,7 +149,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "caro-kann",
     name: "Caro-Kann Defense",
     eco: "B10",
-    description: "Solid and reliable against 1.e4. Avoid weak pawns while keeping a good bishop.",
+    description:
+      "Solid and reliable against 1.e4. Avoid weak pawns while keeping a good bishop.",
     playerColor: "black",
     emoji: "🛡️",
     accentColor: "#16a085",
@@ -147,7 +160,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "scandinavian",
     name: "Scandinavian Defense",
     eco: "B01",
-    description: "Challenge the center immediately with 1…d5. Simple to learn and solid.",
+    description:
+      "Challenge the center immediately with 1…d5. Simple to learn and solid.",
     playerColor: "black",
     emoji: "⚡",
     accentColor: "#2ecc71",
@@ -157,7 +171,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "kings-indian",
     name: "King's Indian Defense",
     eco: "E60",
-    description: "Allow White to build a big center, then counterattack with …e5 or …c5.",
+    description:
+      "Allow White to build a big center, then counterattack with …e5 or …c5.",
     playerColor: "black",
     emoji: "🏹",
     accentColor: "#e67e22",
@@ -167,7 +182,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "nimzo-indian",
     name: "Nimzo-Indian Defense",
     eco: "E20",
-    description: "Pin the knight with the bishop to disrupt White's center. Very dynamic.",
+    description:
+      "Pin the knight with the bishop to disrupt White's center. Very dynamic.",
     playerColor: "black",
     emoji: "📌",
     accentColor: "#c0392b",
@@ -177,7 +193,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "queens-indian",
     name: "Queen's Indian Defense",
     eco: "E12",
-    description: "Hypermodern defense. Fianchetto the queenside bishop to control e4.",
+    description:
+      "Hypermodern defense. Fianchetto the queenside bishop to control e4.",
     playerColor: "black",
     emoji: "👑",
     accentColor: "#f39c12",
@@ -187,7 +204,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "grunfeld",
     name: "Grünfeld Defense",
     eco: "D70",
-    description: "Let White have the center, then attack it with pieces. Highly theoretical.",
+    description:
+      "Let White have the center, then attack it with pieces. Highly theoretical.",
     playerColor: "black",
     emoji: "🎯",
     accentColor: "#9b59b6",
@@ -197,7 +215,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "slav",
     name: "Slav Defense",
     eco: "D10",
-    description: "Solid defense against 1.d4. Keep the c8 bishop active from the start.",
+    description:
+      "Solid defense against 1.d4. Keep the c8 bishop active from the start.",
     playerColor: "black",
     emoji: "🗡️",
     accentColor: "#34495e",
@@ -207,7 +226,8 @@ export const COACH_OPENINGS: CoachOpening[] = [
     id: "dutch",
     name: "Dutch Defense",
     eco: "A80",
-    description: "Aggressive and unbalanced. Fight for e4 from move one with 1…f5.",
+    description:
+      "Aggressive and unbalanced. Fight for e4 from move one with 1…f5.",
     playerColor: "black",
     emoji: "🌷",
     accentColor: "#e74c3c",

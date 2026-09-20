@@ -8,7 +8,11 @@ import { redisClient } from "@repo/redis-client";
 
 const ALGORITHM = "aes-256-cbc";
 // Must be 32 bytes
-const ENCRYPTION_KEY = crypto.scryptSync(process.env.INVITATION_ENCRYPTION_KEY || "default_secret", "salt", 32);
+const ENCRYPTION_KEY = crypto.scryptSync(
+  process.env.INVITATION_ENCRYPTION_KEY || "default_secret",
+  "salt",
+  32,
+);
 
 function encryptData(text: string) {
   const iv = crypto.randomBytes(16);
@@ -47,18 +51,28 @@ function generateChess960Fen(): string {
   pieces[lightB] = "b";
   pieces[darkB] = "b";
 
-  let emptyIndices = pieces.map((p, i) => p === "" ? i : -1).filter(i => i !== -1);
+  let emptyIndices = pieces
+    .map((p, i) => (p === "" ? i : -1))
+    .filter((i) => i !== -1);
   const qIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)]!;
   pieces[qIndex] = "q";
 
-  emptyIndices = pieces.map((p, i) => p === "" ? i : -1).filter(i => i !== -1);
-  const n1Index = emptyIndices[Math.floor(Math.random() * emptyIndices.length)]!;
+  emptyIndices = pieces
+    .map((p, i) => (p === "" ? i : -1))
+    .filter((i) => i !== -1);
+  const n1Index =
+    emptyIndices[Math.floor(Math.random() * emptyIndices.length)]!;
   pieces[n1Index] = "n";
-  emptyIndices = pieces.map((p, i) => p === "" ? i : -1).filter(i => i !== -1);
-  const n2Index = emptyIndices[Math.floor(Math.random() * emptyIndices.length)]!;
+  emptyIndices = pieces
+    .map((p, i) => (p === "" ? i : -1))
+    .filter((i) => i !== -1);
+  const n2Index =
+    emptyIndices[Math.floor(Math.random() * emptyIndices.length)]!;
   pieces[n2Index] = "n";
 
-  emptyIndices = pieces.map((p, i) => p === "" ? i : -1).filter(i => i !== -1);
+  emptyIndices = pieces
+    .map((p, i) => (p === "" ? i : -1))
+    .filter((i) => i !== -1);
   pieces[emptyIndices[0]!] = "r";
   pieces[emptyIndices[1]!] = "k";
   pieces[emptyIndices[2]!] = "r";
@@ -69,7 +83,12 @@ function generateChess960Fen(): string {
 
 async function flushGhostInvites(userId: string) {
   const now = Date.now();
-  const oldGameIds = await redisClient.zRange(`matchmaking:gameId:${userId}`, 0, now, { BY: 'SCORE' });
+  const oldGameIds = await redisClient.zRange(
+    `matchmaking:gameId:${userId}`,
+    0,
+    now,
+    { BY: "SCORE" },
+  );
   if (oldGameIds.length > 0) {
     const pipeline = redisClient.multi();
     for (const entry of oldGameIds) {
@@ -81,8 +100,17 @@ async function flushGhostInvites(userId: string) {
   }
 }
 
-async function hasOverlappingGame(userId: string, startMs: number, endMs: number): Promise<boolean> {
-  const futureGameEntries = await redisClient.zRange(`matchmaking:gameId:${userId}`, startMs, "+inf", { BY: 'SCORE' });
+async function hasOverlappingGame(
+  userId: string,
+  startMs: number,
+  endMs: number,
+): Promise<boolean> {
+  const futureGameEntries = await redisClient.zRange(
+    `matchmaking:gameId:${userId}`,
+    startMs,
+    "+inf",
+    { BY: "SCORE" },
+  );
   for (const entry of futureGameEntries) {
     const [, exStartStr] = entry.split(":");
     if (exStartStr) {
@@ -107,11 +135,17 @@ export async function createInvite(req: Request, res: Response): Promise<void> {
 
     const parsed = createInviteSchema.safeParse(req.body);
     if (!parsed.success) {
-      res.status(400).json({ message: "Invalid request payload", errors: parsed.error.format() });
+      res
+        .status(400)
+        .json({
+          message: "Invalid request payload",
+          errors: parsed.error.format(),
+        });
       return;
     }
 
-    const { receiverId, timeControl, gameMode, scheduledTime, color } = parsed.data;
+    const { receiverId, timeControl, gameMode, scheduledTime, color } =
+      parsed.data;
 
     // 1. Validate Friendship in PostgreSQL
     const friendship = await pgPrisma.friendship.findFirst({
@@ -136,17 +170,26 @@ export async function createInvite(req: Request, res: Response): Promise<void> {
     await flushGhostInvites(senderId);
     const hasOverlap = await hasOverlappingGame(senderId, startMs, endMs);
     if (hasOverlap) {
-      res.status(400).json({ message: "You already have a game scheduled for this duration." });
+      res
+        .status(400)
+        .json({
+          message: "You already have a game scheduled for this duration.",
+        });
       return;
     }
 
     // 2. Encrypt Payload
-    const payload = JSON.stringify({ timeControl, gameMode, scheduledTime, color });
+    const payload = JSON.stringify({
+      timeControl,
+      gameMode,
+      scheduledTime,
+      color,
+    });
     const { encryptedData, iv } = encryptData(payload);
 
     // 3. Mongo Transaction (Invitation + Notification)
     // 1 hour expiry for the invitation itself
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); 
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     const result = await mongoPrisma.$transaction(async (tx) => {
       const invite = await tx.invitation.create({
@@ -172,14 +215,19 @@ export async function createInvite(req: Request, res: Response): Promise<void> {
       return { invite, notification };
     });
 
-    res.status(201).json({ message: "Invitation sent successfully", invite: result.invite });
+    res
+      .status(201)
+      .json({ message: "Invitation sent successfully", invite: result.invite });
   } catch (error) {
     console.error("[createInvite] Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 }
 
-export async function getSentInvites(req: Request, res: Response): Promise<void> {
+export async function getSentInvites(
+  req: Request,
+  res: Response,
+): Promise<void> {
   try {
     const senderId = getAuthenticatedUserId(req);
     if (!senderId) {
@@ -197,7 +245,9 @@ export async function getSentInvites(req: Request, res: Response): Promise<void>
       where: { id: { in: receiverIds } },
       select: { id: true, username: true, profileImageUrl: true, rating: true },
     });
-    const receiverMap = new Map(receivers.map((r: (typeof receivers)[number]) => [r.id, r]));
+    const receiverMap = new Map(
+      receivers.map((r: (typeof receivers)[number]) => [r.id, r]),
+    );
 
     const decryptedInvites = invites.map((inv) => {
       let payload = null;
@@ -223,7 +273,10 @@ export async function getSentInvites(req: Request, res: Response): Promise<void>
   }
 }
 
-export async function getReceivedInvites(req: Request, res: Response): Promise<void> {
+export async function getReceivedInvites(
+  req: Request,
+  res: Response,
+): Promise<void> {
   try {
     const receiverId = getAuthenticatedUserId(req);
     if (!receiverId) {
@@ -241,7 +294,9 @@ export async function getReceivedInvites(req: Request, res: Response): Promise<v
       where: { id: { in: senderIds } },
       select: { id: true, username: true, profileImageUrl: true, rating: true },
     });
-    const senderMap = new Map(senders.map((s: (typeof senders)[number]) => [s.id, s]));
+    const senderMap = new Map(
+      senders.map((s: (typeof senders)[number]) => [s.id, s]),
+    );
 
     const decryptedInvites = invites.map((inv) => {
       let payload = null;
@@ -276,7 +331,9 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const invite = await mongoPrisma.invitation.findUnique({ where: { id: inviteId } });
+    const invite = await mongoPrisma.invitation.findUnique({
+      where: { id: inviteId },
+    });
     if (!invite) {
       res.status(404).json({ message: "Invitation not found" });
       return;
@@ -302,12 +359,19 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
     await flushGhostInvites(receiverId);
     await flushGhostInvites(invite.senderId);
 
-    const existingReceiverGames = await redisClient.zRange(`matchmaking:gameId:${receiverId}`, 0, -1);
-    
+    const existingReceiverGames = await redisClient.zRange(
+      `matchmaking:gameId:${receiverId}`,
+      0,
+      -1,
+    );
+
     // Safety check: if they somehow accepted this exact invite already, don't throw an overlap error.
     for (const entry of existingReceiverGames) {
       const gid = entry.split(":")[0];
-      const stateInviteId = await redisClient.hGet(`game:state:${gid}`, "invite_id");
+      const stateInviteId = await redisClient.hGet(
+        `game:state:${gid}`,
+        "invite_id",
+      );
       if (stateInviteId === inviteId) {
         res.status(200).json({ message: "Game accepted", gameId: gid });
         return;
@@ -316,7 +380,9 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
 
     const hasOverlap = await hasOverlappingGame(receiverId, startMs, endMs);
     if (hasOverlap) {
-      res.status(400).json({ message: "You have an overlapping scheduled game." });
+      res
+        .status(400)
+        .json({ message: "You have an overlapping scheduled game." });
       return;
     }
 
@@ -325,14 +391,23 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
     const initialTimeSec = parseInt(mins, 10) * 60;
     const increment = parseInt(incrementStr ?? "0", 10);
 
-    const isWhite = payload.color === "white" || (payload.color === "random" && Math.random() > 0.5);
+    const isWhite =
+      payload.color === "white" ||
+      (payload.color === "random" && Math.random() > 0.5);
     const whitePlayerId = isWhite ? invite.senderId : receiverId;
     const blackPlayerId = isWhite ? receiverId : invite.senderId;
 
-    const sender = await pgPrisma.user.findUnique({ where: { id: invite.senderId } });
-    const receiver = await pgPrisma.user.findUnique({ where: { id: receiverId } });
+    const sender = await pgPrisma.user.findUnique({
+      where: { id: invite.senderId },
+    });
+    const receiver = await pgPrisma.user.findUnique({
+      where: { id: receiverId },
+    });
 
-    const startingFen = payload.gameMode === "chess960" ? generateChess960Fen() : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    const startingFen =
+      payload.gameMode === "chess960"
+        ? generateChess960Fen()
+        : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const currentTs = Math.floor(Date.now() / 1000).toString();
 
     const pipeline = redisClient.multi();
@@ -346,12 +421,24 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
       black_player_id: blackPlayerId,
       player1_id: whitePlayerId,
       player2_id: blackPlayerId,
-      player1_username: isWhite ? sender?.username ?? "" : receiver?.username ?? "",
-      player2_username: isWhite ? receiver?.username ?? "" : sender?.username ?? "",
-      player1_rating: isWhite ? sender?.rating?.toString() ?? "1200" : receiver?.rating?.toString() ?? "1200",
-      player2_rating: isWhite ? receiver?.rating?.toString() ?? "1200" : sender?.rating?.toString() ?? "1200",
-      player1_profile_image_url: isWhite ? sender?.profileImageUrl ?? "" : receiver?.profileImageUrl ?? "",
-      player2_profile_image_url: isWhite ? receiver?.profileImageUrl ?? "" : sender?.profileImageUrl ?? "",
+      player1_username: isWhite
+        ? (sender?.username ?? "")
+        : (receiver?.username ?? ""),
+      player2_username: isWhite
+        ? (receiver?.username ?? "")
+        : (sender?.username ?? ""),
+      player1_rating: isWhite
+        ? (sender?.rating?.toString() ?? "1200")
+        : (receiver?.rating?.toString() ?? "1200"),
+      player2_rating: isWhite
+        ? (receiver?.rating?.toString() ?? "1200")
+        : (sender?.rating?.toString() ?? "1200"),
+      player1_profile_image_url: isWhite
+        ? (sender?.profileImageUrl ?? "")
+        : (receiver?.profileImageUrl ?? ""),
+      player2_profile_image_url: isWhite
+        ? (receiver?.profileImageUrl ?? "")
+        : (sender?.profileImageUrl ?? ""),
       increment: increment.toString(),
       game_state: "INITIALIZED",
       gameMode: payload.gameMode,
@@ -367,9 +454,13 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
       match_id: "",
       paired_game_id: "",
     });
-    pipeline.zAdd(`matchmaking:gameId:${invite.senderId}`, [{ score: endMs, value: `${gameId}:${startMs}` }]);
-    pipeline.zAdd(`matchmaking:gameId:${receiverId}`, [{ score: endMs, value: `${gameId}:${startMs}` }]);
-    
+    pipeline.zAdd(`matchmaking:gameId:${invite.senderId}`, [
+      { score: endMs, value: `${gameId}:${startMs}` },
+    ]);
+    pipeline.zAdd(`matchmaking:gameId:${receiverId}`, [
+      { score: endMs, value: `${gameId}:${startMs}` },
+    ]);
+
     const execResult = await pipeline.exec();
     if (!execResult) {
       throw new Error("Redis pipeline execution failed");
@@ -387,16 +478,24 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
             userId: updatedInvite.senderId,
             type: "GAME_INVITATION_ACCEPTED",
             message: `Your game invitation was accepted!`,
-            metadata: { inviteId: updatedInvite.id, receiverId, url: `/arena/${gameId}` },
+            metadata: {
+              inviteId: updatedInvite.id,
+              receiverId,
+              url: `/arena/${gameId}`,
+            },
           },
         });
-        
+
         await tx.notification.create({
           data: {
             userId: receiverId,
             type: "GAME_INVITATION_ACCEPTED",
             message: `You accepted the game invitation!`,
-            metadata: { inviteId: updatedInvite.id, senderId: invite.senderId, url: `/arena/${gameId}` },
+            metadata: {
+              inviteId: updatedInvite.id,
+              senderId: invite.senderId,
+              url: `/arena/${gameId}`,
+            },
           },
         });
 
@@ -406,7 +505,11 @@ export async function acceptInvite(req: Request, res: Response): Promise<void> {
       res.status(200).json({ message: "Invitation accepted", payload, gameId });
     } catch (dbErr) {
       console.error("DB update failed during acceptInvite", dbErr);
-      res.status(500).json({ message: "Failed to accept invite fully, but state was allocated." });
+      res
+        .status(500)
+        .json({
+          message: "Failed to accept invite fully, but state was allocated.",
+        });
     }
   } catch (error) {
     console.error("[acceptInvite] Error:", error);
@@ -423,7 +526,9 @@ export async function rejectInvite(req: Request, res: Response): Promise<void> {
       return;
     }
 
-    const invite = await mongoPrisma.invitation.findUnique({ where: { id: inviteId } });
+    const invite = await mongoPrisma.invitation.findUnique({
+      where: { id: inviteId },
+    });
     if (!invite) {
       res.status(404).json({ message: "Invitation not found" });
       return;

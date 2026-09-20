@@ -1,7 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import AuthGuard, { AuthLoadingSplash } from "../../../components/auth/AuthGuard";
+import AuthGuard, {
+  AuthLoadingSplash,
+} from "../../../components/auth/AuthGuard";
 
 const BotGame = dynamic(() => import("../../../components/chess/BotGame"), {
   ssr: false,

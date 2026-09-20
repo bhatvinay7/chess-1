@@ -4,13 +4,15 @@ import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import styles from "./AuthGuard.module.css";
 
-export function AuthLoadingSplash({ message = "Verifying session..." }: { message?: string }) {
+export function AuthLoadingSplash({
+  message = "Verifying session...",
+}: {
+  message?: string;
+}) {
   return (
     <div className={styles.splashContainer}>
       <div className={styles.splashCard}>
-        <div className={styles.iconWrapper}>
-          ♜
-        </div>
+        <div className={styles.iconWrapper}>♜</div>
         <h2 className={styles.title}>Rooky Arena</h2>
         <p className={styles.subtitle}>
           <span className={styles.spinner} />

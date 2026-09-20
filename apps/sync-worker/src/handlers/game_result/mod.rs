@@ -3,9 +3,9 @@ pub mod pgn;
 pub mod rating;
 pub mod tournament;
 
-use std::sync::Arc;
 use redis::{self, AsyncCommands, Value};
 use sqlx::PgPool;
+use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::handlers::{scheduling, standings};
@@ -178,7 +178,8 @@ pub async fn handle_game_result(
         black_after,
         white_delta,
         black_delta,
-    ).await?;
+    )
+    .await?;
 
     println!("[game_result] Game {} → {}", entry.game_id, entry.status);
 

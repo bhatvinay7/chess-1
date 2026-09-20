@@ -32,8 +32,10 @@ export function BotGameOverCard({
   onNewGame,
 }: BotGameOverCardProps) {
   const darkUI = useSelector((s: RootState) => s.sidebar.darkUI);
-  const label = outcome === "win" ? "You Won!" : outcome === "loss" ? "You Lost" : "Draw";
-  const labelColor = outcome === "win" ? "#6aaa44" : outcome === "loss" ? "#e84040" : "#c8b400";
+  const label =
+    outcome === "win" ? "You Won!" : outcome === "loss" ? "You Lost" : "Draw";
+  const labelColor =
+    outcome === "win" ? "#6aaa44" : outcome === "loss" ? "#e84040" : "#c8b400";
 
   const s = makeStyles(darkUI);
 
@@ -54,7 +56,12 @@ export function BotGameOverCard({
           </div>
           <span style={s.vs}>vs</span>
           <div style={s.player}>
-            <img src={userAvatar} alt={userName} style={s.userAvatarImg} crossOrigin="anonymous" />
+            <img
+              src={userAvatar}
+              alt={userName}
+              style={s.userAvatarImg}
+              crossOrigin="anonymous"
+            />
             <span style={s.playerName}>{userName}</span>
             <span style={s.rating}>{userRating}</span>
           </div>
@@ -178,7 +185,9 @@ function makeStyles(darkUI: boolean): Record<string, React.CSSProperties> {
     newGameBtn: {
       padding: "0.65rem 1.2rem",
       background: darkUI ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)",
-      border: darkUI ? "1px solid rgba(124,163,95,0.2)" : "1px solid rgba(124,163,95,0.3)",
+      border: darkUI
+        ? "1px solid rgba(124,163,95,0.2)"
+        : "1px solid rgba(124,163,95,0.3)",
       borderRadius: "7px",
       color: darkUI ? "#7fa568" : "#4a6e38",
       fontWeight: 700,

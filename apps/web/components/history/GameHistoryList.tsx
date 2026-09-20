@@ -16,7 +16,10 @@ import {
   Timer,
   Zap,
 } from "lucide-react";
-import type { GameHistoryItem, GameHistoryResult } from "../../app/lib/api/games";
+import type {
+  GameHistoryItem,
+  GameHistoryResult,
+} from "../../app/lib/api/games";
 import styles from "./GameHistory.module.css";
 
 interface GameHistoryListProps {
@@ -73,7 +76,11 @@ function FormatIcon({ gameName }: { gameName: string }) {
 function EloDelta({ delta }: { delta: number }) {
   const isGain = delta > 0;
   const isLoss = delta < 0;
-  const cls = isGain ? styles.eloGain : isLoss ? styles.eloLoss : styles.eloFlat;
+  const cls = isGain
+    ? styles.eloGain
+    : isLoss
+      ? styles.eloLoss
+      : styles.eloFlat;
   const label = isGain ? `+${delta}` : String(delta);
 
   return (
@@ -128,7 +135,11 @@ function PlayerSlot({
   );
 }
 
-export function GameHistoryList({ games, showReviewActions = true, playerTag = "You" }: GameHistoryListProps) {
+export function GameHistoryList({
+  games,
+  showReviewActions = true,
+  playerTag = "You",
+}: GameHistoryListProps) {
   const router = useRouter();
 
   if (games.length === 0) {
@@ -136,7 +147,10 @@ export function GameHistoryList({ games, showReviewActions = true, playerTag = "
       <section className={`glass-panel ${styles.emptyState}`}>
         <Search size={28} />
         <h2>No completed games yet</h2>
-        <p>Your finished rated and casual games will appear here after the sync worker stores them.</p>
+        <p>
+          Your finished rated and casual games will appear here after the sync
+          worker stores them.
+        </p>
       </section>
     );
   }
@@ -150,8 +164,9 @@ export function GameHistoryList({ games, showReviewActions = true, playerTag = "
         // ratingAfter comes directly from the DB (NULL for unrated → show "—")
         const playerRatingAfter = game.player.ratingAfter;
 
-        const playerAccuracy =
-          isWhite ? game.analysis?.whiteAccuracy : game.analysis?.blackAccuracy;
+        const playerAccuracy = isWhite
+          ? game.analysis?.whiteAccuracy
+          : game.analysis?.blackAccuracy;
 
         return (
           <article className={`glass-panel ${styles.gameRow}`} key={game.id}>
@@ -187,7 +202,9 @@ export function GameHistoryList({ games, showReviewActions = true, playerTag = "
             <div className={styles.eloCol}>
               <span className={styles.eloColLabel}>Your ELO</span>
               <strong className={styles.eloAfter}>
-                {typeof playerRatingAfter === "number" ? playerRatingAfter : "—"}
+                {typeof playerRatingAfter === "number"
+                  ? playerRatingAfter
+                  : "—"}
               </strong>
               <EloDelta delta={game.player.ratingDelta} />
             </div>

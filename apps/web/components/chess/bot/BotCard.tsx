@@ -51,35 +51,41 @@ export function BotCard({ bot, selected, onSelect }: BotCardProps) {
       </div>
 
       {/* Bot name */}
-      <div style={{
-        fontSize: "0.68rem",
-        fontWeight: 700,
-        color: selected ? bot.accentColor : "var(--text-primary)",
-        textAlign: "center",
-        lineHeight: 1.2,
-        textShadow: selected ? `0 0 8px ${bot.accentColor}66` : "none",
-      }}>
+      <div
+        style={{
+          fontSize: "0.68rem",
+          fontWeight: 700,
+          color: selected ? bot.accentColor : "var(--text-primary)",
+          textAlign: "center",
+          lineHeight: 1.2,
+          textShadow: selected ? `0 0 8px ${bot.accentColor}66` : "none",
+        }}
+      >
         {bot.name}
       </div>
 
       {/* Bot title */}
-      <div style={{
-        fontSize: "0.58rem",
-        fontWeight: 600,
-        color: selected ? bot.accentColor : "var(--text-faint)",
-        lineHeight: 1,
-        transition: "color 0.14s",
-      }}>
+      <div
+        style={{
+          fontSize: "0.58rem",
+          fontWeight: 600,
+          color: selected ? bot.accentColor : "var(--text-faint)",
+          lineHeight: 1,
+          transition: "color 0.14s",
+        }}
+      >
         {bot.title}
       </div>
 
       {/* Bot ELO */}
-      <div style={{
-        fontSize: "0.6rem",
-        color: "var(--text-faint)",
-        fontFamily: "monospace",
-        transition: "color 0.14s",
-      }}>
+      <div
+        style={{
+          fontSize: "0.6rem",
+          color: "var(--text-faint)",
+          fontFamily: "monospace",
+          transition: "color 0.14s",
+        }}
+      >
         {bot.elo}
       </div>
     </motion.button>

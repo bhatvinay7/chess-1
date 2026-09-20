@@ -14,7 +14,11 @@ export function BoardThemeSelector({
   onSave,
 }: BoardThemeSelectorProps) {
   return (
-    <div className={styles.boardThemeStrip} aria-label="Board theme" style={{ top: '10px', right: '10px' }}>
+    <div
+      className={styles.boardThemeStrip}
+      aria-label="Board theme"
+      style={{ top: "10px", right: "10px" }}
+    >
       {BOARD_THEMES.map((t) => (
         <button
           key={t.id}

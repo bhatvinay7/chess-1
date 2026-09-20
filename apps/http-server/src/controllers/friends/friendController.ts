@@ -43,7 +43,10 @@ export async function listFriends(req: Request, res: Response): Promise<void> {
       friends: friendships.map((friendship: (typeof friendships)[number]) => ({
         id: friendship.id,
         friendsSince: friendship.updatedAt,
-        user: friendship.requesterId === userId ? friendship.recipient : friendship.requester,
+        user:
+          friendship.requesterId === userId
+            ? friendship.recipient
+            : friendship.requester,
       })),
     });
   } catch (error) {
@@ -52,7 +55,10 @@ export async function listFriends(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function listIncomingRequests(req: Request, res: Response): Promise<void> {
+export async function listIncomingRequests(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const userId = requireUserId(req, res);
   if (!userId) return;
 
@@ -76,7 +82,10 @@ export async function listIncomingRequests(req: Request, res: Response): Promise
   }
 }
 
-export async function listOutgoingRequests(req: Request, res: Response): Promise<void> {
+export async function listOutgoingRequests(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const userId = requireUserId(req, res);
   if (!userId) return;
 
@@ -100,7 +109,10 @@ export async function listOutgoingRequests(req: Request, res: Response): Promise
   }
 }
 
-export async function sendFriendRequest(req: Request, res: Response): Promise<void> {
+export async function sendFriendRequest(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const requesterId = requireUserId(req, res);
   if (!requesterId) return;
 
@@ -110,7 +122,9 @@ export async function sendFriendRequest(req: Request, res: Response): Promise<vo
     return;
   }
   if (requesterId === recipientId) {
-    res.status(400).json({ message: "You cannot send a friend request to yourself" });
+    res
+      .status(400)
+      .json({ message: "You cannot send a friend request to yourself" });
     return;
   }
 
@@ -145,9 +159,10 @@ export async function sendFriendRequest(req: Request, res: Response): Promise<vo
       }
       if (existing.status === "PENDING") {
         res.status(409).json({
-          message: existing.requesterId === requesterId
-            ? "Friend request already sent"
-            : "This user already sent you a friend request",
+          message:
+            existing.requesterId === requesterId
+              ? "Friend request already sent"
+              : "This user already sent you a friend request",
           request: existing,
         });
         return;
@@ -169,7 +184,10 @@ export async function sendFriendRequest(req: Request, res: Response): Promise<vo
   }
 }
 
-export async function acceptFriendRequest(req: Request, res: Response): Promise<void> {
+export async function acceptFriendRequest(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const recipientId = requireUserId(req, res);
   if (!recipientId) return;
 
@@ -203,7 +221,10 @@ export async function acceptFriendRequest(req: Request, res: Response): Promise<
   }
 }
 
-export async function rejectFriendRequest(req: Request, res: Response): Promise<void> {
+export async function rejectFriendRequest(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const recipientId = requireUserId(req, res);
   if (!recipientId) return;
 

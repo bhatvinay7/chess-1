@@ -25,10 +25,10 @@ interface ArenaLobbyProps {
   searchCancelled?: boolean;
   onStartSearch: () => void;
   onCancelSearch: () => void;
-  setTimeControl:(selected:string) => void;
-  setIsRatedGame:(isRated:boolean)=> void;
-  isRated:boolean;
-  time_slot:{ label: string; value: string };
+  setTimeControl: (selected: string) => void;
+  setIsRatedGame: (isRated: boolean) => void;
+  isRated: boolean;
+  time_slot: { label: string; value: string };
   group: TimeGroup;
   gameVariant: "standard" | "chess960";
   setGameVariant: (v: "standard" | "chess960") => void;
@@ -50,7 +50,7 @@ export function ArenaLobby({
   time_slot,
   group,
   gameVariant,
-  setGameVariant
+  setGameVariant,
 }: ArenaLobbyProps) {
   const [view, setView] = useState<"menu" | "newGame">("menu");
 
@@ -64,7 +64,9 @@ export function ArenaLobby({
         <p className={styles.arenaCheckingText}>
           Loading arena
           <span className={styles.arenaCheckingDots} aria-hidden="true">
-            <span /><span /><span />
+            <span />
+            <span />
+            <span />
           </span>
         </p>
       </div>
@@ -73,44 +75,78 @@ export function ArenaLobby({
 
   if (isSearching) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", alignItems: "stretch" }}>
-        {/* Searching indicator */}
-        <div style={{
+      <div
+        style={{
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          gap: "1rem",
-          padding: "1.5rem 1rem",
-          background: "rgba(10,18,8,0.5)",
-          border: "1px solid rgba(124,163,95,0.12)",
-          borderRadius: "10px",
-        }}>
-          <div style={{
-            width: "64px",
-            height: "64px",
-            borderRadius: "50%",
-            background: "linear-gradient(145deg, rgba(93,171,58,0.2), rgba(20,40,15,0.9))",
-            border: "1px solid rgba(93,171,58,0.3)",
+          gap: "1.25rem",
+          alignItems: "stretch",
+        }}
+      >
+        {/* Searching indicator */}
+        <div
+          style={{
             display: "flex",
+            flexDirection: "column",
             alignItems: "center",
-            justifyContent: "center",
-            fontSize: "2rem",
-            animation: "globeBreath 2s ease-in-out infinite",
-            boxShadow: "0 0 24px rgba(93,171,58,0.15)",
-          }}>
+            gap: "1rem",
+            padding: "1.5rem 1rem",
+            background: "rgba(10,18,8,0.5)",
+            border: "1px solid rgba(124,163,95,0.12)",
+            borderRadius: "10px",
+          }}
+        >
+          <div
+            style={{
+              width: "64px",
+              height: "64px",
+              borderRadius: "50%",
+              background:
+                "linear-gradient(145deg, rgba(93,171,58,0.2), rgba(20,40,15,0.9))",
+              border: "1px solid rgba(93,171,58,0.3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "2rem",
+              animation: "globeBreath 2s ease-in-out infinite",
+              boxShadow: "0 0 24px rgba(93,171,58,0.15)",
+            }}
+          >
             ♜
           </div>
 
           <div style={{ textAlign: "center" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.35rem" }}>
-              <span style={{ fontSize: "0.95rem", fontWeight: 700, color: "#a8e07a" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.35rem",
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  color: "#a8e07a",
+                }}
+              >
                 {searchStatus || "Finding opponent"}
               </span>
               <span className={styles.searchingDots} aria-hidden="true">
-                <span /><span /><span />
+                <span />
+                <span />
+                <span />
               </span>
             </div>
-            <p style={{ fontSize: "0.78rem", color: "#4a6340", marginTop: "0.3rem", fontFamily: "monospace" }}>
+            <p
+              style={{
+                fontSize: "0.78rem",
+                color: "#4a6340",
+                marginTop: "0.3rem",
+                fontFamily: "monospace",
+              }}
+            >
               {formatTime(searchTimer)} elapsed
             </p>
           </div>
@@ -131,8 +167,12 @@ export function ArenaLobby({
             cursor: "pointer",
             transition: "background 0.15s ease",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(200,60,60,0.15)")}
-          onMouseLeave={(e) => (e.currentTarget.style.background = "rgba(200,60,60,0.08)")}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.background = "rgba(200,60,60,0.15)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.background = "rgba(200,60,60,0.08)")
+          }
         >
           Cancel Search
         </button>
@@ -141,7 +181,14 @@ export function ArenaLobby({
   }
 
   return (
-    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.25rem",
+      }}
+    >
       {view === "menu" ? (
         <>
           <PlayChessMenu onPlayOnline={() => setView("newGame")} />
@@ -166,21 +213,25 @@ export function ArenaLobby({
               marginBottom: "0.85rem",
               padding: 0,
             }}
-            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#c8e6a8"; }}
-            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = "#7fa568"; }}
+            onMouseEnter={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = "#c8e6a8";
+            }}
+            onMouseLeave={(e) => {
+              (e.currentTarget as HTMLButtonElement).style.color = "#7fa568";
+            }}
           >
             ← Back to Play Chess
           </button>
-        <TimeController 
-          setTimeControl={setTimeControl}
-          setIsRatedGame={setIsRatedGame}
-          onStartSearch={onStartSearch} 
-          isRated={isRated}
-          time_slot={time_slot}
-          group={group}
-          gameVariant={gameVariant}
-          setGameVariant={setGameVariant}
-        />
+          <TimeController
+            setTimeControl={setTimeControl}
+            setIsRatedGame={setIsRatedGame}
+            onStartSearch={onStartSearch}
+            isRated={isRated}
+            time_slot={time_slot}
+            group={group}
+            gameVariant={gameVariant}
+            setGameVariant={setGameVariant}
+          />
         </div>
       )}
     </div>

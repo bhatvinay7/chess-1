@@ -10,7 +10,10 @@ interface FloatingTimeControlsProps {
   onSelect: (value: string) => void;
 }
 
-export function FloatingTimeControls({ selected, onSelect }: FloatingTimeControlsProps) {
+export function FloatingTimeControls({
+  selected,
+  onSelect,
+}: FloatingTimeControlsProps) {
   const darkUI = useSelector((s: RootState) => s.sidebar.darkUI);
 
   return (
@@ -18,7 +21,7 @@ export function FloatingTimeControls({ selected, onSelect }: FloatingTimeControl
       {TIME_CONTROLS.map((group, gi) =>
         group.options.map((opt, oi) => {
           const active = selected === opt.value;
-          const delay  = (gi * group.options.length + oi) * 0.06;
+          const delay = (gi * group.options.length + oi) * 0.06;
           return (
             <motion.button
               key={opt.value}
@@ -47,14 +50,24 @@ export function FloatingTimeControls({ selected, onSelect }: FloatingTimeControl
                 whiteSpace: "nowrap",
                 fontWeight: active ? 800 : 600,
                 background: active
-                  ? darkUI ? "rgba(255,255,255,0.14)" : "rgba(93,171,58,0.14)"
+                  ? darkUI
+                    ? "rgba(255,255,255,0.14)"
+                    : "rgba(93,171,58,0.14)"
                   : "var(--glass-bg-light)",
-                border: `1px solid ${active
-                  ? darkUI ? "rgba(255,255,255,0.35)" : "rgba(93,171,58,0.5)"
-                  : "var(--glass-border-light)"}`,
+                border: `1px solid ${
+                  active
+                    ? darkUI
+                      ? "rgba(255,255,255,0.35)"
+                      : "rgba(93,171,58,0.5)"
+                    : "var(--glass-border-light)"
+                }`,
                 color: active
-                  ? darkUI ? "#ffffff" : "#3a7020"
-                  : darkUI ? "rgba(200,230,200,0.65)" : "#4a6e38",
+                  ? darkUI
+                    ? "#ffffff"
+                    : "#3a7020"
+                  : darkUI
+                    ? "rgba(200,230,200,0.65)"
+                    : "#4a6e38",
                 boxShadow: active ? "0 2px 12px rgba(93,171,58,0.2)" : "none",
                 transition: "all 0.14s ease",
               }}
@@ -63,7 +76,7 @@ export function FloatingTimeControls({ selected, onSelect }: FloatingTimeControl
               {opt.label}
             </motion.button>
           );
-        })
+        }),
       )}
     </div>
   );

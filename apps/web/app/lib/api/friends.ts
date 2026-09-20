@@ -14,17 +14,27 @@ export interface FriendRequestItem {
 }
 
 export async function getFriends(): Promise<FriendListItem[]> {
-  const { data } = await axiosInstance.get<{ friends: FriendListItem[] }>("/friends");
+  const { data } = await axiosInstance.get<{ friends: FriendListItem[] }>(
+    "/friends",
+  );
   return data.friends;
 }
 
-export async function getIncomingFriendRequests(): Promise<FriendRequestItem[]> {
-  const { data } = await axiosInstance.get<{ requests: FriendRequestItem[] }>("/friends/requests/incoming");
+export async function getIncomingFriendRequests(): Promise<
+  FriendRequestItem[]
+> {
+  const { data } = await axiosInstance.get<{ requests: FriendRequestItem[] }>(
+    "/friends/requests/incoming",
+  );
   return data.requests;
 }
 
-export async function getOutgoingFriendRequests(): Promise<FriendRequestItem[]> {
-  const { data } = await axiosInstance.get<{ requests: FriendRequestItem[] }>("/friends/requests/outgoing");
+export async function getOutgoingFriendRequests(): Promise<
+  FriendRequestItem[]
+> {
+  const { data } = await axiosInstance.get<{ requests: FriendRequestItem[] }>(
+    "/friends/requests/outgoing",
+  );
   return data.requests;
 }
 
