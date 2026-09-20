@@ -137,7 +137,11 @@ function SpectatorGameOver({
 
 function formatTime(secs: number): string {
   const m = Math.floor(secs / 60);
-  const s = secs % 60;
+  if (secs < 20 && secs > 0) {
+    const s = (secs % 60).toFixed(1);
+    return `${String(m).padStart(2, "0")}:${s.padStart(4, "0")}`;
+  }
+  const s = Math.floor(secs % 60);
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 

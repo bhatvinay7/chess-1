@@ -37,13 +37,12 @@ export interface BoardUIProps {
 
   /* ── Interaction callbacks ─────────────────────────────────────────── */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onPieceDrop: (...args: unknown[]) => boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onPieceDrop: (...args: any[]) => boolean;
   onSquareClick?: (square: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onPieceDragBegin?: (...args: unknown[]) => void;
+  onPieceDragBegin?: (...args: any[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  canDragPiece?: (...args: unknown[]) => boolean;
+  canDragPiece?: (...args: any[]) => boolean;
 
   /* ── Visual hints / arrows ────────────────────────────────────────── */
   squareStyles?: Record<string, React.CSSProperties>;

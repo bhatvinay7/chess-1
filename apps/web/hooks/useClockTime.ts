@@ -87,7 +87,11 @@ export function useChessTimer(
       if (currentTurn === "w") {
         const prevWhite = whiteTimeRef.current;
         whiteTimeRef.current = Math.max(0, prevWhite - deltaTime);
-        setDisplayWhiteTime(Math.ceil(whiteTimeRef.current / 1000));
+        setDisplayWhiteTime(
+          whiteTimeRef.current <= 20000
+            ? whiteTimeRef.current / 1000
+            : Math.ceil(whiteTimeRef.current / 1000),
+        );
         if (
           Math.ceil(prevWhite / 1000) > 10 &&
           Math.ceil(whiteTimeRef.current / 1000) <= 10 &&
@@ -102,7 +106,11 @@ export function useChessTimer(
       } else {
         const prevBlack = blackTimeRef.current;
         blackTimeRef.current = Math.max(0, prevBlack - deltaTime);
-        setDisplayBlackTime(Math.ceil(blackTimeRef.current / 1000));
+        setDisplayBlackTime(
+          blackTimeRef.current <= 20000
+            ? blackTimeRef.current / 1000
+            : Math.ceil(blackTimeRef.current / 1000),
+        );
         if (
           Math.ceil(prevBlack / 1000) > 10 &&
           Math.ceil(blackTimeRef.current / 1000) <= 10 &&
@@ -144,10 +152,18 @@ export function useChessTimer(
 
     if (playerWhoJustMoved === "w") {
       whiteTimeRef.current += incrementMs;
-      setDisplayWhiteTime(Math.ceil(whiteTimeRef.current / 1000));
+      setDisplayWhiteTime(
+        whiteTimeRef.current <= 20000
+          ? whiteTimeRef.current / 1000
+          : Math.ceil(whiteTimeRef.current / 1000),
+      );
     } else {
       blackTimeRef.current += incrementMs;
-      setDisplayBlackTime(Math.ceil(blackTimeRef.current / 1000));
+      setDisplayBlackTime(
+        blackTimeRef.current <= 20000
+          ? blackTimeRef.current / 1000
+          : Math.ceil(blackTimeRef.current / 1000),
+      );
     }
 
     // 3. Automatically kick off the timer loop for the next player
@@ -164,8 +180,16 @@ export function useChessTimer(
     if (serverWhiteTimeMs > 10_000) tenSecondsPlayedRef.current.white = false;
     if (serverBlackTimeMs > 10_000) tenSecondsPlayedRef.current.black = false;
 
-    setDisplayWhiteTime(Math.ceil(serverWhiteTimeMs / 1000));
-    setDisplayBlackTime(Math.ceil(serverBlackTimeMs / 1000));
+    setDisplayWhiteTime(
+      serverWhiteTimeMs <= 20000
+        ? serverWhiteTimeMs / 1000
+        : Math.ceil(serverWhiteTimeMs / 1000),
+    );
+    setDisplayBlackTime(
+      serverBlackTimeMs <= 20000
+        ? serverBlackTimeMs / 1000
+        : Math.ceil(serverBlackTimeMs / 1000),
+    );
 
     // If the interval is already running, do NOT restart it — the live loop reads
     // directly from the refs so it will pick up the new values on its next tick
