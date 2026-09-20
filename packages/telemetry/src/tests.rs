@@ -213,22 +213,35 @@ async fn grpc_and_durable_carriers_join_the_same_trace() {
 #[tokio::test(flavor = "current_thread")]
 async fn durable_json_envelope_preserves_context_and_business_fields() {
     let exporter = Exporter::default();
-    let provider = TracerProvider::builder().with_simple_exporter(exporter.clone()).build();
+    let provider = TracerProvider::builder()
+        .with_simple_exporter(exporter.clone())
+        .build();
     let _guard = tracing::subscriber::set_default(
-        tracing_subscriber::registry().with(tracing_opentelemetry::layer().with_tracer(provider.tracer("test"))),
+        tracing_subscriber::registry()
+            .with(tracing_opentelemetry::layer().with_tracer(provider.tracer("test"))),
     );
     let payload = crate::in_span(crate::operation_span("publish", "producer", None), async {
         crate::with_trace_payload(serde_json::json!({"gameId": "game", "status": "DRAW"}))
-    }).await;
+    })
+    .await;
     let bytes = serde_json::to_vec(&payload).unwrap();
     assert_eq!(payload["gameId"], "game");
     crate::in_span(crate::consumer_span("consume", &bytes), async {
-        assert_eq!(crate::trace_ids().unwrap().0, payload["_trace_context"]["traceparent"].as_str().unwrap()[3..35]);
-    }).await;
-    for result in provider.force_flush() { result.unwrap(); }
+        assert_eq!(
+            crate::trace_ids().unwrap().0,
+            payload["_trace_context"]["traceparent"].as_str().unwrap()[3..35]
+        );
+    })
+    .await;
+    for result in provider.force_flush() {
+        result.unwrap();
+    }
     let spans = exporter.0.lock().unwrap();
     let producer = spans.iter().find(|span| span.name == "publish").unwrap();
     let consumer = spans.iter().find(|span| span.name == "consume").unwrap();
     assert_eq!(consumer.parent_span_id, producer.span_context.span_id());
-    assert_eq!(consumer.span_context.trace_id(), producer.span_context.trace_id());
+    assert_eq!(
+        consumer.span_context.trace_id(),
+        producer.span_context.trace_id()
+    );
 }

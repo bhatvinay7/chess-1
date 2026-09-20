@@ -93,7 +93,9 @@ where
                 if let Err(e) = chess_telemetry::in_result_span(
                     chess_telemetry::consumer_span(stream_name, &bytes),
                     handler(db.clone(), pool_arc.clone(), parsed),
-                ).await {
+                )
+                .await
+                {
                     // Transient error — leave in PEL, recovery will re-deliver
                     eprintln!("[{stream_name}] handler error (PEL retain): {e}");
                     continue;

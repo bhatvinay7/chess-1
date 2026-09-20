@@ -43,8 +43,10 @@ pub async fn publish_match<C: ConnectionLike + Send>(
         starting_fen: starting_fen.clone(),
     };
 
-    let match_json_str = serde_json::to_string(&chess_telemetry::with_trace_payload(serde_json::to_value(&match_payload).expect("serializable match")))
-        .expect("Failed to serialize matchmaking payload to JSON");
+    let match_json_str = serde_json::to_string(&chess_telemetry::with_trace_payload(
+        serde_json::to_value(&match_payload).expect("serializable match"),
+    ))
+    .expect("Failed to serialize matchmaking payload to JSON");
 
     let parts_array: [u32; 2] = p1
         .parsed

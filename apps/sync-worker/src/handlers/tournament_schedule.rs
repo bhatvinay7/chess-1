@@ -86,8 +86,11 @@ async fn processor_loop(
 ) {
     eprintln!("[tournament/processor] started (channel capacity={CHANNEL_CAPACITY})");
     while let Some(job) = rx.recv().await {
-        let span = chess_telemetry::operation_span("tournament.schedule", "consumer",
-            Some(chess_telemetry::extract_context(&job.trace_context)));
+        let span = chess_telemetry::operation_span(
+            "tournament.schedule",
+            "consumer",
+            Some(chess_telemetry::extract_context(&job.trace_context)),
+        );
         chess_telemetry::in_span(span, process_one(&db, &pool, &rabbitmq, job)).await;
     }
     eprintln!("[tournament/processor] channel closed, exiting");
@@ -102,7 +105,9 @@ async fn process_one(
     match chess_telemetry::in_result_span(
         chess_telemetry::operation_span("tournament.trigger", "internal", None),
         run_trigger(db, pool, rabbitmq, &job.tournament_id, &job.trigger),
-    ).await {
+    )
+    .await
+    {
         Ok(()) => {
             println!(
                 "[tournament/processor] ok  jid={} trigger={}",
@@ -211,16 +216,19 @@ async fn run_trigger(
                     let pool2 = pool.clone();
                     let rabbitmq2 = rabbitmq.clone();
                     let tid = tournament_id.to_string();
-                    tokio::spawn(async move {
-                        if let Err(e) =
-                            tournament_init::run_tournament_init(&db2, &pool2, &rabbitmq2, &tid)
-                                .await
-                        {
-                            eprintln!("[tournament_init] id={tid} failed: {e}");
-                        } else {
-                            println!("[tournament_init] id={tid} completed successfully");
+                    tokio::spawn(
+                        async move {
+                            if let Err(e) =
+                                tournament_init::run_tournament_init(&db2, &pool2, &rabbitmq2, &tid)
+                                    .await
+                            {
+                                eprintln!("[tournament_init] id={tid} failed: {e}");
+                            } else {
+                                println!("[tournament_init] id={tid} completed successfully");
+                            }
                         }
-                    }.in_current_span());
+                        .in_current_span(),
+                    );
                 }
 
                 "IN_PROGRESS" => {
@@ -242,16 +250,22 @@ async fn run_trigger(
                             let pool2 = pool.clone();
                             let rabbitmq2 = rabbitmq.clone();
                             let tid = tournament_id.to_string();
-                            tokio::spawn(async move {
-                                if let Err(e) =
-                                    tournament_init::run_next_round(&db2, &pool2, &rabbitmq2, &tid)
-                                        .await
-                                {
-                                    eprintln!("[tournament_init] next_round id={tid} failed: {e}");
-                                } else {
-                                    println!("[tournament_init] next_round id={tid} completed");
+                            tokio::spawn(
+                                async move {
+                                    if let Err(e) = tournament_init::run_next_round(
+                                        &db2, &pool2, &rabbitmq2, &tid,
+                                    )
+                                    .await
+                                    {
+                                        eprintln!(
+                                            "[tournament_init] next_round id={tid} failed: {e}"
+                                        );
+                                    } else {
+                                        println!("[tournament_init] next_round id={tid} completed");
+                                    }
                                 }
-                            }.in_current_span());
+                                .in_current_span(),
+                            );
                         }
                         other => {
                             println!(
@@ -280,15 +294,18 @@ async fn run_trigger(
                 let pool2 = pool.clone();
                 let rabbitmq2 = rabbitmq.clone();
                 let tid = tournament_id.to_string();
-                tokio::spawn(async move {
-                    if let Err(e) =
-                        tournament_init::run_next_round(&db2, &pool2, &rabbitmq2, &tid).await
-                    {
-                        eprintln!("[tournament_init] next_round id={tid} failed: {e}");
-                    } else {
-                        println!("[tournament_init] next_round id={tid} completed");
+                tokio::spawn(
+                    async move {
+                        if let Err(e) =
+                            tournament_init::run_next_round(&db2, &pool2, &rabbitmq2, &tid).await
+                        {
+                            eprintln!("[tournament_init] next_round id={tid} failed: {e}");
+                        } else {
+                            println!("[tournament_init] next_round id={tid} completed");
+                        }
                     }
-                }.in_current_span());
+                    .in_current_span(),
+                );
             } else {
                 println!(
                     "[tournament] next_round skipped — id={} status={} (not IN_PROGRESS)",

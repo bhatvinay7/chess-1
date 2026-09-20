@@ -80,7 +80,9 @@ impl RabbitClient {
         &self,
         event: &MatchNotificationEvent,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        let payload = serde_json::to_vec(&chess_telemetry::with_trace_payload(serde_json::to_value(event)?))?;
+        let payload = serde_json::to_vec(&chess_telemetry::with_trace_payload(
+            serde_json::to_value(event)?,
+        ))?;
 
         if let Some(channel_mutex) = &self.channel {
             let channel = channel_mutex.lock().await;
@@ -117,7 +119,9 @@ impl RabbitClient {
         &self,
         event: &TournamentMatchingDlqEvent,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        let payload = serde_json::to_vec(&chess_telemetry::with_trace_payload(serde_json::to_value(event)?))?;
+        let payload = serde_json::to_vec(&chess_telemetry::with_trace_payload(
+            serde_json::to_value(event)?,
+        ))?;
 
         if let Some(channel_mutex) = &self.channel {
             let channel = channel_mutex.lock().await;
@@ -140,7 +144,10 @@ impl RabbitClient {
 fn trace_properties() -> BasicProperties {
     let mut headers = FieldTable::default();
     for (key, value) in chess_telemetry::current_carrier() {
-        headers.insert(key.into(), lapin::types::AMQPValue::LongString(value.into()));
+        headers.insert(
+            key.into(),
+            lapin::types::AMQPValue::LongString(value.into()),
+        );
     }
     BasicProperties::default().with_headers(headers)
 }

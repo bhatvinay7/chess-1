@@ -385,9 +385,11 @@ impl ChessMoveServiceImpl {
                     "*",
                     &[(
                         "payload",
-                        chess_telemetry::with_trace_payload(json!({ "gameId": game_id, "winnerId": winnerId, "status": status }))
-                            .to_string()
-                            .as_str(),
+                        chess_telemetry::with_trace_payload(
+                            json!({ "gameId": game_id, "winnerId": winnerId, "status": status }),
+                        )
+                        .to_string()
+                        .as_str(),
                     )],
                 )
                 .await
@@ -601,11 +603,29 @@ impl ChessMoveServiceImpl {
 
 #[tonic::async_trait]
 impl ChessMoveService for ChessMoveServiceImpl {
-    async fn process_move(&self, request: Request<MoveRequest>) -> Result<Response<MoveResponse>, Status> {
-        chess_telemetry::grpc_request(request, "chess.ChessMoveService", "ProcessMove", |request| self.process_move_impl(request)).await
+    async fn process_move(
+        &self,
+        request: Request<MoveRequest>,
+    ) -> Result<Response<MoveResponse>, Status> {
+        chess_telemetry::grpc_request(
+            request,
+            "chess.ChessMoveService",
+            "ProcessMove",
+            |request| self.process_move_impl(request),
+        )
+        .await
     }
 
-    async fn register_spectated_game(&self, request: Request<SpectateRequest>) -> Result<Response<SpectateResponse>, Status> {
-        chess_telemetry::grpc_request(request, "chess.ChessMoveService", "RegisterSpectatedGame", |request| self.register_spectated_game_impl(request)).await
+    async fn register_spectated_game(
+        &self,
+        request: Request<SpectateRequest>,
+    ) -> Result<Response<SpectateResponse>, Status> {
+        chess_telemetry::grpc_request(
+            request,
+            "chess.ChessMoveService",
+            "RegisterSpectatedGame",
+            |request| self.register_spectated_game_impl(request),
+        )
+        .await
     }
 }

@@ -147,14 +147,21 @@ where
 /// JSON envelopes retain context through durable queues without changing business fields.
 pub fn with_trace_payload(mut payload: serde_json::Value) -> serde_json::Value {
     if let Some(object) = payload.as_object_mut() {
-        object.insert("_trace_context".into(), serde_json::json!(current_carrier()));
+        object.insert(
+            "_trace_context".into(),
+            serde_json::json!(current_carrier()),
+        );
     }
     payload
 }
 
 pub fn consumer_span(name: &str, payload: &[u8]) -> Span {
     let value = serde_json::from_slice(payload).unwrap_or_default();
-    operation_span(name, "consumer", Some(extract_context(&payload_carrier(&value))))
+    operation_span(
+        name,
+        "consumer",
+        Some(extract_context(&payload_carrier(&value))),
+    )
 }
 
 pub fn set_span_parent(span: &Span, carrier: &TraceCarrier) {
