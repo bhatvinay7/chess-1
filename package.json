@@ -10,9 +10,12 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "check-types:rust": "for dir in apps/sync-worker apps/cdc apps/notification-worker apps/matchmaker packages/postgres-rustclient packages/redis-rustclient packages/rabbitmq-rustclient packages/metrics-rustclient; do echo \"=== Checking $dir ===\" && (cd $dir && cargo check) || exit 1; done",
-    "check-types:all": "turbo run check-types && pnpm run check-types:rust"
+    "check-types:all": "turbo run check-types && pnpm run check-types:rust",
+    "prepare": "husky"
   },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.5.1",
     "prettier": "^3.7.4",
     "turbo": "^2.9.7",
     "typescript": "5.9.2"
@@ -24,5 +27,9 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md}": "prettier --write",
+    "*.rs": "rustfmt"
+  }
 }
