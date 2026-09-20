@@ -149,16 +149,20 @@ export function useChessGame({
     checkSoundRef.current = new Audio("/check.mp3");
   }, []);
 
-  const { displayWhiteTime, displayBlackTime, syncTimeFromOutside } =
-    useChessTimer(
-      gameState?.time_slot ?? "",
-      gameState?.whitePlayerLeftTime.toString() ?? "",
-      gameState?.blackPlayerLeftTime.toString() ?? "",
-      activeGameId,
-      game,
-      onTimeout,
-      gameState?.leftGameStartTime,
-    );
+  const {
+    displayWhiteTime,
+    displayBlackTime,
+    syncTimeFromOutside,
+    getCurrentTimes,
+  } = useChessTimer(
+    gameState?.time_slot ?? "",
+    gameState?.whitePlayerLeftTime.toString() ?? "",
+    gameState?.blackPlayerLeftTime.toString() ?? "",
+    activeGameId,
+    game,
+    onTimeout,
+    gameState?.leftGameStartTime,
+  );
   const movesHistoryRef = useRef(movesHistory);
   const prevMovesLengthRef = useRef(-1);
   useEffect(() => {
@@ -754,6 +758,7 @@ export function useChessGame({
     boardArrows,
     displayWhiteTime,
     displayBlackTime,
+    getCurrentTimes,
     isUserTurn,
     pairs,
     capturedPieces,

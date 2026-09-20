@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useSocket } from "./socketConnection";
 export interface MatchmakingTicket {
   userId: string;
@@ -28,6 +28,7 @@ export function useMatchmaker() {
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchStatus, setSearchStatus] = useState<string>("");
   const [matchData, setMatchData] = useState<MatchFoundResponse | null>(null);
+  const searchTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!socket) return;
@@ -38,6 +39,7 @@ export function useMatchmaker() {
     }
 
     function handleMatchFound(data: MatchFoundResponse): void {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
       setIsSearching(false);
       setSearchStatus("");
       setMatchData(data);
@@ -45,6 +47,7 @@ export function useMatchmaker() {
     }
 
     function handleError(data: { message: string }): void {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
       setIsSearching(false);
       setSearchStatus(data.message || "An error occurred.");
     }
@@ -68,6 +71,13 @@ export function useMatchmaker() {
       setIsSearching(true);
       setSearchStatus("Searching for an opponent...");
       socket.emit("search_opponent", ticket);
+
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+      searchTimeoutRef.current = setTimeout(() => {
+        socket.emit("leave_search", { userId: ticket.userId });
+        setIsSearching(false);
+        setSearchStatus("Match not found");
+      }, 10000);
     },
     [socket],
   );
@@ -75,6 +85,7 @@ export function useMatchmaker() {
   const leaveSearch = useCallback(
     (userId: string): void => {
       if (!socket) return;
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
       socket.emit("leave_search", { userId });
       setIsSearching(false);
       setSearchStatus("");
@@ -85,6 +96,7 @@ export function useMatchmaker() {
   const abandonSearch = useCallback(
     (userId: string): void => {
       if (!socket) return;
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
       socket.emit("abandoned", userId);
       setIsSearching(false);
       setSearchStatus("");

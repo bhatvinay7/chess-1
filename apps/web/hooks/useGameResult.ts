@@ -11,6 +11,7 @@ const SERVER_GAME_OVER_STATES = new Set([
   "STALEMATE",
   "TIMEOUT",
   "RESIGN",
+  "ABORTED",
 ]);
 
 interface GameResultInput {
@@ -86,24 +87,34 @@ export function useGameResult({
     else if (serverGameOver && gameState?.gameState === "RESIGN")
       resultLabel = "Resignation";
     else if (serverGameOver && gameState?.winnerId) resultLabel = "Timeout";
+    else if (serverGameOver && gameState?.gameState === "ABORTED")
+      resultLabel = "Aborted";
     else if (serverGameOver) resultLabel = "Draw";
 
-    const outcomeLabel =
+    let outcomeLabel =
       didLocalPlayerWin === null
         ? "Draw!"
         : didLocalPlayerWin
           ? "You Won!"
           : "You Lost";
 
+    if (serverGameOver && gameState?.gameState === "ABORTED") {
+      outcomeLabel = "Game Aborted";
+    }
+
     let ratingDelta: number | null = null;
     if (gameState?.isRated) {
-      const K = 20;
-      const safe_my = myRating || 1500;
-      const safe_opp = opponentRating || 1500;
-      const expected = 1 / (1 + Math.pow(10, (safe_opp - safe_my) / 400));
-      const actual =
-        didLocalPlayerWin === null ? 0.5 : didLocalPlayerWin ? 1 : 0;
-      ratingDelta = Math.round(K * (actual - expected));
+      if (serverGameOver && gameState?.gameState === "ABORTED") {
+        ratingDelta = 0;
+      } else {
+        const K = 20;
+        const safe_my = myRating || 1500;
+        const safe_opp = opponentRating || 1500;
+        const expected = 1 / (1 + Math.pow(10, (safe_opp - safe_my) / 400));
+        const actual =
+          didLocalPlayerWin === null ? 0.5 : didLocalPlayerWin ? 1 : 0;
+        ratingDelta = Math.round(K * (actual - expected));
+      }
     }
 
     return {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useSocket } from "./socketConnection";
 import type {
   OfferDrawPayload,
@@ -100,6 +100,8 @@ export function useGameRoom() {
   // Holds a game the server found on initial join_arena — shown as a resume prompt.
   const [pendingActiveGame, setPendingActiveGame] =
     useState<GameRoomState | null>(null);
+  const [abortError, setAbortError] = useState<string | null>(null);
+  const abortTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
   const [rematchStatus, setRematchStatus] = useState<RematchStatus>("idle");
   const [incomingRematch, setIncomingRematch] =
@@ -281,6 +283,12 @@ export function useGameRoom() {
       setDrawNotice(data.message || "Your draw offer was declined");
     }
 
+    function handleAbortFailed(data: { message: string }): void {
+      setAbortError(data.message);
+      if (abortTimeoutRef.current) clearTimeout(abortTimeoutRef.current);
+      abortTimeoutRef.current = setTimeout(() => setAbortError(null), 4000);
+    }
+
     socket.on("draw-request", handleDrawRequest);
     socket.on("accept-draw", handleAcceptDraw);
     socket.on("draw-declined", handleDrawDeclined);
@@ -292,6 +300,7 @@ export function useGameRoom() {
     socket.on("opponent_move", handleOpponentMove);
     socket.on("invalid_move", handleInvalidMove);
     socket.on("rematch-request", handleRematchRequest);
+    socket.on("abort_failed", handleAbortFailed);
 
     return () => {
       socket.off("game_state", handleGameState);
@@ -305,6 +314,7 @@ export function useGameRoom() {
       socket.off("accept-draw", handleAcceptDraw);
       socket.off("draw-declined", handleDrawDeclined);
       socket.off("rematch-request", handleRematchRequest);
+      socket.off("abort_failed", handleAbortFailed);
     };
   }, [socket]);
 
@@ -514,6 +524,8 @@ export function useGameRoom() {
     sendMove,
     resign,
     abort,
+    abortError,
+    setAbortError,
     leaveGame,
     drawOffer,
     drawNotice,

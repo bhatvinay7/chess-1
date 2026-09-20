@@ -119,6 +119,8 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
     setGameState,
     setMovesHistory,
     setActiveGameId,
+    abortError,
+    setAbortError,
   } = useGameRoom();
 
   const [hasCheckedActiveGame, setHasCheckedActiveGame] = useState(false);
@@ -165,6 +167,7 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
     handleLastMove,
     handleSelectMove,
     canDragPiece,
+    getCurrentTimes,
   } = useChessGame({
     movesHistory,
     gameState,
@@ -411,7 +414,7 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
     return () => clearInterval(id);
   }, [gameState?.leftGameStartTime, user?.id, syncGameState]);
 
-  /* ── Turn awareness ───────────────────────────────────────────────────── */
+  /* ── Turn awareness ────────────────────────────────────────────────     */
   const isOpponentTurn =
     !game.isGameOver() && game.turn() !== (isWhite ? "w" : "b");
   const isMyTurn = !game.isGameOver() && game.turn() === (isWhite ? "w" : "b");
@@ -419,6 +422,20 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
 
   /* ── Lobby clock display (shows selected time control, e.g. "3:00") ─── */
   const lobbyClockStr = `${time_slot.value?.split("+")?.[0] || "0"}:00`;
+
+  /* ── Abort countdown ──────────────────────────────────────────────────── */
+  let abortCountdown = -1;
+  if (gameState?.time_slot) {
+    const baseTimeMin = parseInt(gameState.time_slot.split("+")[0] || "10", 10);
+    const baseTimeMs = baseTimeMin * 60 * 1000;
+    const { whiteTimeMs, blackTimeMs } = getCurrentTimes();
+    const whiteUsed = Math.max(0, baseTimeMs - whiteTimeMs);
+    const blackUsed = Math.max(0, baseTimeMs - blackTimeMs);
+    const elapsedSecs = Math.floor((whiteUsed + blackUsed) / 1000);
+    abortCountdown = 6 - elapsedSecs;
+  }
+
+  const canAbort = moveHistory.length < 2 && abortCountdown > 0;
 
   /* ── Game result (used by modal) ─────────────────────────────────────── */
   const gameResult = useGameResult({
@@ -456,6 +473,27 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
 
   return (
     <div className={styles.arenaOuter}>
+      {abortError && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: "#4a1a1a",
+            color: "#f48771",
+            border: "1px solid #7a2d2d",
+            padding: "12px 24px",
+            borderRadius: "8px",
+            zIndex: 1000,
+            boxShadow: "0 4px 6px rgba(0,0,0,0.3)",
+            fontWeight: 500,
+            fontSize: "14px",
+          }}
+        >
+          {abortError}
+        </div>
+      )}
       <motion.div
         className={styles.arenaContainer}
         initial={{ opacity: 0, y: 20 }}
@@ -586,7 +624,8 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
               onLastMove={handleLastMove}
               onResign={handleResign}
               onAbort={handleAbort}
-              canAbort={moveHistory.length < 2}
+              canAbort={canAbort}
+              abortCountdown={abortCountdown}
               onOfferDraw={handleOfferDraw}
               isDrawOfferPending={drawOfferSent}
               onNewGame={handleReturnToLobby}

@@ -4,6 +4,8 @@ import {
   terminateGame,
   buildTerminationData,
 } from "../../utils/gameTermination.js";
+import { buildGameStatePayload } from "../../shared/game-state.js";
+import { userSocketMap } from "../../shared/socket-store.js";
 
 export class AbortHandler {
   constructor(
@@ -41,7 +43,7 @@ export class AbortHandler {
         return;
       }
 
-      // 3. Verify abort window (time used <= 8s)
+      // 3. Verify abort window (time used <= 6s)
       const baseTimeMin = parseInt(state.timeSlot?.split("+")[0] ?? "10", 10);
       const baseTimeSec = baseTimeMin * 60;
       const whiteLeft = parseInt(
@@ -57,10 +59,14 @@ export class AbortHandler {
       const whiteUsed = Math.max(0, baseTimeSec - whiteLeft);
       const blackUsed = Math.max(0, baseTimeSec - blackLeft);
 
-      if (whiteUsed + blackUsed > 8) {
+      if (whiteUsed + blackUsed > 6) {
         console.warn(
-          `[abort] Game ${gameId} elapsed time > 8s, cannot abort. w=${whiteUsed} b=${blackUsed}`,
+          `[abort] Game ${gameId} elapsed time > 6s, cannot abort. w=${whiteUsed} b=${blackUsed}`,
         );
+        this.socket.emit("abort_failed", {
+          message:
+            "Cannot abort game after 6 seconds of clock time have elapsed.",
+        });
         return;
       }
 
@@ -72,9 +78,17 @@ export class AbortHandler {
       });
 
       // 5. Notify clients via normal socket payload format
-      this.io
-        .to(`game:${gameId}`)
-        .emit("game_state", buildTerminationData(state, "ABORTED", null));
+      const payload = buildGameStatePayload(
+        gameId,
+        buildTerminationData(state, "ABORTED", null) as any,
+      );
+      this.io.to(`game:${gameId}`).emit("game_state", payload);
+
+      // Also emit directly to ensure delivery if not joined to room yet
+      if (state.player1Id)
+        userSocketMap.get(state.player1Id)?.emit("game_state", payload);
+      if (state.player2Id)
+        userSocketMap.get(state.player2Id)?.emit("game_state", payload);
 
       console.log(`[abort] Game ${gameId} successfully aborted by ${userId}`);
     } catch (err) {

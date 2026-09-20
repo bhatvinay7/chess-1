@@ -48,6 +48,7 @@ interface MoveHistoryPanelProps {
   onResign: () => void;
   onAbort?: () => void;
   canAbort?: boolean;
+  abortCountdown?: number;
   onOfferDraw: () => void;
   /** Disables the draw button while an offer is already pending either way */
   isDrawOfferPending?: boolean;
@@ -127,6 +128,7 @@ export function MoveHistoryPanel({
   onResign,
   onAbort,
   canAbort = false,
+  abortCountdown = -1,
   onOfferDraw,
   isDrawOfferPending = false,
   onNewGame,
@@ -428,7 +430,7 @@ export function MoveHistoryPanel({
                 className={styles.resignBtn}
                 type="button"
               >
-                Abort
+                {abortCountdown >= 0 ? `Abort (${abortCountdown}s)` : "Abort"}
               </button>
             ) : (
               <button
