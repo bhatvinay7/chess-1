@@ -70,8 +70,8 @@ export interface FullGameState {
   matchId:                 string | null;
 }
 
-export type GameEndStatus = "WHITE_WIN" | "BLACK_WIN" | "DRAW";
-export type GameEndState  = "RESIGN"   | "DRAW";
+export type GameEndStatus = "WHITE_WIN" | "BLACK_WIN" | "DRAW" | "ABORTED";
+export type GameEndState  = "RESIGN"   | "DRAW" | "ABORTED";
 
 export interface TerminateOpts {
   newGameState:     GameEndState;

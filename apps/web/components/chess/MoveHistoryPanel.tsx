@@ -46,6 +46,8 @@ interface MoveHistoryPanelProps {
   onNextMove: () => void;
   onLastMove: () => void;
   onResign: () => void;
+  onAbort?: () => void;
+  canAbort?: boolean;
   onOfferDraw: () => void;
   /** Disables the draw button while an offer is already pending either way */
   isDrawOfferPending?: boolean;
@@ -111,6 +113,8 @@ export function MoveHistoryPanel({
   onNextMove,
   onLastMove,
   onResign,
+  onAbort,
+  canAbort = false,
   onOfferDraw,
   isDrawOfferPending = false,
   onNewGame,
@@ -385,10 +389,16 @@ export function MoveHistoryPanel({
               <Handshake size={14} />
               Draw
             </button>
-            <button onClick={onResign} className={styles.resignBtn} type="button">
-              <Flag size={14} />
-              Resign
-            </button>
+            {canAbort ? (
+              <button onClick={onAbort} className={styles.resignBtn} type="button">
+                Abort
+              </button>
+            ) : (
+              <button onClick={onResign} className={styles.resignBtn} type="button">
+                <Flag size={14} />
+                Resign
+              </button>
+            )}
           </div>
         )}
       </div>
