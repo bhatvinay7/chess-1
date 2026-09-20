@@ -25,8 +25,9 @@ export async function getActiveGameId(userId: string): Promise<string | null> {
       if (exists) {
         activeOnlineGame = gameIdToCheck;
         break;
+      } else {
+        await redisClient.zRem(`matchmaking:gameId:${userId}`, entry);
       }
-      // If ghost, let cleanup happen later (e.g. onJoinArena or hasOverlappingGame).
     }
   }
 
@@ -46,6 +47,8 @@ export async function getActiveGameId(userId: string): Promise<string | null> {
       if (exists) {
         activeTournamentGame = tGameId;
         break;
+      } else {
+        await redisClient.zRem(`user:active:games:${userId}`, tGameId);
       }
     }
   }
