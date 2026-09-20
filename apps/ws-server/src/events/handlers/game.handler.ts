@@ -245,7 +245,7 @@ export class GameHandler {
     userId: string,
     startMs: number,
     endMs: number,
-  ): Promise<boolean> {
+  ): Promise<string | null> {
     const startSec = startMs / 1000;
     const futureGameEntries = await redisClient.zRange(
       `matchmaking:gameId:${userId}`,
@@ -268,13 +268,13 @@ export class GameHandler {
       if (exStartStr) {
         const exStartMs = parseInt(exStartStr, 10);
         if (exStartMs < endMs) {
-          return true;
+          return gid || entry;
         }
       } else {
-        return true;
+        return gid || entry;
       }
     }
-    return false;
+    return null;
   }
 
   private async onSearchOpponent(payload: MatchmakingTicket): Promise<void> {
@@ -300,15 +300,27 @@ export class GameHandler {
       const durationMs = this.getDurationMs(payload.time_slot);
       const endMs = startMs + durationMs;
 
-      const hasOverlap = await this.hasOverlappingGame(
+      const overlappingGameId = await this.hasOverlappingGame(
         payload.userId,
         startMs,
         endMs,
       );
-      if (hasOverlap) {
-        this.socket.emit("error", {
-          message: "You already have an active or scheduled game.",
-        });
+      if (overlappingGameId) {
+        const { syncGameTime } = await import("../../utils/syncGameTime.js");
+        const { buildGameStatePayload } =
+          await import("../../shared/game-state.js");
+        const gameData = await syncGameTime(overlappingGameId);
+
+        if (gameData.current_fen && gameData.game_state) {
+          this.socket.emit(
+            "active_game_found",
+            buildGameStatePayload(overlappingGameId, gameData),
+          );
+        } else {
+          this.socket.emit("error", {
+            message: "You already have an active or scheduled game.",
+          });
+        }
         return;
       }
 
