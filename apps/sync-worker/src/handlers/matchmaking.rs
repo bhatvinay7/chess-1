@@ -36,30 +36,6 @@ pub async fn handle_matchmaking(
         return Ok(());
     }
 
-    let starting_fen = data.starting_fen.clone();
-
-    sqlx::query(
-        r#"
-        INSERT INTO "Game"
-            (id, "whitePlayerId", "blackPlayerId", "initialFen", "currentFen",
-             pgn, status, "timeControl", "gameMode", "isRated", "whiteRating", "blackRating", "createdAt", "updatedAt")
-        VALUES
-            ($1, $2, $3, $4, $4, '', 'ACTIVE'::"GameStatus", $5, $6, $7, $8, $9, NOW(), NOW())
-        ON CONFLICT (id) DO NOTHING
-        "#,
-    )
-    .bind(game_id)
-    .bind(white_player_id)
-    .bind(black_player_id)
-    .bind(starting_fen)
-    .bind(&data.time_slot)
-    .bind(&data.game_mode)
-    .bind(data.is_rated)
-    .bind(data.p1.rating as i32)
-    .bind(data.p2.rating as i32)
-    .execute(&*db)
-    .await?;
-
-    println!("[matchmaking] Game created: {game_id}");
+    println!("[matchmaking] Game {} matched, delaying DB insert until completion.", game_id);
     Ok(())
 }
