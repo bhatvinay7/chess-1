@@ -221,11 +221,11 @@ export class GameHandler {
   }
 
   private async flushGhostInvites(userId: string) {
-    const now = Date.now();
+    const nowSec = Date.now() / 1000;
     const oldGameIds = await redisClient.zRange(
       `matchmaking:gameId:${userId}`,
       0,
-      now,
+      nowSec,
       { BY: "SCORE" },
     );
     if (oldGameIds.length > 0) {
@@ -246,9 +246,10 @@ export class GameHandler {
     startMs: number,
     endMs: number,
   ): Promise<boolean> {
+    const startSec = startMs / 1000;
     const futureGameEntries = await redisClient.zRange(
       `matchmaking:gameId:${userId}`,
-      startMs,
+      startSec,
       "+inf",
       { BY: "SCORE" },
     );

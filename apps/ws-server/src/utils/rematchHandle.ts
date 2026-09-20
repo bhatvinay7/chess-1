@@ -138,17 +138,17 @@ export async function exceptRematch(
         is_rated: response.is_rated === "true",
       };
 
-      const startMs = Date.now();
-      const durationMs = (timeSlotBase * 60 * 2 + 15 * 60) * 1000;
-      const endMs = startMs + durationMs;
-      const zsetVal = `${newGameId}:${startMs}`;
+      const startSec = Date.now() / 1000;
+      const durationSec = timeSlotBase * 60 * 2 + 15 * 60;
+      const endSec = startSec + durationSec;
+      const zsetVal = `${newGameId}:${startSec}`;
 
       await redisClient
         .multi()
         .hSet(gameStateKey, hashFields)
         .xAdd("matchmaking:queue", "*", { payload: JSON.stringify(matchData) })
-        .zAdd(userKey1, [{ score: endMs, value: zsetVal }])
-        .zAdd(userKey2, [{ score: endMs, value: zsetVal }])
+        .zAdd(userKey1, [{ score: endSec, value: zsetVal }])
+        .zAdd(userKey2, [{ score: endSec, value: zsetVal }])
         .del(dataKey)
         .exec();
 

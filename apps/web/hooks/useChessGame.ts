@@ -79,7 +79,11 @@ function pairMovesWithTiming(
 
 export function formatTime(seconds: number): string {
   const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
+  if (seconds < 20 && seconds > 0) {
+    const secs = (seconds % 60).toFixed(1);
+    return `${mins.toString().padStart(2, "0")}:${secs.padStart(4, "0")}`;
+  }
+  const secs = Math.floor(seconds % 60);
   return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
 }
 

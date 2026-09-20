@@ -6,12 +6,13 @@ import { redisClient } from "@repo/redis-client";
 // after a previous game completed).
 export async function getActiveGameId(userId: string): Promise<string | null> {
   const nowMs = Date.now();
+  const nowSec = nowMs / 1000;
   let activeOnlineGame: string | null = null;
   let activeTournamentGame: string | null = null;
 
   const futureEntries = await redisClient.zRange(
     `matchmaking:gameId:${userId}`,
-    nowMs,
+    nowSec,
     "+inf",
     { BY: "SCORE" },
   );
