@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Chessboard } from "react-chessboard";
 import { motion } from "framer-motion";
 import styles from "./ChessBoard.module.css";
 import { ShieldAlert } from "lucide-react";
@@ -17,7 +16,7 @@ import { GameOverModal } from "./GameOverModal";
 import { ResumeGameModal } from "./ResumeGameModal";
 import { DrawRequestModal } from "./DrawRequestModal";
 import { DrawNotice } from "./DrawNotice";
-import { PromotionPicker } from "./PromotionPicker";
+import { BoardUI } from "./board";
 import { PlayerBar } from "./PlayerBar";
 import { useBoardTheme } from "../../hooks/useBoardTheme";
 import { useSearchSselection } from '@/hooks/useSearchSelection';
@@ -99,6 +98,7 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
     dismissActiveGame,
     sendMove,
     resign,
+    abort,
     leaveGame,
     drawOffer,
     drawNotice,
@@ -301,6 +301,12 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
     }
   };
 
+  const handleAbort = (): void => {
+    if (user && activeGameId) {
+      abort(user.id, activeGameId);
+    }
+  };
+
   const handleReturnToLobby = (): void => {
     if (activeGameId) localStorage.removeItem(activeGameId);
     if (user && activeGameId) leaveGame(user.id, activeGameId);
@@ -444,18 +450,13 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
                   isLobby
                 />
 
-                <div className={styles.boardSurface}>
-                  <Chessboard
-                    options={{
-                      position: displayedFen,
-                      boardOrientation: isWhite ? "white" : "black",
-                      boardStyle: { borderRadius: "0", boxShadow: "none" },
-                      darkSquareStyle: { backgroundColor: boardTheme.colors.dark },
-                      lightSquareStyle: { backgroundColor: boardTheme.colors.light },
-                      onPieceDrop: () => false,
-                    }}
-                  />
-                </div>
+                <BoardUI
+                  displayedFen={displayedFen}
+                  isWhite={isWhite}
+                  boardTheme={boardTheme}
+                  onPieceDrop={() => false}
+                  isLobby
+                />
 
                 <PlayerBar
                   name={currentPlayerInfo.name}
@@ -510,74 +511,23 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
                 />
 
                 {/* Board surface */}
-                <div className={styles.boardSurface}>
-                  <Chessboard
-                    options={{
-                      position: displayedFen,
-                      boardOrientation: isWhite ? "white" : "black",
-                      onPieceDrop: handleDrop,
-                      onSquareClick: ({ square }) => handleSquareClick(square),
-                      onPieceDrag: handlePieceDragBegin,
-                      canDragPiece,
-                      squareStyles: optionSquares,
-                      arrows: boardArrows,
-                      animationDurationInMs: 200,
-                      allowDrawingArrows: true,
-                      boardStyle: { borderRadius: "0", boxShadow: "none" },
-                      darkSquareStyle: { backgroundColor: boardTheme.colors.dark },
-                      lightSquareStyle: { backgroundColor: boardTheme.colors.light },
-                    }}
-                  />
-                  {secondsToStart !== null && (
-                    <div className={styles.startCountdownOverlay}>
-                      <div className={styles.startCountdownCard}>
-                        <span className={styles.startCountdownLabel}>Game starts in</span>
-                        <span className={styles.startCountdownTime}>
-                          {String(Math.floor(secondsToStart / 60)).padStart(2, "0")}:
-                          {String(secondsToStart % 60).padStart(2, "0")}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {pendingPromotion && (
-                    <PromotionPicker
-                      color={pendingPromotion.color}
-                      targetSquare={pendingPromotion.to}
-                      isWhiteBoard={isWhite}
-                      onSelect={handlePromotionSelect}
-                      onCancel={handleCancelPromotion}
-                    />
-                  )}
-                  {showBoardAnimation && (
-                    <div className={styles.boardRevealOverlay}>
-                      <motion.div
-                        className={styles.revealInitLabel}
-                        initial={{ opacity: 1 }}
-                        animate={{ opacity: 0 }}
-                        transition={{ delay: 0.45, duration: 0.3, ease: "easeOut" }}
-                      >
-                        Initializing game
-                        <span className={styles.revealInitDots}>
-                          <span /><span /><span />
-                        </span>
-                      </motion.div>
-                      <motion.div
-                        className={styles.revealPanelTop}
-                        initial={{ y: 0 }}
-                        animate={{ y: "-100%" }}
-                        transition={{ delay: 0.5, duration: 0.48, ease: "easeInOut" }}
-                      />
-                      <motion.div
-                        className={styles.revealPanelBottom}
-                        initial={{ y: 0 }}
-                        animate={{ y: "100%" }}
-                        transition={{ delay: 0.5, duration: 0.48, ease: "easeInOut" }}
-                        onAnimationComplete={clearBoardAnimation}
-                      />
-                    </div>
-                  )}
-                </div>
+                <BoardUI
+                  displayedFen={displayedFen}
+                  isWhite={isWhite}
+                  boardTheme={boardTheme}
+                  onPieceDrop={handleDrop}
+                  onSquareClick={handleSquareClick}
+                  onPieceDragBegin={handlePieceDragBegin}
+                  canDragPiece={canDragPiece}
+                  squareStyles={optionSquares}
+                  boardArrows={boardArrows}
+                  secondsToStart={secondsToStart}
+                  pendingPromotion={pendingPromotion}
+                  onPromotionSelect={handlePromotionSelect}
+                  onCancelPromotion={handleCancelPromotion}
+                  showBoardAnimation={showBoardAnimation}
+                  onRevealAnimationComplete={clearBoardAnimation}
+                />
 
                 <PlayerBar
                   name={currentPlayerInfo.name}
@@ -608,6 +558,8 @@ export default function ArenaChessBoard({ urlGameId }: ArenaBoardProps) {
               onNextMove={handleNextMove}
               onLastMove={handleLastMove}
               onResign={handleResign}
+              onAbort={handleAbort}
+              canAbort={moveHistory.length < 2}
               onOfferDraw={handleOfferDraw}
               isDrawOfferPending={drawOfferSent}
               onNewGame={handleReturnToLobby}
