@@ -787,6 +787,7 @@ name = "cdc"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "chess-telemetry",
  "chrono",
  "dotenvy",
  "metrics-rustclient",
@@ -798,6 +799,7 @@ dependencies = [
  "serde_json",
  "tokio",
  "tokio-postgres",
+ "tracing",
 ]
 
 [[package]]
@@ -1653,6 +1655,7 @@ dependencies = [
 name = "game-server"
 version = "0.1.0"
 dependencies = [
+ "chess-telemetry",
  "dotenvy",
  "metrics-rustclient",
  "prost 0.13.5",
@@ -1663,6 +1666,7 @@ dependencies = [
  "tokio",
  "tonic 0.12.3",
  "tonic-build",
+ "tracing",
 ]
 
 [[package]]
@@ -2465,6 +2469,7 @@ dependencies = [
  "actix",
  "bb8 0.9.1",
  "bb8-redis 0.18.0",
+ "chess-telemetry",
  "dotenvy",
  "fusion-blossom",
  "futures-util",
@@ -2475,6 +2480,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
  "uuid",
 ]
 
@@ -2650,6 +2656,7 @@ dependencies = [
 name = "notification-worker"
 version = "0.1.0"
 dependencies = [
+ "chess-telemetry",
  "chrono",
  "dotenvy",
  "futures-lite 2.6.1",
@@ -2663,6 +2670,7 @@ dependencies = [
  "serde_json",
  "sqlx",
  "tokio",
+ "tracing",
  "uuid",
 ]
 
@@ -3463,10 +3471,12 @@ checksum = "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf"
 name = "rabbitmq-rustclient"
 version = "0.1.0"
 dependencies = [
+ "chess-telemetry",
  "lapin",
  "serde",
  "serde_json",
  "tokio",
+ "tracing",
  "uuid",
 ]
 
@@ -4550,6 +4560,7 @@ version = "0.1.0"
 dependencies = [
  "bb8 0.8.6",
  "bb8-redis 0.17.0",
+ "chess-telemetry",
  "chrono",
  "dotenvy",
  "fusion-blossom",
@@ -4562,6 +4573,7 @@ dependencies = [
  "sqlx",
  "tokio",
  "tokio-stream",
+ "tracing",
  "uuid",
 ]
 

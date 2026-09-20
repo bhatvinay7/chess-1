@@ -13,6 +13,7 @@ use tonic::transport::Server;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
+    chess_telemetry::init_telemetry("chess-game-server");
     rustls::crypto::ring::default_provider()
         .install_default()
         .ok();

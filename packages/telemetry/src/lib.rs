@@ -23,16 +23,10 @@ pub fn init_telemetry(service_name: &'static str) {
     let endpoint = std::env::var("OTEL_EXPORTER_OTLP_ENDPOINT")
         .unwrap_or_else(|_| "http://localhost:4317".to_string());
 
-    // Kubernetes supplies BOOKIT_ENVIRONMENT through bookit-config. Local
-    // dotenv files use APP_MODE, while the web runtime convention is NODE_ENV.
-    let environment = std::env::var("BOOKIT_ENVIRONMENT")
-        .or_else(|_| std::env::var("APP_MODE"))
+    let environment = std::env::var("APP_MODE")
         .or_else(|_| std::env::var("NODE_ENV"))
         .unwrap_or_else(|_| "local".into());
-    // BOOKIT_REGION is set by each regional Kustomize overlay. A local process
-    // has no deployment region and should be labelled local rather than using
-    // DEPLOY_REGIONS, which may contain a comma-separated cluster list.
-    let region = std::env::var("BOOKIT_REGION").unwrap_or_else(|_| "local".into());
+    let region = std::env::var("CLOUD_REGION").unwrap_or_else(|_| "local".into());
     let mut attributes = vec![
         KeyValue::new("service.name", service_name),
         KeyValue::new("deployment.environment", environment),

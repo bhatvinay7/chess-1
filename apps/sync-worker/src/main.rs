@@ -29,6 +29,7 @@ const GAME_RESULT_LOCK: &str = "lock:recovery:game_result";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
+    chess_telemetry::init_telemetry("chess-sync-worker");
     rustls::crypto::ring::default_provider()
         .install_default()
         .ok();

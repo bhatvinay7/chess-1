@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+chess-telemetry = { path = "../../packages/telemetry" }
+tracing = "0.1"
 rustls = { version = "0.23", default-features = false, features = ["ring"] }
 rabbitmq-rustclient = { path = "../../packages/rabbitmq-rustclient" }
 # Redis

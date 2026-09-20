@@ -90,7 +90,10 @@ where
         match serde_json::from_slice::<T>(&bytes) {
             // ── Happy path ─────────────────────────────────────────────────
             Ok(parsed) => {
-                if let Err(e) = handler(db.clone(), pool_arc.clone(), parsed).await {
+                if let Err(e) = chess_telemetry::in_result_span(
+                    chess_telemetry::consumer_span(stream_name, &bytes),
+                    handler(db.clone(), pool_arc.clone(), parsed),
+                ).await {
                     // Transient error — leave in PEL, recovery will re-deliver
                     eprintln!("[{stream_name}] handler error (PEL retain): {e}");
                     continue;

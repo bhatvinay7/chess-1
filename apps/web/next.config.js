@@ -5,6 +5,7 @@ const stockfishR2Url = /^https?:\/\//.test(configuredStockfishR2Url || "")
   : "https://thepipe.shop";
 
 const nextConfig = {
+  serverExternalPackages: ["@repo/telemetry-node"],
   async rewrites() {
     const wasmDestination = `${stockfishR2Url}/stockfish/stockfish-18.wasm`;
 

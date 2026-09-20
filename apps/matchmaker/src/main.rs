@@ -21,6 +21,7 @@ use stream::{run_stream_worker, INGEST_STREAM};
 #[actix::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
+    chess_telemetry::init_telemetry("chess-matchmaker");
     rustls::crypto::ring::default_provider()
         .install_default()
         .ok();

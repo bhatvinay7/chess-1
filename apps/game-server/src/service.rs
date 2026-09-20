@@ -106,10 +106,9 @@ fn findLegalMove(chess: &Chess, from: &str, to: &str, promotion: &str) -> Option
         .cloned()
 }
 
-#[tonic::async_trait]
-impl ChessMoveService for ChessMoveServiceImpl {
+impl ChessMoveServiceImpl {
     // ── ProcessMove ───────────────────────────────────────────────────────────
-    async fn process_move(
+    async fn process_move_impl(
         &self,
         request: Request<MoveRequest>,
     ) -> Result<Response<MoveResponse>, Status> {
@@ -386,7 +385,7 @@ impl ChessMoveService for ChessMoveServiceImpl {
                     "*",
                     &[(
                         "payload",
-                        json!({ "gameId": game_id, "winnerId": winnerId, "status": status })
+                        chess_telemetry::with_trace_payload(json!({ "gameId": game_id, "winnerId": winnerId, "status": status }))
                             .to_string()
                             .as_str(),
                     )],
@@ -582,7 +581,7 @@ impl ChessMoveService for ChessMoveServiceImpl {
     // ── RegisterSpectatedGame ─────────────────────────────────────────────────
     // Called by ws-server when the first spectator joins a game.
     // Bypasses the 10-second background poll so the game is watched immediately.
-    async fn register_spectated_game(
+    async fn register_spectated_game_impl(
         &self,
         request: Request<SpectateRequest>,
     ) -> Result<Response<SpectateResponse>, Status> {
@@ -597,5 +596,16 @@ impl ChessMoveService for ChessMoveServiceImpl {
         let created = spectate::create_spectate_state(&mut conn, &game_id).await;
         println!("[gRPC] Spectate registered for game {game_id} (copy_created={created})");
         Ok(Response::new(SpectateResponse { success: true }))
+    }
+}
+
+#[tonic::async_trait]
+impl ChessMoveService for ChessMoveServiceImpl {
+    async fn process_move(&self, request: Request<MoveRequest>) -> Result<Response<MoveResponse>, Status> {
+        chess_telemetry::grpc_request(request, "chess.ChessMoveService", "ProcessMove", |request| self.process_move_impl(request)).await
+    }
+
+    async fn register_spectated_game(&self, request: Request<SpectateRequest>) -> Result<Response<SpectateResponse>, Status> {
+        chess_telemetry::grpc_request(request, "chess.ChessMoveService", "RegisterSpectatedGame", |request| self.register_spectated_game_impl(request)).await
     }
 }

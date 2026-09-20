@@ -75,11 +75,12 @@ impl RabbitClient {
     }
 
     /// Publish a match created event to the notification queues
+    #[tracing::instrument(skip_all, fields(otel.kind = "producer", messaging.system = "rabbitmq"), err)]
     pub async fn publish_match_created(
         &self,
         event: &MatchNotificationEvent,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        let payload = serde_json::to_vec(event)?;
+        let payload = serde_json::to_vec(&chess_telemetry::with_trace_payload(serde_json::to_value(event)?))?;
 
         if let Some(channel_mutex) = &self.channel {
             let channel = channel_mutex.lock().await;
@@ -90,7 +91,7 @@ impl RabbitClient {
                     APP_NOTIFICATION_QUEUE,
                     BasicPublishOptions::default(),
                     &payload,
-                    BasicProperties::default(),
+                    trace_properties(),
                 )
                 .await?;
 
@@ -100,7 +101,7 @@ impl RabbitClient {
                     SCHEDULAR_NOTIFICATION_QUEUE,
                     BasicPublishOptions::default(),
                     &payload,
-                    BasicProperties::default(),
+                    trace_properties(),
                 )
                 .await?;
         } else {
@@ -111,11 +112,12 @@ impl RabbitClient {
     }
 
     /// Publish a failed tournament matching job to the DLQ
+    #[tracing::instrument(skip_all, fields(otel.kind = "producer", messaging.system = "rabbitmq"), err)]
     pub async fn publish_dlq(
         &self,
         event: &TournamentMatchingDlqEvent,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        let payload = serde_json::to_vec(event)?;
+        let payload = serde_json::to_vec(&chess_telemetry::with_trace_payload(serde_json::to_value(event)?))?;
 
         if let Some(channel_mutex) = &self.channel {
             let channel = channel_mutex.lock().await;
@@ -126,11 +128,19 @@ impl RabbitClient {
                     TOURNAMENT_MATCHING_DLQ,
                     BasicPublishOptions::default(),
                     &payload,
-                    BasicProperties::default(),
+                    trace_properties(),
                 )
                 .await?;
         }
 
         Ok(())
     }
+}
+
+fn trace_properties() -> BasicProperties {
+    let mut headers = FieldTable::default();
+    for (key, value) in chess_telemetry::current_carrier() {
+        headers.insert(key.into(), lapin::types::AMQPValue::LongString(value.into()));
+    }
+    BasicProperties::default().with_headers(headers)
 }

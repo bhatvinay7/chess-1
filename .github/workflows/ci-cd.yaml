@@ -64,6 +64,12 @@ jobs:
           pnpm turbo run lint
           pnpm turbo run check-types
 
+      - name: Test distributed trace propagation
+        run: |
+          pnpm --filter @repo/telemetry-node test
+          pnpm --filter @repo/grpc-connection build
+          pnpm --filter @repo/grpc-connection test
+
       - name: Setup Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -121,6 +127,7 @@ jobs:
 
             http-server:
               - 'apps/http-server/**'
+              - 'packages/telemetry-node/**'
               - 'packages/mongo-db/**'
               - 'packages/postgres-db/**'
               - 'packages/redis-client/**'
@@ -130,6 +137,7 @@ jobs:
               - 'turbo.json'
             ws-server:
               - 'apps/ws-server/**'
+              - 'packages/telemetry-node/**'
               - 'packages/grpc-connection/**'
               - 'packages/redis-client/**'
               - 'packages/socket-types/**'
@@ -139,28 +147,36 @@ jobs:
               - 'turbo.json'
             game-server:
               - 'apps/game-server/**'
+              - 'packages/telemetry/**'
               - 'packages/metrics-rustclient/**'
               - 'Cargo.toml'
               - 'Cargo.lock'
             sync-worker:
               - 'apps/sync-worker/**'
+              - 'packages/rabbitmq-rustclient/**'
+              - 'packages/telemetry/**'
               - 'packages/metrics-rustclient/**'
               - 'Cargo.toml'
               - 'Cargo.lock'
             notification-worker:
               - 'apps/notification-worker/**'
+              - 'packages/rabbitmq-rustclient/**'
+              - 'packages/telemetry/**'
               - 'Cargo.toml'
               - 'Cargo.lock'
             matchmaker:
               - 'apps/matchmaker/**'
+              - 'packages/telemetry/**'
               - 'Cargo.toml'
               - 'Cargo.lock'
             cdc:
               - 'apps/cdc/**'
+              - 'packages/telemetry/**'
               - 'Cargo.toml'
               - 'Cargo.lock'
             web:
               - 'apps/web/**'
+              - 'packages/telemetry-node/**'
               - 'packages/socket-types/**'
               - 'packages/ui/**'
               - 'packages/eslint-config/**'

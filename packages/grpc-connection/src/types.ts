@@ -45,6 +45,7 @@ import type * as grpc from "@grpc/grpc-js";
 export interface ChessMoveServiceClient extends grpc.Client {
   ProcessMove(
     request: MoveRequest,
+    metadata: grpc.Metadata,
     callback: (
       error: grpc.ServiceError | null,
       response: MoveResponse,
@@ -53,6 +54,7 @@ export interface ChessMoveServiceClient extends grpc.Client {
 
   RegisterSpectatedGame(
     request: SpectateRequest,
+    metadata: grpc.Metadata,
     callback: (
       error: grpc.ServiceError | null,
       response: SpectateResponse,

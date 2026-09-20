@@ -5,12 +5,16 @@ use crate::chess960;
 use crate::matching::recovery::QUEUE_ZSET;
 use crate::models::{MatchData, Player, StagedPlayer};
 
+#[tracing::instrument(skip_all, fields(otel.kind = "producer", messaging.system = "redis"), err)]
 pub async fn publish_match<C: ConnectionLike + Send>(
     conn: &mut C,
     p1: &StagedPlayer,
     p2: &StagedPlayer,
     current_ts: f64,
 ) -> Result<MatchData, redis_rustclient::redis::RedisError> {
+    let span = tracing::Span::current();
+    chess_telemetry::set_span_parent(&span, &p1.parsed.trace_context);
+    chess_telemetry::add_span_link(&span, &p2.parsed.trace_context);
     let game_id = Uuid::new_v4().to_string();
 
     let starting_fen = if p1.parsed.game_mode == "chess960" {
@@ -39,7 +43,7 @@ pub async fn publish_match<C: ConnectionLike + Send>(
         starting_fen: starting_fen.clone(),
     };
 
-    let match_json_str = serde_json::to_string(&match_payload)
+    let match_json_str = serde_json::to_string(&chess_telemetry::with_trace_payload(serde_json::to_value(&match_payload).expect("serializable match")))
         .expect("Failed to serialize matchmaking payload to JSON");
 
     let parts_array: [u32; 2] = p1

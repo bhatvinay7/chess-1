@@ -3,6 +3,8 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct PlayerJoin {
+    #[serde(default, rename = "_trace_context")]
+    pub trace_context: chess_telemetry::TraceCarrier,
     #[serde(rename = "userId")]
     pub user_id: String,
     pub rating: u32,

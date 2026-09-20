@@ -1,3 +1,4 @@
+import { initTelemetry, httpTracing } from "@repo/telemetry-node";
 import express, { Express } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -18,8 +19,10 @@ import { ensureTtlIndex } from "@repo/mongo-db";
 import { registerMetrics } from "./metrics.js";
 
 dotenv.config();
+initTelemetry("chess-http-server");
 
 export const app: Express = express();
+app.use(httpTracing);
 const allowedOrigins = new Set(
   (process.env.CLIENT_URL || "http://localhost:3000")
     .split(",")

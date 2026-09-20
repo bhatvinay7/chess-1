@@ -38,6 +38,7 @@ fn job_key(jid: &str) -> String {
 
 // ── INSERT ────────────────────────────────────────────────────────────────────
 
+#[tracing::instrument(skip_all, fields(otel.kind = "producer"), err)]
 pub async fn schedule_tournament(
     redis: &mut RedisClient,
     timing_id: &str,
@@ -79,6 +80,7 @@ pub async fn schedule_tournament(
     let data_json = serde_json::json!({
         "tournamentId": tournament_id,
         "trigger":      TRIGGER_INIT,
+        "_trace_context": chess_telemetry::current_carrier(),
         "startTime":    start_time,
     })
     .to_string();
@@ -117,6 +119,7 @@ pub async fn schedule_tournament(
 
 // ── UPDATE ────────────────────────────────────────────────────────────────────
 
+#[tracing::instrument(skip_all, fields(otel.kind = "producer"), err)]
 pub async fn reschedule_tournament(
     redis: &mut RedisClient,
     tournament_id: &str,
@@ -166,6 +169,7 @@ pub async fn reschedule_tournament(
     let data_json = serde_json::json!({
         "tournamentId": tournament_id,
         "trigger":      TRIGGER_INIT,
+        "_trace_context": chess_telemetry::current_carrier(),
         "startTime":    new_start_time,
     })
     .to_string();
@@ -199,6 +203,7 @@ pub async fn reschedule_tournament(
 
 // ── DELETE ────────────────────────────────────────────────────────────────────
 
+#[tracing::instrument(skip_all, fields(otel.kind = "producer"), err)]
 pub async fn cancel_tournament(redis: &mut RedisClient, timing_id: &str) -> Result<()> {
     let tournament_id: Option<String> = redis::cmd("HGET")
         .arg(TIMING_INDEX)
@@ -254,6 +259,7 @@ pub async fn cancel_tournament(redis: &mut RedisClient, timing_id: &str) -> Resu
 // The snapshot is idempotent: ZADD NX means we never overwrite a job that
 // was already scheduled from a prior run or from the live WAL stream.
 
+#[tracing::instrument(skip_all, fields(otel.kind = "producer"), err)]
 pub async fn init_snapshot<C>(
     redis: &mut RedisClient,
     client: &C,
@@ -310,6 +316,7 @@ where
         let data_json = serde_json::json!({
             "tournamentId": tournament_id,
             "trigger":      TRIGGER_INIT,
+        "_trace_context": chess_telemetry::current_carrier(),
             "startTime":    start_time,
         })
         .to_string();

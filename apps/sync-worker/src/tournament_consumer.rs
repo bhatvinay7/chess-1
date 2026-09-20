@@ -287,6 +287,7 @@ async fn fetch_and_enqueue(
         tournament_id: payload.0,
         trigger: payload.1,
         attempts_made: payload.2,
+        trace_context: payload.3,
     };
 
     if tx.send(job).await.is_err() {
@@ -371,7 +372,7 @@ async fn tick_watchdog(pool: &RedisPool, worker_id: &str) -> Result<(), BoxError
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 /// Fetch `(tournament_id, trigger, attempts_made)` from the job hash.
-async fn fetch_job_payload(pool: &RedisPool, jid: &str) -> Result<(String, String, u32), BoxError> {
+async fn fetch_job_payload(pool: &RedisPool, jid: &str) -> Result<(String, String, u32, chess_telemetry::TraceCarrier), BoxError> {
     let mut conn = pool.get().await?;
     let key = format!("{JOB_PREFIX}:{jid}");
 
@@ -400,7 +401,7 @@ async fn fetch_job_payload(pool: &RedisPool, jid: &str) -> Result<(String, Strin
         .and_then(|s| s.parse().ok())
         .unwrap_or(0);
 
-    Ok((tournament_id, trigger, attempts))
+    Ok((tournament_id, trigger, attempts, chess_telemetry::payload_carrier(&v)))
 }
 
 async fn poison_ack(pool: &RedisPool, msg_id: &str, jid: &str) {

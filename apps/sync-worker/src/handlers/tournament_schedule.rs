@@ -1,3 +1,4 @@
+use chess_telemetry::Instrument;
 use sqlx::PgPool;
 /// Tournament schedule handler with mpsc back-pressure buffer.
 ///
@@ -42,6 +43,7 @@ pub struct TournamentTriggerJob {
     pub tournament_id: String,
     pub trigger: String,
     pub attempts_made: u32,
+    pub trace_context: chess_telemetry::TraceCarrier,
 }
 
 // ── DB row ────────────────────────────────────────────────────────────────────
@@ -84,7 +86,9 @@ async fn processor_loop(
 ) {
     eprintln!("[tournament/processor] started (channel capacity={CHANNEL_CAPACITY})");
     while let Some(job) = rx.recv().await {
-        process_one(&db, &pool, &rabbitmq, job).await;
+        let span = chess_telemetry::operation_span("tournament.schedule", "consumer",
+            Some(chess_telemetry::extract_context(&job.trace_context)));
+        chess_telemetry::in_span(span, process_one(&db, &pool, &rabbitmq, job)).await;
     }
     eprintln!("[tournament/processor] channel closed, exiting");
 }
@@ -95,7 +99,10 @@ async fn process_one(
     rabbitmq: &Arc<rabbitmq_rustclient::RabbitClient>,
     job: TournamentTriggerJob,
 ) {
-    match run_trigger(db, pool, rabbitmq, &job.tournament_id, &job.trigger).await {
+    match chess_telemetry::in_result_span(
+        chess_telemetry::operation_span("tournament.trigger", "internal", None),
+        run_trigger(db, pool, rabbitmq, &job.tournament_id, &job.trigger),
+    ).await {
         Ok(()) => {
             println!(
                 "[tournament/processor] ok  jid={} trigger={}",
@@ -213,7 +220,7 @@ async fn run_trigger(
                         } else {
                             println!("[tournament_init] id={tid} completed successfully");
                         }
-                    });
+                    }.in_current_span());
                 }
 
                 "IN_PROGRESS" => {
@@ -244,7 +251,7 @@ async fn run_trigger(
                                 } else {
                                     println!("[tournament_init] next_round id={tid} completed");
                                 }
-                            });
+                            }.in_current_span());
                         }
                         other => {
                             println!(
@@ -281,7 +288,7 @@ async fn run_trigger(
                     } else {
                         println!("[tournament_init] next_round id={tid} completed");
                     }
-                });
+                }.in_current_span());
             } else {
                 println!(
                     "[tournament] next_round skipped — id={} status={} (not IN_PROGRESS)",

@@ -48,6 +48,7 @@ mod tests {
         let mut p1 = StagedPlayer {
             raw_json: "".to_string(),
             parsed: PlayerJoin {
+                trace_context: Default::default(),
                 user_id: "test_user_1".to_string(),
                 rating: 1500,
                 profile_image_url: "".to_string(),

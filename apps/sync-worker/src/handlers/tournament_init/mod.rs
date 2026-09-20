@@ -39,6 +39,7 @@ use types::{BoxError, BASE_SWISS_GROUP_SIZE};
 
 /// Initialise the first round for a NOT_INITIALIZED tournament.
 /// Transitions the tournament status to IN_PROGRESS on success.
+#[tracing::instrument(skip_all, err)]
 pub async fn run_tournament_init(
     db: &Arc<PgPool>,
     redis: &RedisPool,
@@ -92,6 +93,7 @@ pub async fn run_tournament_init(
 
 /// Advance an IN_PROGRESS tournament to its next round.
 /// Selects the top-3 players from each group of the last completed round.
+#[tracing::instrument(skip_all, err)]
 pub async fn run_next_round(
     db: &Arc<PgPool>,
     redis: &RedisPool,

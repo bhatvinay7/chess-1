@@ -15,6 +15,7 @@ use rabbitmq_rustclient::client::APP_NOTIFICATION_QUEUE;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenvy::dotenv().ok();
+    chess_telemetry::init_telemetry("chess-notification-worker");
     println!("[notification-worker] Starting...");
 
     metrics_rustclient::system::start_system_metrics_collector(5);
@@ -86,7 +87,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             // Process in a spawned task so we can handle them concurrently
             tokio::spawn(async move {
-                match process_message(&state, &delivery.data).await {
+                match chess_telemetry::in_result_span(
+                    chess_telemetry::consumer_span(APP_NOTIFICATION_QUEUE, &delivery.data),
+                    process_message(&state, &delivery.data),
+                ).await {
                     Ok(_) => {
                         task_metrics.record_request("notification", "success", 0.0);
                         let _ = delivery.ack(BasicAckOptions::default()).await;

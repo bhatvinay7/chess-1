@@ -1,3 +1,4 @@
+import { withTracePayload } from "@repo/telemetry-node";
 /**
  * Shared game-termination logic for resign and draw.
  *
@@ -159,7 +160,7 @@ export async function terminateGame(
   // 2. Enqueue for sync-worker (DB write + rating update + tournament stats)
   ops.push(
     redisClient.xAdd("match:process:results", "*", {
-      payload: JSON.stringify({ gameId, winnerId: winnerId ?? null, status }),
+      payload: JSON.stringify(withTracePayload({ gameId, winnerId: winnerId ?? null, status })),
     }),
   );
 

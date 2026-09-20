@@ -7,6 +7,7 @@ mod scheduler;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     dotenvy::dotenv().ok();
+    chess_telemetry::init_telemetry("chess-cdc");
     rustls::crypto::ring::default_provider()
         .install_default()
         .ok();

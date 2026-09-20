@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+chess-telemetry = { path = "../../packages/telemetry" }
+tracing = "0.1"
 rustls = { version = "0.23", default-features = false, features = ["ring"] }
 tokio = { version = "1.0", features = ["full"] }
 redis-rustclient = { path = "../../packages/redis-rustclient" }

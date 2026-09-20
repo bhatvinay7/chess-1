@@ -8,6 +8,8 @@ name = "game-server"
 path = "src/main.rs"
 
 [dependencies]
+chess-telemetry = { path = "../../packages/telemetry" }
+tracing = "0.1"
 rustls = { version = "0.23", default-features = false, features = ["ring"] }
 tonic       = "0.12"
 prost       = "0.13"

@@ -12,14 +12,16 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "check-types": "tsc --noEmit",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "@grpc/grpc-js": "^1.11.0",
     "@grpc/proto-loader": "^0.7.13",
     "@repo/redis-client": "workspace:*",
     "chess.js": "^1.4.0",
-    "dotenv": "^16.4.5"
+    "dotenv": "^16.4.5",
+    "@repo/telemetry-node": "workspace:*"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",

@@ -1,3 +1,4 @@
+import { currentCarrier, SpanKind, withSpan } from "@repo/telemetry-node";
 import { Server, Socket } from "socket.io";
 import { redisClient } from "@repo/redis-client";
 import { processMoveGrpc } from "@repo/grpc-connection";
@@ -31,11 +32,11 @@ export class GameHandler {
         gameId: string;
         userId: string;
         move: { from: string; to: string; promotion?: string };
-      }) => this.onUserMove(moveData),
+      }) => withSpan("socket.user_move", SpanKind.SERVER, () => this.onUserMove(moveData), {}).catch(console.error),
     );
 
     this.socket.on("search_opponent", (payload: MatchmakingTicket) =>
-      this.onSearchOpponent(payload),
+      withSpan("socket.search_opponent", SpanKind.SERVER, () => this.onSearchOpponent(payload), {}).catch(console.error),
     );
 
     this.socket.on("abandoned", (userId: string) => this.onAbandoned(userId));
@@ -182,13 +183,13 @@ export class GameHandler {
     }
   }
 
-  private onUserMove(moveData: {
+  private async onUserMove(moveData: {
     gameId: string;
     userId: string;
     move: { from: string; to: string; promotion?: string };
-  }): void {
+  }): Promise<void> {
     const { gameId, userId, move } = moveData;
-    processMoveGrpc(this.grpcClient, {
+    await processMoveGrpc(this.grpcClient, {
       game_id: gameId,
       user_id: userId,
       from: move.from,
@@ -268,6 +269,7 @@ export class GameHandler {
     const streamChannel = "matchmaker:stream";
     const entry = {
       data: JSON.stringify({
+        _trace_context: currentCarrier(),
         userId: payload.userId,
         rating: payload.elo,
         profileImageUrl: payload.profileImageUrl,

@@ -1,3 +1,4 @@
+import { currentCarrier, SpanKind, withSpan } from "@repo/telemetry-node";
 /**
  * gRPC client for ChessMoveService.
  *
@@ -96,15 +97,15 @@ export function processMoveGrpc(
   client: ChessMoveServiceClient,
   request: MoveRequest,
 ): Promise<MoveResponse> {
-  return new Promise<MoveResponse>((resolve, reject) => {
-    client.ProcessMove(request, (error, response) => {
+  return withSpan("chess.ChessMoveService/ProcessMove", SpanKind.CLIENT, () => new Promise<MoveResponse>((resolve, reject) => {
+    client.ProcessMove(request, traceMetadata(), (error, response) => {
       if (error) {
         reject(error);
       } else {
         resolve(response);
       }
     });
-  });
+  }), undefined, { "rpc.system": "grpc", "rpc.service": "chess.ChessMoveService" });
 }
 
 /**
@@ -116,13 +117,19 @@ export function registerSpectatedGameGrpc(
   client: ChessMoveServiceClient,
   game_id: string,
 ): Promise<SpectateResponse> {
-  return new Promise<SpectateResponse>((resolve, reject) => {
-    client.RegisterSpectatedGame({ game_id }, (error, response) => {
+  return withSpan("chess.ChessMoveService/RegisterSpectatedGame", SpanKind.CLIENT, () => new Promise<SpectateResponse>((resolve, reject) => {
+    client.RegisterSpectatedGame({ game_id }, traceMetadata(), (error, response) => {
       if (error) {
         reject(error);
       } else {
         resolve(response);
       }
     });
-  });
+  }), undefined, { "rpc.system": "grpc", "rpc.service": "chess.ChessMoveService" });
+}
+
+function traceMetadata(): grpc.Metadata {
+  const metadata = new grpc.Metadata();
+  for (const [key, value] of Object.entries(currentCarrier())) metadata.set(key, value);
+  return metadata;
 }
