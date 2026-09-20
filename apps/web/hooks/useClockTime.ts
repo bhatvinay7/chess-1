@@ -1,5 +1,5 @@
-'use client'
-import { useRef, useState, useEffect,useMemo } from 'react';
+"use client";
+import { useRef, useState, useEffect, useMemo } from "react";
 
 // Define a type for your game object instance (e.g., from chess.js)
 interface ChessGameInstance {
@@ -20,28 +20,44 @@ export function useChessTimer(
 ) {
   // Keep a stable ref so the interval closure always calls the latest callback.
   const onTimeoutRef = useRef(onTimeout);
-  useEffect(() => { onTimeoutRef.current = onTimeout; }, [onTimeout]);
+  useEffect(() => {
+    onTimeoutRef.current = onTimeout;
+  }, [onTimeout]);
 
   // 1. Authoritative Refs for millisecond-precision tracking
-  const inistialTime = typeof window !== 'undefined' ? localStorage.getItem(activeGameId ?? "") : null
+  const inistialTime =
+    typeof window !== "undefined"
+      ? localStorage.getItem(activeGameId ?? "")
+      : null;
   // Use || "0" instead of ?? "0" to also catch empty strings, preventing NaN
   const time_slot = parseInt((inistialTime ?? slot)?.split("+")?.[0] || "0");
-  const whiteTimeRef = useRef<number>((parseInt(whitePlayerLeftTime ?? "0") || time_slot * 60) * 1000);
-  const blackTimeRef = useRef<number>((parseInt(blackPlayerLeftTime ?? "0") || time_slot * 60) * 1000);
+  const whiteTimeRef = useRef<number>(
+    (parseInt(whitePlayerLeftTime ?? "0") || time_slot * 60) * 1000,
+  );
+  const blackTimeRef = useRef<number>(
+    (parseInt(blackPlayerLeftTime ?? "0") || time_slot * 60) * 1000,
+  );
   const activeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const tenSecondsSoundRef = useRef<HTMLAudioElement | null>(null);
-  const tenSecondsPlayedRef = useRef<{ white: boolean; black: boolean }>({ white: false, black: false });
+  const tenSecondsPlayedRef = useRef<{ white: boolean; black: boolean }>({
+    white: false,
+    black: false,
+  });
   useEffect(() => {
-    tenSecondsSoundRef.current = new Audio('/tenseconds.mp3');
+    tenSecondsSoundRef.current = new Audio("/tenseconds.mp3");
   }, []);
 
   // 2. State values solely utilized to drive UI rendering
-  const [displayWhiteTime, setDisplayWhiteTime] = useState<number>(parseInt(whitePlayerLeftTime) || time_slot * 60);
-  const [displayBlackTime, setDisplayBlackTime] = useState<number>(parseInt(blackPlayerLeftTime) || time_slot * 60);
+  const [displayWhiteTime, setDisplayWhiteTime] = useState<number>(
+    parseInt(whitePlayerLeftTime) || time_slot * 60,
+  );
+  const [displayBlackTime, setDisplayBlackTime] = useState<number>(
+    parseInt(blackPlayerLeftTime) || time_slot * 60,
+  );
 
   // Read increment (seconds) from stored time_slot string e.g. "3+2" → 2s → 2000ms
   const incrementMs = (() => {
-    if (typeof window === 'undefined' || !activeGameId) return 0;
+    if (typeof window === "undefined" || !activeGameId) return 0;
     const saved = localStorage.getItem(activeGameId);
     return (parseInt(saved?.split("+")?.[1] ?? "0") || 0) * 1000;
   })();
@@ -68,39 +84,49 @@ export function useChessTimer(
 
       const currentTurn = game.turn();
 
-      if (currentTurn === 'w') {
+      if (currentTurn === "w") {
         const prevWhite = whiteTimeRef.current;
         whiteTimeRef.current = Math.max(0, prevWhite - deltaTime);
         setDisplayWhiteTime(Math.ceil(whiteTimeRef.current / 1000));
-        if (Math.ceil(prevWhite / 1000) > 10 && Math.ceil(whiteTimeRef.current / 1000) <= 10 && !tenSecondsPlayedRef.current.white) {
+        if (
+          Math.ceil(prevWhite / 1000) > 10 &&
+          Math.ceil(whiteTimeRef.current / 1000) <= 10 &&
+          !tenSecondsPlayedRef.current.white
+        ) {
           tenSecondsPlayedRef.current.white = true;
           tenSecondsSoundRef.current?.play().catch(() => {});
         }
         if (whiteTimeRef.current <= 0) {
-          handleTimeout('w');
+          handleTimeout("w");
         }
       } else {
         const prevBlack = blackTimeRef.current;
         blackTimeRef.current = Math.max(0, prevBlack - deltaTime);
         setDisplayBlackTime(Math.ceil(blackTimeRef.current / 1000));
-        if (Math.ceil(prevBlack / 1000) > 10 && Math.ceil(blackTimeRef.current / 1000) <= 10 && !tenSecondsPlayedRef.current.black) {
+        if (
+          Math.ceil(prevBlack / 1000) > 10 &&
+          Math.ceil(blackTimeRef.current / 1000) <= 10 &&
+          !tenSecondsPlayedRef.current.black
+        ) {
           tenSecondsPlayedRef.current.black = true;
           tenSecondsSoundRef.current?.play().catch(() => {});
         }
         if (blackTimeRef.current <= 0) {
-          handleTimeout('b');
+          handleTimeout("b");
         }
       }
     }, 100); // 100ms precision loop
   };
 
   // Helper handling when a player runs out of time
-  const handleTimeout = (losingColor: 'w' | 'b') => {
+  const handleTimeout = (losingColor: "w" | "b") => {
     if (activeIntervalRef.current) {
       clearInterval(activeIntervalRef.current);
       activeIntervalRef.current = null;
     }
-    console.log(`Game Over: ${losingColor === 'w' ? 'White' : 'Black'} flagged.`);
+    console.log(
+      `Game Over: ${losingColor === "w" ? "White" : "Black"} flagged.`,
+    );
     onTimeoutRef.current?.();
   };
 
@@ -114,9 +140,9 @@ export function useChessTimer(
 
     // 2. Identify who just moved (Note: game.turn() changes *after* the move is submitted)
     // If it is now Black's turn, it means White just completed their move.
-    const playerWhoJustMoved = game.turn() === 'b' ? 'w' : 'b';
+    const playerWhoJustMoved = game.turn() === "b" ? "w" : "b";
 
-    if (playerWhoJustMoved === 'w') {
+    if (playerWhoJustMoved === "w") {
       whiteTimeRef.current += incrementMs;
       setDisplayWhiteTime(Math.ceil(whiteTimeRef.current / 1000));
     } else {
@@ -129,7 +155,10 @@ export function useChessTimer(
   };
 
   // Requirement 3: Override both internal ref counters when authoritative data arrives from outside (e.g., Redis/Sockets)
-  const syncTimeFromOutside = (serverWhiteTimeMs: number, serverBlackTimeMs: number) => {
+  const syncTimeFromOutside = (
+    serverWhiteTimeMs: number,
+    serverBlackTimeMs: number,
+  ) => {
     whiteTimeRef.current = serverWhiteTimeMs;
     blackTimeRef.current = serverBlackTimeMs;
     if (serverWhiteTimeMs > 10_000) tenSecondsPlayedRef.current.white = false;
@@ -178,12 +207,15 @@ export function useChessTimer(
     const id = setTimeout(() => startClock(), remaining);
     return () => clearTimeout(id);
   }, [gameStartMs]);
-  return useMemo(() => ({
-    displayWhiteTime,
-    displayBlackTime,
-    startClock,
-    handleMoveCompleted,
-    syncTimeFromOutside,
-    getCurrentTimes
-  }),[displayWhiteTime,displayBlackTime]);
+  return useMemo(
+    () => ({
+      displayWhiteTime,
+      displayBlackTime,
+      startClock,
+      handleMoveCompleted,
+      syncTimeFromOutside,
+      getCurrentTimes,
+    }),
+    [displayWhiteTime, displayBlackTime],
+  );
 }

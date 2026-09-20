@@ -1,5 +1,8 @@
 import { BarChart3, Clock, ListChecks } from "lucide-react";
-import type { GameHistoryItem, GameHistorySummary as Summary } from "../../app/lib/api/games";
+import type {
+  GameHistoryItem,
+  GameHistorySummary as Summary,
+} from "../../app/lib/api/games";
 import styles from "./GameHistory.module.css";
 
 interface GameHistorySummaryProps {
@@ -16,10 +19,15 @@ function favoriteControl(games: GameHistoryItem[]): string {
     counts.set(label, (counts.get(label) ?? 0) + 1);
   }
 
-  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "No games";
+  return (
+    [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "No games"
+  );
 }
 
-export function GameHistorySummary({ summary, games }: GameHistorySummaryProps) {
+export function GameHistorySummary({
+  summary,
+  games,
+}: GameHistorySummaryProps) {
   return (
     <section className={styles.statGrid}>
       <div className={`glass-panel ${styles.statCard}`}>
@@ -30,7 +38,11 @@ export function GameHistorySummary({ summary, games }: GameHistorySummaryProps) 
       <div className={`glass-panel ${styles.statCard}`}>
         <BarChart3 size={22} />
         <span>Average accuracy</span>
-        <strong>{summary.averageAccuracy == null ? "Pending" : `${summary.averageAccuracy}%`}</strong>
+        <strong>
+          {summary.averageAccuracy == null
+            ? "Pending"
+            : `${summary.averageAccuracy}%`}
+        </strong>
       </div>
       <div className={`glass-panel ${styles.statCard}`}>
         <ListChecks size={22} />

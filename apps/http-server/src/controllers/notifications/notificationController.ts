@@ -2,7 +2,10 @@ import { Request, Response } from "express";
 import { mongoPrisma } from "@repo/mongo-db";
 import { getAuthenticatedUserId } from "../../utils/auth.js";
 
-export async function getNotifications(req: Request, res: Response): Promise<void> {
+export async function getNotifications(
+  req: Request,
+  res: Response,
+): Promise<void> {
   try {
     const userId = getAuthenticatedUserId(req);
     if (!userId) {
@@ -58,7 +61,10 @@ export async function markAsRead(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function markAllAsRead(req: Request, res: Response): Promise<void> {
+export async function markAllAsRead(
+  req: Request,
+  res: Response,
+): Promise<void> {
   try {
     const userId = getAuthenticatedUserId(req);
     if (!userId) {

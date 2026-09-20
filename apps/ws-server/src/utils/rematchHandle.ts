@@ -73,7 +73,7 @@ export async function exceptRematch(
 
   const isLocked = await acquireLock(lockKey, 6000);
   if (!isLocked) {
-    return
+    return;
   }
 
   try {
@@ -146,7 +146,7 @@ export async function exceptRematch(
       await redisClient
         .multi()
         .hSet(gameStateKey, hashFields)
-        .xAdd("matchmaking:queue", "*", {payload:JSON.stringify(matchData)})
+        .xAdd("matchmaking:queue", "*", { payload: JSON.stringify(matchData) })
         .zAdd(userKey1, [{ score: endMs, value: zsetVal }])
         .zAdd(userKey2, [{ score: endMs, value: zsetVal }])
         .del(dataKey)
@@ -212,7 +212,7 @@ export async function requestRematch(
 
     return payloadData;
   } catch (error) {
-    console.error('[requestRematch]', error);
+    console.error("[requestRematch]", error);
     return null;
   }
 }
@@ -222,7 +222,10 @@ export async function checkPendingRematchRequest(
 ): Promise<RematchOpponent | null> {
   try {
     const requestKey = `game:rematch:request:${userId}`;
-    const raw = await redisClient.hGetAll(requestKey) as Record<string,string>;
+    const raw = (await redisClient.hGetAll(requestKey)) as Record<
+      string,
+      string
+    >;
     if (!raw?.payload) return null;
 
     return JSON.parse(raw.payload) as RematchOpponent;

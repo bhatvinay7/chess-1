@@ -41,7 +41,10 @@ export async function getGameDetail(gameId: string): Promise<GameDetail> {
 export async function saveAnalysis(
   gameId: string,
   whiteAccuracy: number,
-  blackAccuracy: number
+  blackAccuracy: number,
 ): Promise<void> {
-  await axiosInstance.post(`/games/${gameId}/analysis`, { whiteAccuracy, blackAccuracy });
+  await axiosInstance.post(`/games/${gameId}/analysis`, {
+    whiteAccuracy,
+    blackAccuracy,
+  });
 }

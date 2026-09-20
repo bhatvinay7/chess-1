@@ -14,10 +14,20 @@ const PIECE_GLYPHS: Record<string, Record<"w" | "b", string>> = {
 };
 
 const PIECE_VALUES: Record<string, number> = {
-  p: 1, n: 3, b: 3, r: 5, q: 9, k: 0,
+  p: 1,
+  n: 3,
+  b: 3,
+  r: 5,
+  q: 9,
+  k: 0,
 };
 const SORT_ORDER: Record<string, number> = {
-  q: 0, r: 1, b: 2, n: 3, p: 4, k: 5,
+  q: 0,
+  r: 1,
+  b: 2,
+  n: 3,
+  p: 4,
+  k: 5,
 };
 
 function sortCaptured(pieces: CapturedPiece[]): CapturedPiece[] {
@@ -63,7 +73,12 @@ export function PlayerAvatar({
       <img
         src={src}
         alt={name}
-        style={{ width: "100%", height: "100%", borderRadius: "95%", objectFit: "cover" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: "95%",
+          objectFit: "cover",
+        }}
         crossOrigin="anonymous"
       />
     </div>
@@ -104,12 +119,17 @@ export function PlayerBar({
   return (
     <div className={`${styles.playerBar} ${barClass}`}>
       <div className={styles.playerLeft}>
-        <PlayerAvatar name={name} profileImageUrl={profileImageUrl} isYou={isYou} />
+        <PlayerAvatar
+          name={name}
+          profileImageUrl={profileImageUrl}
+          isYou={isYou}
+        />
         <div className={styles.playerMiddle}>
           <span className={styles.playerName}>
             {name}
             <span className={styles.playerRatingInline}>
-              {" "}({rating != null ? rating : "—"})
+              {" "}
+              ({rating != null ? rating : "—"})
             </span>
           </span>
           {isLobby ? (
@@ -121,7 +141,9 @@ export function PlayerBar({
           ) : null}
         </div>
       </div>
-      <div className={`${styles.timer} ${isActiveTurn ? styles.timerActive : ""}`}>
+      <div
+        className={`${styles.timer} ${isActiveTurn ? styles.timerActive : ""}`}
+      >
         {clock.slice(0, 5)}
       </div>
     </div>

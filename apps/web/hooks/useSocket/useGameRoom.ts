@@ -98,10 +98,12 @@ export function useGameRoom() {
   // used to disable the "Draw" button so a second offer can't be stacked.
   const [drawOfferSent, setDrawOfferSent] = useState(false);
   // Holds a game the server found on initial join_arena — shown as a resume prompt.
-  const [pendingActiveGame, setPendingActiveGame] = useState<GameRoomState | null>(null);
+  const [pendingActiveGame, setPendingActiveGame] =
+    useState<GameRoomState | null>(null);
 
   const [rematchStatus, setRematchStatus] = useState<RematchStatus>("idle");
-  const [incomingRematch, setIncomingRematch] = useState<RematchOpponent | null>(null);
+  const [incomingRematch, setIncomingRematch] =
+    useState<RematchOpponent | null>(null);
   const [showBoardAnimation, setShowBoardAnimation] = useState(false);
 
   // true while waiting for the server to reply to join_arena
@@ -114,7 +116,9 @@ export function useGameRoom() {
     function handleGameState(state: GameRoomState): void {
       setGameState(state);
       if (state.gameId) {
-        const isActive = state.gameState === "IN_PROGRESS" || state.gameState === "INITIALIZED";
+        const isActive =
+          state.gameState === "IN_PROGRESS" ||
+          state.gameState === "INITIALIZED";
         if (isActive) {
           // Restore activeGameId only for live games so a completed game on
           // reconnect doesn't lock the user into an endless game-over modal loop.
@@ -186,7 +190,10 @@ export function useGameRoom() {
     function handleMoveResult(moveData: MoveEventData): void {
       setInvalidMove(null);
       // Sync server-authoritative clock times from the move result
-      if (moveData.whitePlayerLeftTime != null && moveData.blackPlayerLeftTime != null) {
+      if (
+        moveData.whitePlayerLeftTime != null &&
+        moveData.blackPlayerLeftTime != null
+      ) {
         setServerTimes({
           white: Number(moveData.whitePlayerLeftTime) * 1000,
           black: Number(moveData.blackPlayerLeftTime) * 1000,
@@ -214,7 +221,10 @@ export function useGameRoom() {
     function handleOpponentMove(moveData: MoveEventData): void {
       setInvalidMove(null);
       // Sync server-authoritative clock times from the opponent move
-      if (moveData.whitePlayerLeftTime != null && moveData.blackPlayerLeftTime != null) {
+      if (
+        moveData.whitePlayerLeftTime != null &&
+        moveData.blackPlayerLeftTime != null
+      ) {
         setServerTimes({
           white: Number(moveData.whitePlayerLeftTime) * 1000,
           black: Number(moveData.blackPlayerLeftTime) * 1000,
@@ -247,8 +257,11 @@ export function useGameRoom() {
     // pending for us via checkDrawOffer) — show the popup. The user must
     // accept or decline; there is no way to dismiss it otherwise.
     function handleDrawRequest(data: OfferDrawSuccessResponse): void {
-      console.log(data)
-      if (data?.payload) setDrawOffer((priv)=>priv ? {...priv,...data.payload}:data.payload);
+      console.log(data);
+      if (data?.payload)
+        setDrawOffer((priv) =>
+          priv ? { ...priv, ...data.payload } : data.payload,
+        );
     }
 
     // Either side claimed the draw — fold the result into gameState so the
@@ -257,8 +270,9 @@ export function useGameRoom() {
       setDrawOffer(null);
       setDrawNotice(null);
       setDrawOfferSent(false);
-      setGameState((prev) => (prev ? { ...prev, gameState: data.game_state, winnerId: null } : prev));
-      
+      setGameState((prev) =>
+        prev ? { ...prev, gameState: data.game_state, winnerId: null } : prev,
+      );
     }
 
     // Our draw offer was declined — let the offerer know via a banner message.
@@ -292,7 +306,6 @@ export function useGameRoom() {
       socket.off("draw-declined", handleDrawDeclined);
       socket.off("rematch-request", handleRematchRequest);
     };
-
   }, [socket]);
 
   // Emits join_arena with isInitialCheck:true — server responds with
@@ -314,7 +327,9 @@ export function useGameRoom() {
       const timer = setTimeout(() => {
         setIsCheckingActiveGame((prev) => {
           if (prev) {
-            console.warn("[joinArena] Timed out waiting for server response — showing lobby");
+            console.warn(
+              "[joinArena] Timed out waiting for server response — showing lobby",
+            );
           }
           return false;
         });

@@ -78,7 +78,9 @@ export function useStockfish(): UseStockfishReturn {
 
   const onOutput = useCallback((handler: StockfishOutputHandler) => {
     handlersRef.current.add(handler);
-    return () => { handlersRef.current.delete(handler); };
+    return () => {
+      handlersRef.current.delete(handler);
+    };
   }, []);
 
   return { ready, sendCommand, onOutput };

@@ -3,17 +3,25 @@
 import React, { useRef, useEffect, type CSSProperties } from "react";
 import { Chessboard } from "react-chessboard";
 import type { Arrow } from "react-chessboard";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
-  motion,
-  AnimatePresence,
-  useReducedMotion,
-} from "framer-motion";
-import {
-  BookOpen, Brain, RotateCcw, Flag,
-  ChevronFirst, ChevronLast, ChevronLeft, ChevronRight,
-  Sparkles, GraduationCap,
+  BookOpen,
+  Brain,
+  RotateCcw,
+  Flag,
+  ChevronFirst,
+  ChevronLast,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  GraduationCap,
 } from "lucide-react";
-import { useCoachGame, type CoachGameConfig, type BookHint, type MoveAnnotation } from "@/hooks/useCoachGame";
+import {
+  useCoachGame,
+  type CoachGameConfig,
+  type BookHint,
+  type MoveAnnotation,
+} from "@/hooks/useCoachGame";
 import { useBoardTheme } from "@/hooks/useBoardTheme";
 import { PromotionPicker } from "../PromotionPicker";
 import styles from "./CoachBoard.module.css";
@@ -26,8 +34,8 @@ function buildArrows(hints: BookHint[]): Arrow[] {
   if (hints.length === 0) return [];
   return hints.map((h) => ({
     startSquare: h.from,
-    endSquare:   h.to,
-    color:       "rgba(80,200,120,0.7)",
+    endSquare: h.to,
+    color: "rgba(80,200,120,0.7)",
   })) as Arrow[];
 }
 
@@ -35,7 +43,8 @@ function buildBookSquares(hints: BookHint[]): Record<string, CSSProperties> {
   const sq: Record<string, CSSProperties> = {};
   hints.forEach((h) => {
     sq[h.to] = {
-      background: "radial-gradient(circle, rgba(80,200,120,0.35) 55%, transparent 56%)",
+      background:
+        "radial-gradient(circle, rgba(80,200,120,0.35) 55%, transparent 56%)",
       borderRadius: "50%",
     };
   });
@@ -56,8 +65,8 @@ interface PopupProps {
 
 function CoachTeachPopup({ annotation }: PopupProps) {
   const reduced = useReducedMotion();
-  const isUser   = annotation.side === "user";
-  const isBook   = annotation.isBook;
+  const isUser = annotation.side === "user";
+  const isBook = annotation.isBook;
 
   const bg = isBook
     ? "linear-gradient(135deg, rgba(20,44,20,0.97), rgba(30,60,30,0.97))"
@@ -70,7 +79,7 @@ function CoachTeachPopup({ annotation }: PopupProps) {
       key={`${annotation.san}-${annotation.openingName}-${annotation.side}`}
       initial={reduced ? { opacity: 0 } : { y: -32, opacity: 0, scale: 0.88 }}
       animate={reduced ? { opacity: 1 } : { y: 0, opacity: 1, scale: 1 }}
-      exit={reduced   ? { opacity: 0 } : { y: -16, opacity: 0, scale: 0.92 }}
+      exit={reduced ? { opacity: 0 } : { y: -16, opacity: 0, scale: 0.92 }}
       transition={springBouncy}
       style={{
         position: "absolute",
@@ -116,22 +125,57 @@ function CoachTeachPopup({ annotation }: PopupProps) {
 
       <div style={{ flex: 1, minWidth: 0 }}>
         {/* Tag line */}
-        <div style={{ fontSize: "0.7rem", fontWeight: 700, color: accent, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: "0.2rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+        <div
+          style={{
+            fontSize: "0.7rem",
+            fontWeight: 700,
+            color: accent,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            marginBottom: "0.2rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.3rem",
+          }}
+        >
           {isBook ? (
-            isUser
-              ? <>✓ Perfect book move!</>
-              : <><GraduationCap size={11} /> Coach teaches: </>
+            isUser ? (
+              <>✓ Perfect book move!</>
+            ) : (
+              <>
+                <GraduationCap size={11} /> Coach teaches:{" "}
+              </>
+            )
           ) : (
-            <><Sparkles size={11} /> Novelty — off book</>
+            <>
+              <Sparkles size={11} /> Novelty — off book
+            </>
           )}
         </div>
         {/* Move */}
-        <div style={{ display: "flex", alignItems: "baseline", gap: "0.45rem" }}>
-          <span style={{ fontFamily: "monospace", fontWeight: 800, fontSize: "1.05rem", color: "#fff" }}>
+        <div
+          style={{ display: "flex", alignItems: "baseline", gap: "0.45rem" }}
+        >
+          <span
+            style={{
+              fontFamily: "monospace",
+              fontWeight: 800,
+              fontSize: "1.05rem",
+              color: "#fff",
+            }}
+          >
             {annotation.san}
           </span>
           {annotation.openingName && (
-            <span style={{ fontSize: "0.74rem", color: "rgba(255,255,255,0.45)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <span
+              style={{
+                fontSize: "0.74rem",
+                color: "rgba(255,255,255,0.45)",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
               · {annotation.openingName}
             </span>
           )}
@@ -182,21 +226,23 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
   /* auto-scroll move list */
   useEffect(() => {
     if (moveScrollRef.current && currentMoveIdx >= 0) {
-      const active = moveScrollRef.current.querySelector("[data-active='true']");
+      const active = moveScrollRef.current.querySelector(
+        "[data-active='true']",
+      );
       active?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
   }, [currentMoveIdx]);
 
-  const bookSq   = buildBookSquares(bookHints);
+  const bookSq = buildBookSquares(bookHints);
   const mergedSq = { ...bookSq, ...optionSquares };
-  const arrows   = buildArrows(bookHints);
+  const arrows = buildArrows(bookHints);
 
-  const history  = game.history({ verbose: true });
+  const history = game.history({ verbose: true });
   const lastMove = history[currentMoveIdx] ?? history[history.length - 1];
   const lastMoveSq: Record<string, CSSProperties> = lastMove
     ? {
         [lastMove.from]: { background: "rgba(255,213,0,0.22)" },
-        [lastMove.to]:   { background: "rgba(255,213,0,0.30)" },
+        [lastMove.to]: { background: "rgba(255,213,0,0.30)" },
       }
     : {};
 
@@ -210,10 +256,8 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
 
   return (
     <div className={styles.layout}>
-
       {/* ── board column ── */}
       <div className={styles.boardCol}>
-
         {/* Coach header */}
         <motion.div
           className={styles.coachHeader}
@@ -223,14 +267,20 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
         >
           <motion.span
             className={styles.coachAvatarSmall}
-            animate={isEngineThinking && !reduced ? { scale: [1, 1.1, 1] } : { scale: 1 }}
+            animate={
+              isEngineThinking && !reduced
+                ? { scale: [1, 1.1, 1] }
+                : { scale: 1 }
+            }
             transition={{ repeat: Infinity, duration: 1.2 }}
           >
             ♟
           </motion.span>
           <div>
             <div className={styles.coachLabel}>Coach Chatur</div>
-            <div className={styles.openingLabel}>{config.opening.name} · {config.opening.eco}</div>
+            <div className={styles.openingLabel}>
+              {config.opening.name} · {config.opening.eco}
+            </div>
           </div>
           <AnimatePresence>
             {isEngineThinking && (
@@ -241,13 +291,15 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
                 exit={{ opacity: 0, x: 10 }}
                 transition={spring}
               >
-                <Brain size={13} style={{ animation: "spin 1.2s linear infinite" }} />
+                <Brain
+                  size={13}
+                  style={{ animation: "spin 1.2s linear infinite" }}
+                />
                 Thinking…
               </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
-
 
         {/* Board + floating popup */}
         <div className={styles.boardWrap}>
@@ -259,8 +311,11 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
               onSquareClick: ({ square }) => handleSquareClick(square),
               squareStyles: allCustomSquares,
               arrows,
-              boardStyle: { borderRadius: "8px", boxShadow: "0 8px 32px rgba(0,0,0,0.5)" },
-              darkSquareStyle:  { backgroundColor: theme.colors.dark },
+              boardStyle: {
+                borderRadius: "8px",
+                boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+              },
+              darkSquareStyle: { backgroundColor: theme.colors.dark },
               lightSquareStyle: { backgroundColor: theme.colors.light },
             }}
           />
@@ -268,7 +323,10 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
           {/* Coach popup overlay */}
           <AnimatePresence>
             {showPopup && lastMoveAnnotation && (
-              <CoachTeachPopup key={annotationKey!} annotation={lastMoveAnnotation} />
+              <CoachTeachPopup
+                key={annotationKey!}
+                annotation={lastMoveAnnotation}
+              />
             )}
           </AnimatePresence>
 
@@ -290,13 +348,48 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ ...spring, delay: 0.1 }}
         >
-          <button type="button" onClick={handleFirstMove} className={styles.navBtn} title="First"><ChevronFirst size={16} /></button>
-          <button type="button" onClick={handlePrevMove}  className={styles.navBtn} title="Prev"><ChevronLeft  size={16} /></button>
-          <button type="button" onClick={handleNextMove}  className={styles.navBtn} title="Next"><ChevronRight size={16} /></button>
-          <button type="button" onClick={handleLastMove}  className={styles.navBtn} title="Last"><ChevronLast  size={16} /></button>
+          <button
+            type="button"
+            onClick={handleFirstMove}
+            className={styles.navBtn}
+            title="First"
+          >
+            <ChevronFirst size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={handlePrevMove}
+            className={styles.navBtn}
+            title="Prev"
+          >
+            <ChevronLeft size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={handleNextMove}
+            className={styles.navBtn}
+            title="Next"
+          >
+            <ChevronRight size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={handleLastMove}
+            className={styles.navBtn}
+            title="Last"
+          >
+            <ChevronLast size={16} />
+          </button>
 
           {status === "playing" ? (
-            <button type="button" onClick={handleResign}  className={`${styles.navBtn} ${styles.resignBtn}`} title="Resign"><Flag size={15} /></button>
+            <button
+              type="button"
+              onClick={handleResign}
+              className={`${styles.navBtn} ${styles.resignBtn}`}
+              title="Resign"
+            >
+              <Flag size={15} />
+            </button>
           ) : (
             <motion.button
               type="button"
@@ -310,20 +403,23 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
             </motion.button>
           )}
 
-          <button type="button" onClick={onQuit} className={styles.quitBtn}>Change Opening</button>
+          <button type="button" onClick={onQuit} className={styles.quitBtn}>
+            Change Opening
+          </button>
         </motion.div>
       </div>
 
       {/* ── info column ── */}
       <div className={styles.infoCol}>
-
         {/* Game over card */}
         <AnimatePresence>
           {status === "over" && result && (
             <motion.div
               key="result"
               className={`${styles.resultCard} ${result.outcome === "win" ? styles.resultWin : result.outcome === "loss" ? styles.resultLoss : styles.resultDraw}`}
-              initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.8, y: 20 }}
+              initial={
+                reduced ? { opacity: 0 } : { opacity: 0, scale: 0.8, y: 20 }
+              }
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9 }}
               transition={springBouncy}
@@ -334,10 +430,18 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
                 animate={{ scale: 1 }}
                 transition={{ ...springBouncy, delay: 0.15 }}
               >
-                {result.outcome === "win" ? "🏆" : result.outcome === "loss" ? "💡" : "🤝"}
+                {result.outcome === "win"
+                  ? "🏆"
+                  : result.outcome === "loss"
+                    ? "💡"
+                    : "🤝"}
               </motion.div>
               <div className={styles.resultText}>
-                {result.outcome === "win" ? "You Won!" : result.outcome === "loss" ? "Good effort!" : "Draw"}
+                {result.outcome === "win"
+                  ? "You Won!"
+                  : result.outcome === "loss"
+                    ? "Good effort!"
+                    : "Draw"}
               </div>
               <div className={styles.resultReason}>{result.reason}</div>
               <motion.button
@@ -355,32 +459,34 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
 
         {/* Book hints panel */}
         <AnimatePresence>
-          {bookHints.length > 0 && status === "playing" && !isEngineThinking && (
-            <motion.div
-              className={styles.hintsPanel}
-              initial={reduced ? { opacity: 0 } : { opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 16 }}
-              transition={spring}
-            >
-              <div className={styles.hintsPanelTitle}>
-                <BookOpen size={14} />
-                Book Moves for This Position
-              </div>
-              {bookHints.map((h, i) => (
-                <motion.div
-                  key={h.san}
-                  className={styles.hintRow}
-                  initial={reduced ? { opacity: 0 } : { opacity: 0, x: 12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ ...spring, delay: i * 0.05 }}
-                >
-                  <span className={styles.hintSan}>{h.san}</span>
-                  <span className={styles.hintName}>{h.openingName}</span>
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
+          {bookHints.length > 0 &&
+            status === "playing" &&
+            !isEngineThinking && (
+              <motion.div
+                className={styles.hintsPanel}
+                initial={reduced ? { opacity: 0 } : { opacity: 0, x: 16 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 16 }}
+                transition={spring}
+              >
+                <div className={styles.hintsPanelTitle}>
+                  <BookOpen size={14} />
+                  Book Moves for This Position
+                </div>
+                {bookHints.map((h, i) => (
+                  <motion.div
+                    key={h.san}
+                    className={styles.hintRow}
+                    initial={reduced ? { opacity: 0 } : { opacity: 0, x: 12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ ...spring, delay: i * 0.05 }}
+                  >
+                    <span className={styles.hintSan}>{h.san}</span>
+                    <span className={styles.hintName}>{h.openingName}</span>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
         </AnimatePresence>
 
         {/* Move history */}
@@ -402,7 +508,9 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
                       data-active={currentMoveIdx === whiteIdx}
                       className={`${styles.moveSan} ${currentMoveIdx === whiteIdx ? styles.moveSanActive : ""}`}
                       onClick={() => handleSelectMove(whiteIdx)}
-                      initial={reduced || !isNewest ? false : { opacity: 0, x: -8 }}
+                      initial={
+                        reduced || !isNewest ? false : { opacity: 0, x: -8 }
+                      }
                       animate={{ opacity: 1, x: 0 }}
                       transition={spring}
                     >
@@ -414,13 +522,17 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
                         data-active={currentMoveIdx === blackIdx}
                         className={`${styles.moveSan} ${currentMoveIdx === blackIdx ? styles.moveSanActive : ""}`}
                         onClick={() => handleSelectMove(blackIdx)}
-                        initial={reduced || !isNewest ? false : { opacity: 0, x: -8 }}
+                        initial={
+                          reduced || !isNewest ? false : { opacity: 0, x: -8 }
+                        }
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ ...spring, delay: 0.06 }}
                       >
                         {pair.black}
                       </motion.button>
-                    ) : <span />}
+                    ) : (
+                      <span />
+                    )}
                   </React.Fragment>
                 );
               })}
@@ -438,7 +550,9 @@ export function CoachBoard({ config, onQuit }: CoachBoardProps) {
           <div className={styles.openingInfoEmoji}>{config.opening.emoji}</div>
           <div>
             <div className={styles.openingInfoName}>{config.opening.name}</div>
-            <div className={styles.openingInfoDesc}>{config.opening.description}</div>
+            <div className={styles.openingInfoDesc}>
+              {config.opening.description}
+            </div>
           </div>
         </motion.div>
       </div>

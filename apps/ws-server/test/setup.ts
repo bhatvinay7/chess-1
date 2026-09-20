@@ -1,7 +1,7 @@
 // apps/ws-server/test/setup.ts
 
 // Mock @repo/redis-client
-jest.mock('@repo/redis-client', () => {
+jest.mock("@repo/redis-client", () => {
   return {
     redisClient: {
       hmGet: jest.fn(),
@@ -27,33 +27,33 @@ jest.mock('@repo/redis-client', () => {
     connectRedisClient: jest.fn().mockResolvedValue(true),
     SocketIORedisAdapter: {
       setup: jest.fn().mockResolvedValue(true),
-    }
+    },
   };
 });
 
 // Mock @repo/grpc-connection
-jest.mock('@repo/grpc-connection', () => {
+jest.mock("@repo/grpc-connection", () => {
   return {
     createGrpcClient: jest.fn().mockReturnValue({
       validateAndExecuteMove: jest.fn((req, callback) => {
         // Default mock implementation
         callback(null, {
           success: true,
-          fen: 'mock-fen',
-          status: 'ACTIVE',
+          fen: "mock-fen",
+          status: "ACTIVE",
           gameId: req.gameId,
         });
       }),
       terminateGame: jest.fn((req, callback) => {
         callback(null, { success: true });
-      })
+      }),
     }),
     processMoveGrpc: jest.fn().mockResolvedValue({}),
   };
 });
 
 // Utility to mock Socket.io Socket
-export const createMockSocket = (id: string = 'socket_1') => {
+export const createMockSocket = (id: string = "socket_1") => {
   return {
     id,
     emit: jest.fn(),

@@ -15,7 +15,9 @@ export async function uploadPuzzle(req: Request, res: Response): Promise<void> {
     return;
   }
   if (!solution || !Array.isArray(solution) || solution.length === 0) {
-    res.status(400).json({ error: "solution must be a non-empty array of moves" });
+    res
+      .status(400)
+      .json({ error: "solution must be a non-empty array of moves" });
     return;
   }
   if (!movesToMate || movesToMate < 1) {
@@ -50,7 +52,13 @@ export async function uploadPuzzle(req: Request, res: Response): Promise<void> {
       },
     });
 
-    res.status(201).json({ message: "Puzzle uploaded successfully", puzzleId: puzzle.id, rating: puzzle.rating });
+    res
+      .status(201)
+      .json({
+        message: "Puzzle uploaded successfully",
+        puzzleId: puzzle.id,
+        rating: puzzle.rating,
+      });
   } catch {
     res.status(500).json({ error: "Internal server error" });
   }

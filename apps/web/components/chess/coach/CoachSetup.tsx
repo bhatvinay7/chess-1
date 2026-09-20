@@ -12,14 +12,20 @@ interface CoachSetupProps {
 }
 
 const CATEGORY_LABELS: Record<string, string> = {
-  "open":        "Open Games (1.e4 e5)",
-  "semi-open":   "Semi-Open (1.e4 …)",
-  "closed":      "Closed (1.d4)",
+  open: "Open Games (1.e4 e5)",
+  "semi-open": "Semi-Open (1.e4 …)",
+  closed: "Closed (1.d4)",
   "semi-closed": "Semi-Closed (1.d4 …)",
-  "flank":       "Flank Openings",
+  flank: "Flank Openings",
 };
 
-const CATEGORIES = ["open", "semi-open", "closed", "semi-closed", "flank"] as const;
+const CATEGORIES = [
+  "open",
+  "semi-open",
+  "closed",
+  "semi-closed",
+  "flank",
+] as const;
 
 const spring = { type: "spring", stiffness: 400, damping: 28 } as const;
 
@@ -51,8 +57,8 @@ export function CoachSetup({ onStart }: CoachSetupProps) {
         <div className={styles.introText}>
           <h1 className={styles.coachName}>Coach Chatur</h1>
           <p className={styles.coachTagline}>
-            I'll guide you through theory move by move — up to 30 moves of opening book,
-            then engine-level play. Pick an opening to master.
+            I'll guide you through theory move by move — up to 30 moves of
+            opening book, then engine-level play. Pick an opening to master.
           </p>
         </div>
       </motion.div>
@@ -80,22 +86,38 @@ export function CoachSetup({ onStart }: CoachSetupProps) {
                       type="button"
                       onClick={() => setSelected(opening)}
                       className={`${styles.card} ${isSelected ? styles.cardSelected : ""}`}
-                      style={{ "--accent": opening.accentColor } as React.CSSProperties}
+                      style={
+                        {
+                          "--accent": opening.accentColor,
+                        } as React.CSSProperties
+                      }
                       initial={reduced ? {} : { opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ ...spring, delay: catIdx * 0.06 + cardIdx * 0.03 }}
-                      whileHover={reduced ? {} : { y: -2, transition: { duration: 0.15 } }}
+                      transition={{
+                        ...spring,
+                        delay: catIdx * 0.06 + cardIdx * 0.03,
+                      }}
+                      whileHover={
+                        reduced ? {} : { y: -2, transition: { duration: 0.15 } }
+                      }
                       whileTap={reduced ? {} : { scale: 0.98 }}
                     >
                       <span className={styles.cardEmoji}>{opening.emoji}</span>
                       <div className={styles.cardBody}>
                         <div className={styles.cardTop}>
-                          <span className={styles.cardName}>{opening.name}</span>
+                          <span className={styles.cardName}>
+                            {opening.name}
+                          </span>
                           <span className={styles.cardEco}>{opening.eco}</span>
                         </div>
                         <p className={styles.cardDesc}>{opening.description}</p>
-                        <span className={styles.colorPill} data-color={opening.playerColor}>
-                          {opening.playerColor === "white" ? "♔ You play White" : "♚ You play Black"}
+                        <span
+                          className={styles.colorPill}
+                          data-color={opening.playerColor}
+                        >
+                          {opening.playerColor === "white"
+                            ? "♔ You play White"
+                            : "♚ You play Black"}
                         </span>
                       </div>
                     </motion.button>
@@ -119,11 +141,17 @@ export function CoachSetup({ onStart }: CoachSetupProps) {
               exit={{ opacity: 0, x: 10 }}
               transition={spring}
             >
-              <span style={{ color: "var(--accent, #81b64c)", fontSize: "1.3rem" }}>{selected.emoji}</span>
+              <span
+                style={{ color: "var(--accent, #81b64c)", fontSize: "1.3rem" }}
+              >
+                {selected.emoji}
+              </span>
               <div>
                 <div className={styles.startBarName}>{selected.name}</div>
                 <div className={styles.startBarSide}>
-                  {selected.playerColor === "white" ? "♔ Playing as White" : "♚ Playing as Black"}
+                  {selected.playerColor === "white"
+                    ? "♔ Playing as White"
+                    : "♚ Playing as Black"}
                 </div>
               </div>
             </motion.div>
@@ -133,10 +161,19 @@ export function CoachSetup({ onStart }: CoachSetupProps) {
             type="button"
             onClick={handleStart}
             className={styles.startBtn}
-            whileHover={reduced ? {} : { scale: 1.04, filter: "brightness(1.12)" }}
+            whileHover={
+              reduced ? {} : { scale: 1.04, filter: "brightness(1.12)" }
+            }
             whileTap={reduced ? {} : { scale: 0.97 }}
           >
-            <GraduationCap size={16} style={{ display: "inline", marginRight: "0.45rem", verticalAlign: "text-bottom" }} />
+            <GraduationCap
+              size={16}
+              style={{
+                display: "inline",
+                marginRight: "0.45rem",
+                verticalAlign: "text-bottom",
+              }}
+            />
             Start Lesson
           </motion.button>
         </div>

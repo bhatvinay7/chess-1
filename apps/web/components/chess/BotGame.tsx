@@ -17,7 +17,7 @@ import { BotGameOverCard } from "./bot/BotGameOverCard";
 import styles from "./ChessBoard.module.css";
 
 const DEFAULT_AVATAR = "/defaultUser.jpg";
-const STARTING_FEN   = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+const STARTING_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
 interface GameConfig {
   bot: BotCharacter;
@@ -97,8 +97,10 @@ export default function BotGame() {
 
   const botTime = formatTime(playerColor === "white" ? blackTime : whiteTime);
   const userTime = formatTime(playerColor === "white" ? whiteTime : blackTime);
-  const isBotTurn = !isGameOver && game.turn() !== (playerColor === "white" ? "w" : "b");
-  const isUserTurn = !isGameOver && game.turn() === (playerColor === "white" ? "w" : "b");
+  const isBotTurn =
+    !isGameOver && game.turn() !== (playerColor === "white" ? "w" : "b");
+  const isUserTurn =
+    !isGameOver && game.turn() === (playerColor === "white" ? "w" : "b");
 
   return (
     <div className={styles.arenaOuter}>
@@ -125,7 +127,8 @@ export default function BotGame() {
                 <Chessboard
                   options={{
                     position: displayedFen ?? STARTING_FEN,
-                    boardOrientation: playerColor === "white" ? "white" : "black",
+                    boardOrientation:
+                      playerColor === "white" ? "white" : "black",
                     onPieceDrop: handleDrop,
                     onSquareClick: ({ square }) => handleSquareClick(square),
                     squareStyles: optionSquares,
@@ -147,7 +150,12 @@ export default function BotGame() {
 
               {isBotThinking && (
                 <div style={s.thinkingBanner}>
-                  <span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>
+                  <span
+                    style={{
+                      animation: "spin 1s linear infinite",
+                      display: "inline-block",
+                    }}
+                  >
                     ⚙
                   </span>{" "}
                   {bot.name} is thinking…

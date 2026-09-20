@@ -79,7 +79,12 @@ pub async fn update_tournament_stats(
     Ok(())
 }
 
-pub async fn release_rr_paired_game(redis: &RedisPool, white_uid: &str, black_uid: &str, g2_id: &str) {
+pub async fn release_rr_paired_game(
+    redis: &RedisPool,
+    white_uid: &str,
+    black_uid: &str,
+    g2_id: &str,
+) {
     let mut conn = match redis.get().await {
         Ok(c) => c,
         Err(_) => return,

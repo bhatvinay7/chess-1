@@ -1,6 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { verifyToken } from "../../utils/middleware.commonfie.js";
-export function requireAdmin(req: Request, res: Response, next: NextFunction): void {
+export function requireAdmin(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
     res.status(401).json({ message: "Unauthorized" });

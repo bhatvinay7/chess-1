@@ -15,8 +15,12 @@ interface Props {
 }
 
 export function PlayModePanel({
-  playMode, isEngineThinking, playTopMoves,
-  playMoves, playStartFen, activeFen,
+  playMode,
+  isEngineThinking,
+  playTopMoves,
+  playMoves,
+  playStartFen,
+  activeFen,
 }: Props) {
   const isVsEngine = playMode === "play-white" || playMode === "play-black";
 
@@ -25,7 +29,7 @@ export function PlayModePanel({
     const c = new Chess(activeFen);
     if (c.isCheckmate()) return "Checkmate!";
     if (c.isStalemate()) return "Stalemate";
-    if (c.isDraw())      return "Draw";
+    if (c.isDraw()) return "Draw";
     return null;
   }, [activeFen]);
 
@@ -33,7 +37,7 @@ export function PlayModePanel({
     if (!playStartFen || playMoves.length === 0) return [];
     const sc = new Chess(playStartFen);
     const rows: { num: number; white?: string; black?: string }[] = [];
-    let turn    = sc.turn() as "w" | "b";
+    let turn = sc.turn() as "w" | "b";
     let moveNum = sc.moveNumber();
 
     for (const m of playMoves) {
@@ -74,7 +78,9 @@ export function PlayModePanel({
       )}
 
       {gameStatus && (
-        <div className={styles.gameOverBanner}><Trophy size={13} /> {gameStatus}</div>
+        <div className={styles.gameOverBanner}>
+          <Trophy size={13} /> {gameStatus}
+        </div>
       )}
 
       <div className={styles.moveListSection}>
@@ -82,15 +88,21 @@ export function PlayModePanel({
         {historyRows.length === 0 ? (
           <div className={styles.loadingState}>
             <span style={{ color: "var(--text-muted)", fontSize: "0.78rem" }}>
-              {playMode === "play-both" ? "Play moves to see history" : "Waiting for first move…"}
+              {playMode === "play-both"
+                ? "Play moves to see history"
+                : "Waiting for first move…"}
             </span>
           </div>
         ) : (
           historyRows.map(({ num, white, black }) => (
             <div className={styles.moveRow} key={num}>
               <span className={styles.moveNum}>{num}.</span>
-              <div className={styles.moveCell}>{white && <span className={styles.moveSan}>{white}</span>}</div>
-              <div className={styles.moveCell}>{black && <span className={styles.moveSan}>{black}</span>}</div>
+              <div className={styles.moveCell}>
+                {white && <span className={styles.moveSan}>{white}</span>}
+              </div>
+              <div className={styles.moveCell}>
+                {black && <span className={styles.moveSan}>{black}</span>}
+              </div>
             </div>
           ))
         )}

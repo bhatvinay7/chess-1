@@ -87,11 +87,11 @@ export async function syncGameTime(game_id: string) {
   // Shared tournament fields — undefined for regular games so buildGameStatePayload
   // keeps them out of the payload instead of sending empty strings to the client.
   const tournamentFields = {
-    tournament_id:        tournament_id        || undefined,
-    tournament_type:      tournament_type      || undefined,
-    round_id:             round_id             || undefined,
-    group_id:             group_id             || undefined,
-    match_id:             match_id             || undefined,
+    tournament_id: tournament_id || undefined,
+    tournament_type: tournament_type || undefined,
+    round_id: round_id || undefined,
+    group_id: group_id || undefined,
+    match_id: match_id || undefined,
     left_game_start_time: left_game_start_time || undefined,
   };
 
@@ -128,7 +128,11 @@ export async function syncGameTime(game_id: string) {
   }
 
   // If the game is already over, return stored state without writing anything.
-  if (game_state && game_state !== "IN_PROGRESS" && game_state !== "INITIALIZED") {
+  if (
+    game_state &&
+    game_state !== "IN_PROGRESS" &&
+    game_state !== "INITIALIZED"
+  ) {
     return {
       initial_fen: initial_fen,
       current_fen: currentFen!,
@@ -155,7 +159,9 @@ export async function syncGameTime(game_id: string) {
   }
 
   // Timeout: active player ran out of time before checkmate — opponent wins.
-  const timedOut = (turn === "w" && whiteLeftTime === 0) || (turn === "b" && blackLeftTime === 0);
+  const timedOut =
+    (turn === "w" && whiteLeftTime === 0) ||
+    (turn === "b" && blackLeftTime === 0);
   if (timedOut) {
     // Guard: verify game:state still exists before writing GAME_OVER.
     // For tournament games the sync-worker may have already processed and deleted
@@ -164,14 +170,14 @@ export async function syncGameTime(game_id: string) {
     const stateExists = await redisClient.exists(`game:state:${game_id}`);
     if (!stateExists) {
       console.warn(
-        `[syncGameTime] game:state:${game_id} already deleted — skipping timeout write`
+        `[syncGameTime] game:state:${game_id} already deleted — skipping timeout write`,
       );
       return { current_fen: null, game_state: null };
     }
 
     // The winner is the opponent — the player who still had time remaining.
     const timeoutWinnerId = turn === "w" ? black_player_id : white_player_id;
-    const timeoutStatus   = turn === "w" ? "BLACK_WIN"     : "WHITE_WIN";
+    const timeoutStatus = turn === "w" ? "BLACK_WIN" : "WHITE_WIN";
 
     // Mark game over in Redis FIRST so that any concurrent syncGameTime call
     // sees the terminal state and skips re-publishing to the result stream.
@@ -216,13 +222,18 @@ export async function syncGameTime(game_id: string) {
     }
 
     if (!tournament_id) {
-      const [smallerId, largerId] = player1_id! < player2_id! ? [player1_id, player2_id] : [player2_id, player1_id];
+      const [smallerId, largerId] =
+        player1_id! < player2_id!
+          ? [player1_id, player2_id]
+          : [player2_id, player1_id];
       const rematchKey = `game:rematch:${smallerId}:${largerId}`;
-      const INITIAL_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+      const INITIAL_FEN =
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
       const timeSlotBase = parseInt(time_slot?.split("+")?.[0] ?? "5", 10);
       const initialTimeSec = String(timeSlotBase * 60);
       postTimeoutOps.push(
-        redisClient.multi()
+        redisClient
+          .multi()
           .hSet(rematchKey, {
             player1_id: player1_id!,
             player1_rating: player1_rating_str!,
@@ -252,7 +263,10 @@ export async function syncGameTime(game_id: string) {
     const timeoutSettled = await Promise.allSettled(postTimeoutOps);
     for (const r of timeoutSettled) {
       if (r.status === "rejected") {
-        console.error(`[syncGameTime] Post-timeout op failed for game ${game_id}:`, r.reason);
+        console.error(
+          `[syncGameTime] Post-timeout op failed for game ${game_id}:`,
+          r.reason,
+        );
       }
     }
 
@@ -260,7 +274,10 @@ export async function syncGameTime(game_id: string) {
     try {
       await redisClient.zRem("live:games", game_id);
     } catch (e) {
-      console.error(`[syncGameTime] Failed to remove game ${game_id} from live:games:`, e);
+      console.error(
+        `[syncGameTime] Failed to remove game ${game_id} from live:games:`,
+        e,
+      );
     }
 
     return {

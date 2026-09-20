@@ -7,8 +7,8 @@ export interface MatchmakingTicket {
   elo: number;
   profileImageUrl: string;
   username: string;
-  time_slot:string;
-  isRated:boolean;
+  time_slot: string;
+  isRated: boolean;
   gameMode?: string;
 }
 
@@ -20,7 +20,7 @@ export interface MatchFoundResponse {
   p1: MatchmakingTicket;
   p2: MatchmakingTicket;
   game_id: string;
-  time_slot: string
+  time_slot: string;
 }
 
 export function useMatchmaker() {
@@ -28,7 +28,7 @@ export function useMatchmaker() {
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchStatus, setSearchStatus] = useState<string>("");
   const [matchData, setMatchData] = useState<MatchFoundResponse | null>(null);
-  
+
   useEffect(() => {
     if (!socket) return;
 
@@ -41,9 +41,9 @@ export function useMatchmaker() {
       setIsSearching(false);
       setSearchStatus("");
       setMatchData(data);
-      localStorage.setItem(data.game_id, data.time_slot ?? "")
+      localStorage.setItem(data.game_id, data.time_slot ?? "");
     }
-    
+
     function handleError(data: { message: string }): void {
       setIsSearching(false);
       setSearchStatus(data.message || "An error occurred.");
@@ -60,16 +60,14 @@ export function useMatchmaker() {
     };
   }, [socket]);
 
-
   const startSearch = useCallback(
     (ticket: MatchmakingTicket): void => {
       if (!socket) return;
       setMatchData(null);
-    
+
       setIsSearching(true);
       setSearchStatus("Searching for an opponent...");
       socket.emit("search_opponent", ticket);
-      
     },
     [socket],
   );

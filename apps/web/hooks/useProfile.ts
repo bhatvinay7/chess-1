@@ -23,15 +23,22 @@ export const useUpdateProfile = () => {
     }) => updateProfile(userId, data),
     onSuccess: (updatedProfile) => {
       queryClient.setQueryData(["profile", updatedProfile.id], updatedProfile);
-      queryClient.invalidateQueries({ queryKey: ["profile", updatedProfile.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["profile", updatedProfile.id],
+      });
       const stored = localStorage.getItem("user");
       if (stored) {
         try {
           const user = JSON.parse(stored);
           if (user.id === updatedProfile.id) {
-            localStorage.setItem("user", JSON.stringify({ ...user, ...updatedProfile }));
+            localStorage.setItem(
+              "user",
+              JSON.stringify({ ...user, ...updatedProfile }),
+            );
           }
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
     },
   });

@@ -11,23 +11,43 @@ interface FriendActionButtonProps {
   onSent?: () => void;
 }
 
-export function FriendActionButton({ userId, status = "NONE", onSent }: FriendActionButtonProps) {
+export function FriendActionButton({
+  userId,
+  status = "NONE",
+  onSent,
+}: FriendActionButtonProps) {
   const sendRequest = useSendFriendRequest();
 
   if (status === "SELF") {
-    return <span className={styles.statusPill}><Users size={14} /> Your profile</span>;
+    return (
+      <span className={styles.statusPill}>
+        <Users size={14} /> Your profile
+      </span>
+    );
   }
 
   if (status === "FRIENDS") {
-    return <span className={styles.statusPill}><Check size={14} /> Friends</span>;
+    return (
+      <span className={styles.statusPill}>
+        <Check size={14} /> Friends
+      </span>
+    );
   }
 
   if (status === "OUTGOING_REQUEST") {
-    return <span className={styles.statusPill}><Clock3 size={14} /> Pending</span>;
+    return (
+      <span className={styles.statusPill}>
+        <Clock3 size={14} /> Pending
+      </span>
+    );
   }
 
   if (status === "INCOMING_REQUEST") {
-    return <span className={styles.statusPill}><Clock3 size={14} /> Incoming</span>;
+    return (
+      <span className={styles.statusPill}>
+        <Clock3 size={14} /> Incoming
+      </span>
+    );
   }
 
   return (

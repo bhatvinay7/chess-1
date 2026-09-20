@@ -32,11 +32,22 @@ export class GameHandler {
         gameId: string;
         userId: string;
         move: { from: string; to: string; promotion?: string };
-      }) => withSpan("socket.user_move", SpanKind.SERVER, () => this.onUserMove(moveData), {}).catch(console.error),
+      }) =>
+        withSpan(
+          "socket.user_move",
+          SpanKind.SERVER,
+          () => this.onUserMove(moveData),
+          {},
+        ).catch(console.error),
     );
 
     this.socket.on("search_opponent", (payload: MatchmakingTicket) =>
-      withSpan("socket.search_opponent", SpanKind.SERVER, () => this.onSearchOpponent(payload), {}).catch(console.error),
+      withSpan(
+        "socket.search_opponent",
+        SpanKind.SERVER,
+        () => this.onSearchOpponent(payload),
+        {},
+      ).catch(console.error),
     );
 
     this.socket.on("abandoned", (userId: string) => this.onAbandoned(userId));
@@ -215,7 +226,7 @@ export class GameHandler {
       `matchmaking:gameId:${userId}`,
       0,
       now,
-      { BY: 'SCORE' }
+      { BY: "SCORE" },
     );
     if (oldGameIds.length > 0) {
       const pipeline = redisClient.multi();
@@ -239,11 +250,11 @@ export class GameHandler {
       `matchmaking:gameId:${userId}`,
       startMs,
       "+inf",
-      { BY: 'SCORE' }
+      { BY: "SCORE" },
     );
     for (const entry of futureGameEntries) {
       const [gid, exStartStr] = entry.split(":");
-      
+
       // If the game doesn't exist in Redis anymore, it's a ghost, clean it up and ignore it.
       if (gid) {
         const exists = await redisClient.exists(`game:state:${gid}`);
@@ -280,9 +291,9 @@ export class GameHandler {
         gameMode: payload.gameMode,
       }),
     };
-    
+
     try {
-      console.log(entry)
+      console.log(entry);
       await this.flushGhostInvites(payload.userId);
       const startMs = Date.now();
       const durationMs = this.getDurationMs(payload.time_slot);
@@ -314,7 +325,7 @@ export class GameHandler {
           );
         }
       }
-     
+
       await redisClient.xAdd(streamChannel, "*", entry);
       await redisClient.set(`matchmaking:ticket:${payload.userId}`, entry.data);
       await redisClient.set(`presence:${payload.userId}`, "1", {

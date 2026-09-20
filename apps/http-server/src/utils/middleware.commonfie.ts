@@ -5,7 +5,7 @@ export interface AdminPayload {
 }
 
 export function signToken(payload: AdminPayload): string {
-    const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-production";
+  const JWT_SECRET = process.env.JWT_SECRET || "change-me-in-production";
   return jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
 }
 

@@ -37,13 +37,13 @@ export interface BoardUIProps {
 
   /* ── Interaction callbacks ─────────────────────────────────────────── */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onPieceDrop: (...args: any[]) => boolean;
+  onPieceDrop: (...args: unknown[]) => boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSquareClick?: (square: string) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onPieceDragBegin?: (...args: any[]) => void;
+  onPieceDragBegin?: (...args: unknown[]) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  canDragPiece?: (...args: any[]) => boolean;
+  canDragPiece?: (...args: unknown[]) => boolean;
 
   /* ── Visual hints / arrows ────────────────────────────────────────── */
   squareStyles?: Record<string, React.CSSProperties>;
@@ -85,8 +85,7 @@ export function BoardUI({
   isLobby = false,
 }: BoardUIProps) {
   /* Build the Chessboard options object dynamically depending on mode */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const chessboardOptions: Record<string, any> = {
+  const chessboardOptions: Record<string, unknown> = {
     position: displayedFen,
     boardOrientation: isWhite ? "white" : "black",
     boardStyle: { borderRadius: "0", boxShadow: "none" },
@@ -149,7 +148,9 @@ export function BoardUI({
           >
             Initializing game
             <span className={styles.revealInitDots}>
-              <span /><span /><span />
+              <span />
+              <span />
+              <span />
             </span>
           </motion.div>
           <motion.div

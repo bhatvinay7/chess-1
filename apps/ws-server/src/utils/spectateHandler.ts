@@ -6,72 +6,103 @@ import { registerSpectatedGameGrpc } from "@repo/grpc-connection";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-export type SpectatorGameMap  = Map<string, Set<string>>; // gameId → Set<socketId>
-export type SocketSpectateMap = Map<string, string>;       // socketId → gameId
+export type SpectatorGameMap = Map<string, Set<string>>; // gameId → Set<socketId>
+export type SocketSpectateMap = Map<string, string>; // socketId → gameId
 
 export interface SpectateState {
-  current_fen:              string | null;
-  game_state:               string | null;
-  white_player_left_time:   string;
-  black_player_left_time:   string;
-  white_player_id?:         string | null;
-  black_player_id?:         string | null;
-  player1_id?:              string | null;
-  player2_id?:              string | null;
-  player1_rating?:          string | null;
-  player2_rating?:          string | null;
+  current_fen: string | null;
+  game_state: string | null;
+  white_player_left_time: string;
+  black_player_left_time: string;
+  white_player_id?: string | null;
+  black_player_id?: string | null;
+  player1_id?: string | null;
+  player2_id?: string | null;
+  player1_rating?: string | null;
+  player2_rating?: string | null;
   player1_profile_image_url?: string | null;
   player2_profile_image_url?: string | null;
-  player1_username?:        string | null;
-  player2_username?:        string | null;
-  winner_id?:               string | null;
-  time_slot?:               string | null;
-  is_rated?:                string | null;
+  player1_username?: string | null;
+  player2_username?: string | null;
+  winner_id?: string | null;
+  time_slot?: string | null;
+  is_rated?: string | null;
 }
 
-const SPECTATORS_HASH  = "spectators:active";
-const SPECTATE_PREFIX  = "game:spectate:state:";
+const SPECTATORS_HASH = "spectators:active";
+const SPECTATE_PREFIX = "game:spectate:state:";
 
 // ── syncSpectateTime ─────────────────────────────────────────────────────────
 // Reads from the secondary spectate copy (not the primary player state) and
 // applies the same elapsed-time correction as syncGameTime does.
 
 const SPECTATE_FIELDS = [
-  "current_fen",  "last_move_time",
-  "black_player_left_time", "white_player_left_time",
-  "black_player_id", "white_player_id",
-  "player1_profile_image_url", "player2_profile_image_url",
-  "player1_rating", "player2_rating",
-  "player1_username", "player2_username",
-  "player1_id", "player2_id",
-  "game_state", "winner_id", "time_slot", "is_rated",
+  "current_fen",
+  "last_move_time",
+  "black_player_left_time",
+  "white_player_left_time",
+  "black_player_id",
+  "white_player_id",
+  "player1_profile_image_url",
+  "player2_profile_image_url",
+  "player1_rating",
+  "player2_rating",
+  "player1_username",
+  "player2_username",
+  "player1_id",
+  "player2_id",
+  "game_state",
+  "winner_id",
+  "time_slot",
+  "is_rated",
 ] as const;
 
 export async function syncSpectateTime(gameId: string): Promise<SpectateState> {
-  let values = await redisClient.hmGet(`${SPECTATE_PREFIX}${gameId}`, [...SPECTATE_FIELDS]);
+  let values = await redisClient.hmGet(`${SPECTATE_PREFIX}${gameId}`, [
+    ...SPECTATE_FIELDS,
+  ]);
 
   // Spectate copy missing (gRPC failed or last spectator just left) —
   // fall back to the live game state which has the same field layout.
   if (!values[0]) {
-    values = await redisClient.hmGet(`game:state:${gameId}`, [...SPECTATE_FIELDS]);
+    values = await redisClient.hmGet(`game:state:${gameId}`, [
+      ...SPECTATE_FIELDS,
+    ]);
   }
 
   const [
-    currentFen, lastMoveTime,
-    black_left, white_left,
-    black_player_id, white_player_id,
-    p1Pic, p2Pic,
-    p1Rating, p2Rating,
-    p1Username, p2Username,
-    player1_id, player2_id,
-    game_state, winner_id, time_slot, is_rated,
+    currentFen,
+    lastMoveTime,
+    black_left,
+    white_left,
+    black_player_id,
+    white_player_id,
+    p1Pic,
+    p2Pic,
+    p1Rating,
+    p2Rating,
+    p1Username,
+    p2Username,
+    player1_id,
+    player2_id,
+    game_state,
+    winner_id,
+    time_slot,
+    is_rated,
   ] = values;
 
-  if (!currentFen) return { current_fen: null, game_state: null, white_player_left_time: "0", black_player_left_time: "0" };
+  if (!currentFen)
+    return {
+      current_fen: null,
+      game_state: null,
+      white_player_left_time: "0",
+      black_player_left_time: "0",
+    };
 
-  const turn        = currentFen.split(" ")[1] as "w" | "b";
+  const turn = currentFen.split(" ")[1] as "w" | "b";
   const lastMoveSec = parseInt(lastMoveTime ?? "0") || 0;
-  const elapsed     = lastMoveSec > 0 ? Math.floor(Date.now() / 1000) - lastMoveSec : 0;
+  const elapsed =
+    lastMoveSec > 0 ? Math.floor(Date.now() / 1000) - lastMoveSec : 0;
 
   let whiteLeft = parseInt(white_left ?? "0") || 0;
   let blackLeft = parseInt(black_left ?? "0") || 0;
@@ -79,23 +110,27 @@ export async function syncSpectateTime(gameId: string): Promise<SpectateState> {
   // Apply elapsed-time correction only for live games
   if (!game_state || game_state === "IN_PROGRESS") {
     if (turn === "w") whiteLeft = Math.max(0, whiteLeft - elapsed);
-    else              blackLeft = Math.max(0, blackLeft - elapsed);
+    else blackLeft = Math.max(0, blackLeft - elapsed);
   }
 
   return {
-    current_fen:              currentFen,
-    game_state:               game_state ?? "IN_PROGRESS",
-    white_player_left_time:   String(whiteLeft),
-    black_player_left_time:   String(blackLeft),
-    white_player_id,  black_player_id,
-    player1_id,       player2_id,
-    player1_rating:           p1Rating,
-    player2_rating:           p2Rating,
+    current_fen: currentFen,
+    game_state: game_state ?? "IN_PROGRESS",
+    white_player_left_time: String(whiteLeft),
+    black_player_left_time: String(blackLeft),
+    white_player_id,
+    black_player_id,
+    player1_id,
+    player2_id,
+    player1_rating: p1Rating,
+    player2_rating: p2Rating,
     player1_profile_image_url: p1Pic,
     player2_profile_image_url: p2Pic,
-    player1_username:         p1Username,
-    player2_username:         p2Username,
-    winner_id, time_slot, is_rated,
+    player1_username: p1Username,
+    player2_username: p2Username,
+    winner_id,
+    time_slot,
+    is_rated,
   };
 }
 
@@ -106,23 +141,23 @@ export async function syncSpectateTime(gameId: string): Promise<SpectateState> {
 export function buildSpectatePayload(gameId: string, s: SpectateState) {
   return {
     gameId,
-    currentFen:             s.current_fen,
-    gameState:              s.game_state,
-    whitePlayerId:          s.white_player_id,
-    blackPlayerId:          s.black_player_id,
-    player1Id:              s.player1_id,
-    player1Username:        s.player1_username,
-    player1Rating:          s.player1_rating,
+    currentFen: s.current_fen,
+    gameState: s.game_state,
+    whitePlayerId: s.white_player_id,
+    blackPlayerId: s.black_player_id,
+    player1Id: s.player1_id,
+    player1Username: s.player1_username,
+    player1Rating: s.player1_rating,
     player1ProfileImageUrl: s.player1_profile_image_url,
-    player2Id:              s.player2_id,
-    player2Username:        s.player2_username,
-    player2Rating:          s.player2_rating,
+    player2Id: s.player2_id,
+    player2Username: s.player2_username,
+    player2Rating: s.player2_rating,
     player2ProfileImageUrl: s.player2_profile_image_url,
-    winnerId:               s.winner_id ?? null,
-    blackPlayerLeftTime:    s.black_player_left_time,
-    whitePlayerLeftTime:    s.white_player_left_time,
-    time_slot:              s.time_slot,
-    isRated:                s.is_rated === "true",
+    winnerId: s.winner_id ?? null,
+    blackPlayerLeftTime: s.black_player_left_time,
+    whitePlayerLeftTime: s.white_player_left_time,
+    time_slot: s.time_slot,
+    isRated: s.is_rated === "true",
   };
 }
 
@@ -150,7 +185,12 @@ export async function handleWatchGame(
   // De-duplicate: leave previous spectated game before switching
   const prev = socketSpectateMap.get(socket.id);
   if (prev && prev !== gameId) {
-    await handleLeaveSpectate(socket.id, prev, spectatorGameMap, socketSpectateMap);
+    await handleLeaveSpectate(
+      socket.id,
+      prev,
+      spectatorGameMap,
+      socketSpectateMap,
+    );
   }
   if (socketSpectateMap.get(socket.id) === gameId) return; // already watching
 
@@ -162,7 +202,7 @@ export async function handleWatchGame(
   if (!spectatorGameMap.has(gameId)) {
     spectatorGameMap.set(gameId, new Set());
   }
-  const watchers      = spectatorGameMap.get(gameId)!;
+  const watchers = spectatorGameMap.get(gameId)!;
   const isFirstWatcher = watchers.size === 0;
 
   watchers.add(socket.id);
@@ -176,7 +216,10 @@ export async function handleWatchGame(
     try {
       await registerSpectatedGameGrpc(grpcClient, gameId);
     } catch (err) {
-      console.error(`[watch_game] RegisterSpectatedGame failed for ${gameId}:`, err);
+      console.error(
+        `[watch_game] RegisterSpectatedGame failed for ${gameId}:`,
+        err,
+      );
     }
   }
 
@@ -221,7 +264,8 @@ export async function handleLeaveSpectate(
       console.error(`[leave_spectate] cleanup failed for ${gameId}:`, err),
     );
   } else {
-    await redisClient.hIncrBy(SPECTATORS_HASH, gameId, -1)
+    await redisClient
+      .hIncrBy(SPECTATORS_HASH, gameId, -1)
       .catch((err: unknown) =>
         console.error(`[leave_spectate] hIncrBy failed for ${gameId}:`, err),
       );

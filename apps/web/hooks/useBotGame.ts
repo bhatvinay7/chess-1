@@ -43,13 +43,20 @@ export function useBotGame(config: BotGameConfig | null) {
   const [status, setStatus] = useState<BotGameStatus>("playing");
   const [result, setResult] = useState<BotGameResult | null>(null);
   const [isBotThinking, setIsBotThinking] = useState(false);
-  const [pendingPromotion, setPendingPromotion] = useState<{ from: string; to: string } | null>(null);
+  const [pendingPromotion, setPendingPromotion] = useState<{
+    from: string;
+    to: string;
+  } | null>(null);
   const [selectedSquare, setSelectedSquare] = useState<string | null>(null);
-  const [optionSquares, setOptionSquares] = useState<Record<string, CSSProperties>>({});
+  const [optionSquares, setOptionSquares] = useState<
+    Record<string, CSSProperties>
+  >({});
   const [pgn, setPgn] = useState("");
 
   // Timers (seconds)
-  const { minutes, increment } = config ? parseTimeSlot(config.timeSlot) : { minutes: 5, increment: 0 };
+  const { minutes, increment } = config
+    ? parseTimeSlot(config.timeSlot)
+    : { minutes: 5, increment: 0 };
   const initSecs = minutes * 60;
   const [whiteTime, setWhiteTime] = useState(initSecs);
   const [blackTime, setBlackTime] = useState(initSecs);
@@ -76,7 +83,13 @@ export function useBotGame(config: BotGameConfig | null) {
     bookWorkerRef.current = worker;
 
     worker.onmessage = (e: MessageEvent) => {
-      const msg = e.data as { type: string; id?: number; move?: string | null; size?: number; message?: string };
+      const msg = e.data as {
+        type: string;
+        id?: number;
+        move?: string | null;
+        size?: number;
+        message?: string;
+      };
 
       if (msg.type === "ready") {
         bookReadyRef.current = true;
@@ -129,8 +142,6 @@ export function useBotGame(config: BotGameConfig | null) {
     tenSoundPlayedRef.current = { white: false, black: false };
   }, [config?.bot.id, config?.playerColor, config?.timeSlot]);
 
-
-
   // ── Clock ─────────────────────────────────────────────────────────────────
   const stopClock = useCallback(() => {
     if (timerRef.current) {
@@ -148,7 +159,10 @@ export function useBotGame(config: BotGameConfig | null) {
       const delta = now - lastTickRef.current;
       lastTickRef.current = now;
       const game = gameRef.current;
-      if (game.isGameOver()) { stopClock(); return; }
+      if (game.isGameOver()) {
+        stopClock();
+        return;
+      }
       const turn = game.turn();
       if (turn === "w") {
         whiteTimeRef.current = Math.max(0, whiteTimeRef.current - delta);
@@ -158,7 +172,10 @@ export function useBotGame(config: BotGameConfig | null) {
           tenSoundPlayedRef.current.white = true;
           new Audio("/tenseconds.mp3").play().catch(() => {});
         }
-        if (whiteTimeRef.current <= 0) { stopClock(); finalizeResult(turn); }
+        if (whiteTimeRef.current <= 0) {
+          stopClock();
+          finalizeResult(turn);
+        }
       } else {
         blackTimeRef.current = Math.max(0, blackTimeRef.current - delta);
         const secs = Math.ceil(blackTimeRef.current / 1000);
@@ -167,34 +184,51 @@ export function useBotGame(config: BotGameConfig | null) {
           tenSoundPlayedRef.current.black = true;
           new Audio("/tenseconds.mp3").play().catch(() => {});
         }
-        if (blackTimeRef.current <= 0) { stopClock(); finalizeResult(turn); }
+        if (blackTimeRef.current <= 0) {
+          stopClock();
+          finalizeResult(turn);
+        }
       }
     }, 100);
   }, [config, stopClock]);
 
-  const finalizeResult = useCallback((losingTurn: "w" | "b") => {
-    const game = gameRef.current;
-    let outcome: BotGameResult["outcome"];
-    let reason: string;
+  const finalizeResult = useCallback(
+    (losingTurn: "w" | "b") => {
+      const game = gameRef.current;
+      let outcome: BotGameResult["outcome"];
+      let reason: string;
 
-    if (game.isCheckmate()) {
-      const winnerIsWhite = game.turn() === "b";
-      outcome = (winnerIsWhite === isPlayerWhite) ? "win" : "loss";
-      reason = "by checkmate";
-    } else if (game.isDraw() || game.isStalemate() || game.isInsufficientMaterial() || game.isThreefoldRepetition()) {
-      outcome = "draw";
-      reason = game.isStalemate() ? "by stalemate" : game.isInsufficientMaterial() ? "insufficient material" : game.isThreefoldRepetition() ? "threefold repetition" : "by agreement";
-    } else {
-      const loserIsWhite = losingTurn === "w";
-      outcome = (loserIsWhite !== isPlayerWhite) ? "win" : "loss";
-      reason = "on time";
-    }
+      if (game.isCheckmate()) {
+        const winnerIsWhite = game.turn() === "b";
+        outcome = winnerIsWhite === isPlayerWhite ? "win" : "loss";
+        reason = "by checkmate";
+      } else if (
+        game.isDraw() ||
+        game.isStalemate() ||
+        game.isInsufficientMaterial() ||
+        game.isThreefoldRepetition()
+      ) {
+        outcome = "draw";
+        reason = game.isStalemate()
+          ? "by stalemate"
+          : game.isInsufficientMaterial()
+            ? "insufficient material"
+            : game.isThreefoldRepetition()
+              ? "threefold repetition"
+              : "by agreement";
+      } else {
+        const loserIsWhite = losingTurn === "w";
+        outcome = loserIsWhite !== isPlayerWhite ? "win" : "loss";
+        reason = "on time";
+      }
 
-    setPgn(game.pgn());
-    setStatus("over");
-    setResult({ outcome, reason });
-    stopClock();
-  }, [isPlayerWhite, stopClock]);
+      setPgn(game.pgn());
+      setStatus("over");
+      setResult({ outcome, reason });
+      stopClock();
+    },
+    [isPlayerWhite, stopClock],
+  );
 
   // ── Shared post-move state update (used by both applyBotMove and applyBotMoveSan) ──
   const commitBotMove = useCallback(() => {
@@ -217,24 +251,29 @@ export function useBotGame(config: BotGameConfig | null) {
     setCurrentMoveIdx(history.length - 1);
     setIsBotThinking(false);
 
-    try { new Audio("/normalMove.mp3").play().catch(() => {}); } catch {}
+    try {
+      new Audio("/normalMove.mp3").play().catch(() => {});
+    } catch {}
 
     if (game.isGameOver()) finalizeResult(game.turn());
   }, [config, isPlayerWhite, finalizeResult]);
 
   // ── Apply a bot move in UCI format (from Stockfish) ───────────────────────
-  const applyBotMove = useCallback((moveStr: string) => {
-    const game = gameRef.current;
-    try {
-      const from = moveStr.slice(0, 2);
-      const to = moveStr.slice(2, 4);
-      const promotion = moveStr[4] || undefined;
-      game.move({ from, to, promotion });
-    } catch {
-      return;
-    }
-    commitBotMove();
-  }, [commitBotMove]);
+  const applyBotMove = useCallback(
+    (moveStr: string) => {
+      const game = gameRef.current;
+      try {
+        const from = moveStr.slice(0, 2);
+        const to = moveStr.slice(2, 4);
+        const promotion = moveStr[4] || undefined;
+        game.move({ from, to, promotion });
+      } catch {
+        return;
+      }
+      commitBotMove();
+    },
+    [commitBotMove],
+  );
 
   // ── Stockfish options initialization ────────────────────────────────────────
   useEffect(() => {
@@ -261,16 +300,19 @@ export function useBotGame(config: BotGameConfig | null) {
   }, [config, sfReady, sendCommand, onOutput, applyBotMove]);
 
   // ── Apply a bot move in SAN format (from opening book) ───────────────────
-  const applyBotMoveSan = useCallback((san: string): boolean => {
-    const game = gameRef.current;
-    try {
-      game.move(san);
-    } catch {
-      return false; // invalid SAN — caller should fall back to Stockfish
-    }
-    commitBotMove();
-    return true;
-  }, [commitBotMove]);
+  const applyBotMoveSan = useCallback(
+    (san: string): boolean => {
+      const game = gameRef.current;
+      try {
+        game.move(san);
+      } catch {
+        return false; // invalid SAN — caller should fall back to Stockfish
+      }
+      commitBotMove();
+      return true;
+    },
+    [commitBotMove],
+  );
 
   // ── Send position to Stockfish ────────────────────────────────────────────
   const askStockfish = useCallback(() => {
@@ -291,7 +333,11 @@ export function useBotGame(config: BotGameConfig | null) {
     const plyCount = game.history().length;
 
     // Opening book: try for the first BOOK_DEPTH half-moves
-    if (plyCount < BOOK_DEPTH && bookReadyRef.current && bookWorkerRef.current) {
+    if (
+      plyCount < BOOK_DEPTH &&
+      bookReadyRef.current &&
+      bookWorkerRef.current
+    ) {
       bookCallbackRef.current = (san: string | null) => {
         if (san) {
           const applied = applyBotMoveSan(san);
@@ -300,7 +346,11 @@ export function useBotGame(config: BotGameConfig | null) {
         // Out of book or invalid move — fall through to Stockfish
         askStockfish();
       };
-      bookWorkerRef.current.postMessage({ type: "lookup", id: Date.now(), fen: game.fen() });
+      bookWorkerRef.current.postMessage({
+        type: "lookup",
+        id: Date.now(),
+        fen: game.fen(),
+      });
     } else {
       // Beyond book depth or book not ready — always use Stockfish
       askStockfish();
@@ -326,99 +376,128 @@ export function useBotGame(config: BotGameConfig | null) {
   }, [status, config]);
 
   // ── Player moves ──────────────────────────────────────────────────────────
-  const handleDrop = useCallback(({ sourceSquare, targetSquare }: { sourceSquare: string; targetSquare?: string | null }) => {
-    if (!targetSquare || status === "over" || isBotThinking) return false;
-    const game = gameRef.current;
-    const playerColorLetter = isPlayerWhite ? "w" : "b";
-    if (game.turn() !== playerColorLetter) return false;
+  const handleDrop = useCallback(
+    ({
+      sourceSquare,
+      targetSquare,
+    }: {
+      sourceSquare: string;
+      targetSquare?: string | null;
+    }) => {
+      if (!targetSquare || status === "over" || isBotThinking) return false;
+      const game = gameRef.current;
+      const playerColorLetter = isPlayerWhite ? "w" : "b";
+      if (game.turn() !== playerColorLetter) return false;
 
-    const piece = game.get(sourceSquare as Square);
-    if (piece?.type === "p") {
-      const rank = targetSquare[1];
-      if ((piece.color === "w" && rank === "8") || (piece.color === "b" && rank === "1")) {
-        setPendingPromotion({ from: sourceSquare, to: targetSquare });
-        return false;
-      }
-    }
-    return applyPlayerMove(sourceSquare, targetSquare);
-  }, [status, isBotThinking, isPlayerWhite]);
-
-  const applyPlayerMove = useCallback((from: string, to: string, promotion?: string) => {
-    const game = gameRef.current;
-    try {
-      game.move({ from, to, promotion: promotion || "q" });
-    } catch {
-      return false;
-    }
-
-    const playerColor = isPlayerWhite ? "w" : "b";
-    const inc = config ? parseTimeSlot(config.timeSlot).increment * 1000 : 0;
-    if (playerColor === "w") {
-      whiteTimeRef.current += inc;
-      setWhiteTime(Math.ceil(whiteTimeRef.current / 1000));
-    } else {
-      blackTimeRef.current += inc;
-      setBlackTime(Math.ceil(blackTimeRef.current / 1000));
-    }
-
-    const history = game.history();
-    setFen(game.fen());
-    setMoveHistory(history);
-    setPairs(pairMoves(history));
-    setCurrentMoveIdx(history.length - 1);
-    setSelectedSquare(null);
-    setOptionSquares({});
-    setPendingPromotion(null);
-
-    try { new Audio("/normalMove.mp3").play().catch(() => {}); } catch {}
-
-    if (game.isGameOver()) finalizeResult(game.turn());
-    return true;
-  }, [config, isPlayerWhite, finalizeResult]);
-
-  const handlePromotionSelect = useCallback((piece: string) => {
-    if (!pendingPromotion) return;
-    applyPlayerMove(pendingPromotion.from, pendingPromotion.to, piece);
-    setPendingPromotion(null);
-  }, [pendingPromotion, applyPlayerMove]);
-
-  const handleSquareClick = useCallback((square: string) => {
-    if (status === "over" || isBotThinking) return;
-    const game = gameRef.current;
-    const playerColorLetter = isPlayerWhite ? "w" : "b";
-    if (game.turn() !== playerColorLetter) return;
-
-    if (selectedSquare) {
-      const piece = game.get(selectedSquare as Square);
+      const piece = game.get(sourceSquare as Square);
       if (piece?.type === "p") {
-        const rank = square[1];
-        if ((piece.color === "w" && rank === "8") || (piece.color === "b" && rank === "1")) {
-          setPendingPromotion({ from: selectedSquare, to: square });
-          setSelectedSquare(null);
-          setOptionSquares({});
-          return;
+        const rank = targetSquare[1];
+        if (
+          (piece.color === "w" && rank === "8") ||
+          (piece.color === "b" && rank === "1")
+        ) {
+          setPendingPromotion({ from: sourceSquare, to: targetSquare });
+          return false;
         }
       }
-      const moved = applyPlayerMove(selectedSquare, square);
-      if (moved) return;
-    }
+      return applyPlayerMove(sourceSquare, targetSquare);
+    },
+    [status, isBotThinking, isPlayerWhite],
+  );
 
-    const piece = game.get(square as Square);
-    if (piece && piece.color === playerColorLetter) {
-      setSelectedSquare(square);
-      const moves = game.moves({ square: square as Square, verbose: true });
-      const squares: Record<string, CSSProperties> = {
-        [square]: { background: "rgba(129,182,76,0.35)" },
-      };
-      moves.forEach((m) => {
-        squares[m.to] = { background: "rgba(129,182,76,0.22)", borderRadius: "50%" };
-      });
-      setOptionSquares(squares);
-    } else {
+  const applyPlayerMove = useCallback(
+    (from: string, to: string, promotion?: string) => {
+      const game = gameRef.current;
+      try {
+        game.move({ from, to, promotion: promotion || "q" });
+      } catch {
+        return false;
+      }
+
+      const playerColor = isPlayerWhite ? "w" : "b";
+      const inc = config ? parseTimeSlot(config.timeSlot).increment * 1000 : 0;
+      if (playerColor === "w") {
+        whiteTimeRef.current += inc;
+        setWhiteTime(Math.ceil(whiteTimeRef.current / 1000));
+      } else {
+        blackTimeRef.current += inc;
+        setBlackTime(Math.ceil(blackTimeRef.current / 1000));
+      }
+
+      const history = game.history();
+      setFen(game.fen());
+      setMoveHistory(history);
+      setPairs(pairMoves(history));
+      setCurrentMoveIdx(history.length - 1);
       setSelectedSquare(null);
       setOptionSquares({});
-    }
-  }, [status, isBotThinking, isPlayerWhite, selectedSquare, applyPlayerMove]);
+      setPendingPromotion(null);
+
+      try {
+        new Audio("/normalMove.mp3").play().catch(() => {});
+      } catch {}
+
+      if (game.isGameOver()) finalizeResult(game.turn());
+      return true;
+    },
+    [config, isPlayerWhite, finalizeResult],
+  );
+
+  const handlePromotionSelect = useCallback(
+    (piece: string) => {
+      if (!pendingPromotion) return;
+      applyPlayerMove(pendingPromotion.from, pendingPromotion.to, piece);
+      setPendingPromotion(null);
+    },
+    [pendingPromotion, applyPlayerMove],
+  );
+
+  const handleSquareClick = useCallback(
+    (square: string) => {
+      if (status === "over" || isBotThinking) return;
+      const game = gameRef.current;
+      const playerColorLetter = isPlayerWhite ? "w" : "b";
+      if (game.turn() !== playerColorLetter) return;
+
+      if (selectedSquare) {
+        const piece = game.get(selectedSquare as Square);
+        if (piece?.type === "p") {
+          const rank = square[1];
+          if (
+            (piece.color === "w" && rank === "8") ||
+            (piece.color === "b" && rank === "1")
+          ) {
+            setPendingPromotion({ from: selectedSquare, to: square });
+            setSelectedSquare(null);
+            setOptionSquares({});
+            return;
+          }
+        }
+        const moved = applyPlayerMove(selectedSquare, square);
+        if (moved) return;
+      }
+
+      const piece = game.get(square as Square);
+      if (piece && piece.color === playerColorLetter) {
+        setSelectedSquare(square);
+        const moves = game.moves({ square: square as Square, verbose: true });
+        const squares: Record<string, CSSProperties> = {
+          [square]: { background: "rgba(129,182,76,0.35)" },
+        };
+        moves.forEach((m) => {
+          squares[m.to] = {
+            background: "rgba(129,182,76,0.22)",
+            borderRadius: "50%",
+          };
+        });
+        setOptionSquares(squares);
+      } else {
+        setSelectedSquare(null);
+        setOptionSquares({});
+      }
+    },
+    [status, isBotThinking, isPlayerWhite, selectedSquare, applyPlayerMove],
+  );
 
   const handleResign = useCallback(() => {
     if (status === "over") return;
@@ -429,21 +508,25 @@ export function useBotGame(config: BotGameConfig | null) {
   }, [status, stopClock]);
 
   // ── Move navigation (review) ──────────────────────────────────────────────
-  const reviewFen = currentMoveIdx >= 0
-    ? (() => {
-        const g = new Chess();
-        const hist = gameRef.current.history({ verbose: true });
-        for (let i = 0; i <= currentMoveIdx && i < hist.length; i++) g.move(hist[i]!);
-        return g.fen();
-      })()
-    : "start";
+  const reviewFen =
+    currentMoveIdx >= 0
+      ? (() => {
+          const g = new Chess();
+          const hist = gameRef.current.history({ verbose: true });
+          for (let i = 0; i <= currentMoveIdx && i < hist.length; i++)
+            g.move(hist[i]!);
+          return g.fen();
+        })()
+      : "start";
 
-  const displayedFen = reviewFen !== "start" ? reviewFen : (fen === "start" ? undefined : fen);
+  const displayedFen =
+    reviewFen !== "start" ? reviewFen : fen === "start" ? undefined : fen;
 
-  const handleFirstMove  = () => setCurrentMoveIdx(0);
-  const handleLastMove   = () => setCurrentMoveIdx(moveHistory.length - 1);
-  const handlePrevMove   = () => setCurrentMoveIdx((i) => Math.max(0, i - 1));
-  const handleNextMove   = () => setCurrentMoveIdx((i) => Math.min(moveHistory.length - 1, i + 1));
+  const handleFirstMove = () => setCurrentMoveIdx(0);
+  const handleLastMove = () => setCurrentMoveIdx(moveHistory.length - 1);
+  const handlePrevMove = () => setCurrentMoveIdx((i) => Math.max(0, i - 1));
+  const handleNextMove = () =>
+    setCurrentMoveIdx((i) => Math.min(moveHistory.length - 1, i + 1));
   const handleSelectMove = (idx: number) => setCurrentMoveIdx(idx);
 
   return {

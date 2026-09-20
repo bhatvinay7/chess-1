@@ -11,36 +11,50 @@ import styles from "./WatchList.module.css";
 type TimeCategory = "ALL" | "BULLET" | "BLITZ" | "RAPID" | "CLASSIC";
 
 function classifyTimeSlot(slot: string): Exclude<TimeCategory, "ALL"> {
-  const parts  = slot.split("+");
-  const mins   = parseFloat(parts[0] ?? "5") || 5;
-  const inc    = parseFloat(parts[1] ?? "0") || 0;
-  const est  = mins * 60 + inc * 40;
-  if (est < 179)  return "BULLET";
-  if (est < 599)  return "BLITZ";
+  const parts = slot.split("+");
+  const mins = parseFloat(parts[0] ?? "5") || 5;
+  const inc = parseFloat(parts[1] ?? "0") || 0;
+  const est = mins * 60 + inc * 40;
+  if (est < 179) return "BULLET";
+  if (est < 599) return "BLITZ";
   if (est < 1800) return "RAPID";
   return "CLASSIC";
 }
 
-const TC_META: Record<Exclude<TimeCategory, "ALL">, { icon: string; cls: string }> = {
-  BULLET:  { icon: "⚡", cls: styles.tcBullet  ?? "" },
-  BLITZ:   { icon: "🔥", cls: styles.tcBlitz   ?? "" },
-  RAPID:   { icon: "⏱",  cls: styles.tcRapid   ?? "" },
-  CLASSIC: { icon: "♟",  cls: styles.tcClassic ?? "" },
+const TC_META: Record<
+  Exclude<TimeCategory, "ALL">,
+  { icon: string; cls: string }
+> = {
+  BULLET: { icon: "⚡", cls: styles.tcBullet ?? "" },
+  BLITZ: { icon: "🔥", cls: styles.tcBlitz ?? "" },
+  RAPID: { icon: "⏱", cls: styles.tcRapid ?? "" },
+  CLASSIC: { icon: "♟", cls: styles.tcClassic ?? "" },
 };
 
 const DEFAULT_AVATAR = "/defaultUser.jpg";
 
 // ── WatchGameCard ─────────────────────────────────────────────────────────────
 
-function WatchGameCard({ game, layout = "grid" }: { game: LiveGame; layout?: "grid" | "list" }) {
+function WatchGameCard({
+  game,
+  layout = "grid",
+}: {
+  game: LiveGame;
+  layout?: "grid" | "list";
+}) {
   const router = useRouter();
-  const tc     = classifyTimeSlot(game.timeSlot);
+  const tc = classifyTimeSlot(game.timeSlot);
   const tcMeta = TC_META[tc];
-  const accent = tcMeta.icon === "🔥" ? "#f28b38" : tcMeta.icon === "⚡" ? "#ef4444" : "#81b64c";
+  const accent =
+    tcMeta.icon === "🔥"
+      ? "#f28b38"
+      : tcMeta.icon === "⚡"
+        ? "#ef4444"
+        : "#81b64c";
 
   const p1IsWhite = game.player1.id === game.whitePlayerId;
-  const white     = p1IsWhite ? game.player1 : game.player2;
-  const black     = p1IsWhite ? game.player2 : game.player1;
+  const white = p1IsWhite ? game.player1 : game.player2;
+  const black = p1IsWhite ? game.player2 : game.player1;
 
   const handleClick = () => router.push(`/spectate/${game.gameId}`);
 
@@ -72,7 +86,11 @@ function WatchGameCard({ game, layout = "grid" }: { game: LiveGame; layout?: "gr
           ].map(({ p, dot }, i) => (
             <div key={i} className={styles.listPlayer}>
               <div className={styles.avatar}>
-                <img src={p.profileImage || DEFAULT_AVATAR} alt={p.username} crossOrigin="anonymous" />
+                <img
+                  src={p.profileImage || DEFAULT_AVATAR}
+                  alt={p.username}
+                  crossOrigin="anonymous"
+                />
               </div>
               <span className={styles.playerName}>{p.username}</span>
               <span className={styles.playerRating}>{p.rating}</span>
@@ -108,7 +126,11 @@ function WatchGameCard({ game, layout = "grid" }: { game: LiveGame; layout?: "gr
       <div className={styles.players}>
         <div className={styles.playerRow}>
           <div className={styles.avatar}>
-            <img src={black.profileImage || DEFAULT_AVATAR} alt={black.username} crossOrigin="anonymous" />
+            <img
+              src={black.profileImage || DEFAULT_AVATAR}
+              alt={black.username}
+              crossOrigin="anonymous"
+            />
           </div>
           <div className={styles.playerInfo}>
             <span className={styles.playerName}>{black.username}</span>
@@ -121,7 +143,11 @@ function WatchGameCard({ game, layout = "grid" }: { game: LiveGame; layout?: "gr
 
         <div className={styles.playerRow}>
           <div className={styles.avatar}>
-            <img src={white.profileImage || DEFAULT_AVATAR} alt={white.username} crossOrigin="anonymous" />
+            <img
+              src={white.profileImage || DEFAULT_AVATAR}
+              alt={white.username}
+              crossOrigin="anonymous"
+            />
           </div>
           <div className={styles.playerInfo}>
             <span className={styles.playerName}>{white.username}</span>
@@ -158,10 +184,10 @@ interface Props {
 }
 
 const FILTERS: { id: TimeCategory; label: string }[] = [
-  { id: "ALL",     label: "All"     },
-  { id: "BULLET",  label: "⚡ Bullet"  },
-  { id: "BLITZ",   label: "🔥 Blitz"   },
-  { id: "RAPID",   label: "⏱ Rapid"   },
+  { id: "ALL", label: "All" },
+  { id: "BULLET", label: "⚡ Bullet" },
+  { id: "BLITZ", label: "🔥 Blitz" },
+  { id: "RAPID", label: "⏱ Rapid" },
   { id: "CLASSIC", label: "♟ Classic" },
 ];
 
@@ -169,9 +195,10 @@ export function WatchList({ enabled = true, layout = "grid" }: Props) {
   const { games, loading, refresh } = useWatchList(enabled);
   const [filter, setFilter] = useState<TimeCategory>("ALL");
 
-  const displayed = filter === "ALL"
-    ? games
-    : games.filter((g) => classifyTimeSlot(g.timeSlot) === filter);
+  const displayed =
+    filter === "ALL"
+      ? games
+      : games.filter((g) => classifyTimeSlot(g.timeSlot) === filter);
 
   return (
     <div className={styles.wrap}>
@@ -180,7 +207,9 @@ export function WatchList({ enabled = true, layout = "grid" }: Props) {
         <div className={styles.topLeft}>
           <span className={styles.liveDot} />
           <span className={styles.liveLabel}>Live</span>
-          <span className={styles.count}>{games.length} game{games.length !== 1 ? "s" : ""}</span>
+          <span className={styles.count}>
+            {games.length} game{games.length !== 1 ? "s" : ""}
+          </span>
         </div>
 
         <div className={styles.filters}>
@@ -196,9 +225,14 @@ export function WatchList({ enabled = true, layout = "grid" }: Props) {
           ))}
         </div>
 
-        <button type="button" className={styles.refreshBtn} onClick={refresh} disabled={loading}>
-          <RefreshCw size={11} className={loading ? styles.spin : undefined} />
-          {" "}Refresh
+        <button
+          type="button"
+          className={styles.refreshBtn}
+          onClick={refresh}
+          disabled={loading}
+        >
+          <RefreshCw size={11} className={loading ? styles.spin : undefined} />{" "}
+          Refresh
         </button>
       </div>
 

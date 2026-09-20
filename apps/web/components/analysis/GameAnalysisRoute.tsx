@@ -20,7 +20,9 @@ export default function GameAnalysisRoute() {
     getGameDetail(gameId)
       .then(setGame)
       .catch(() =>
-        setError("Could not load game. It may not exist or you may not have access.")
+        setError(
+          "Could not load game. It may not exist or you may not have access.",
+        ),
       );
   }, [gameId]);
 

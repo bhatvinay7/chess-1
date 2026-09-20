@@ -57,8 +57,20 @@ interface MoveHistoryPanelProps {
   onAnalyse?: () => void;
 }
 
-const WHITE_PIECE: Record<string, string> = { K: "♔", Q: "♕", R: "♖", B: "♗", N: "♘" };
-const BLACK_PIECE: Record<string, string> = { K: "♚", Q: "♛", R: "♜", B: "♝", N: "♞" };
+const WHITE_PIECE: Record<string, string> = {
+  K: "♔",
+  Q: "♕",
+  R: "♖",
+  B: "♗",
+  N: "♘",
+};
+const BLACK_PIECE: Record<string, string> = {
+  K: "♚",
+  Q: "♛",
+  R: "♜",
+  B: "♝",
+  N: "♞",
+};
 
 function renderSan(san: string, side: "white" | "black"): React.ReactNode {
   const icons = side === "white" ? WHITE_PIECE : BLACK_PIECE;
@@ -126,15 +138,16 @@ export function MoveHistoryPanel({
   const maxMs = useMemo(() => {
     let max = 1;
     for (const p of pairs) {
-      if (p.whiteTimeTakenMs && p.whiteTimeTakenMs > max) max = p.whiteTimeTakenMs;
-      if (p.blackTimeTakenMs && p.blackTimeTakenMs > max) max = p.blackTimeTakenMs;
+      if (p.whiteTimeTakenMs && p.whiteTimeTakenMs > max)
+        max = p.whiteTimeTakenMs;
+      if (p.blackTimeTakenMs && p.blackTimeTakenMs > max)
+        max = p.blackTimeTakenMs;
     }
     return max;
   }, [pairs]);
 
   return (
     <section className={styles.movePanel} aria-label="Move history">
-
       {/* ── Tab bar ──────────────────────────────────────────────────── */}
       <div className={styles.tabBar}>
         {TAB_LABELS.map(({ id, label }) => (
@@ -170,7 +183,8 @@ export function MoveHistoryPanel({
               const whiteIdx = i * 2;
               const blackIdx = i * 2 + 1;
               const isWhiteCurrent = currentMoveIdx === whiteIdx;
-              const isBlackCurrent = pair.black != null && currentMoveIdx === blackIdx;
+              const isBlackCurrent =
+                pair.black != null && currentMoveIdx === blackIdx;
               const whitePct = pair.whiteTimeTakenMs
                 ? Math.min(100, (pair.whiteTimeTakenMs / maxMs) * 100)
                 : 0;
@@ -197,7 +211,9 @@ export function MoveHistoryPanel({
                   <button
                     className={`${styles.moveCell} ${isBlackCurrent ? styles.moveCurrent : ""}`}
                     type="button"
-                    onClick={() => pair.black != null ? onSelectMove(blackIdx) : undefined}
+                    onClick={() =>
+                      pair.black != null ? onSelectMove(blackIdx) : undefined
+                    }
                     disabled={pair.black == null}
                   >
                     {pair.black != null && (
@@ -209,32 +225,38 @@ export function MoveHistoryPanel({
 
                   {/* Time column — stacked white/black bars */}
                   <div className={styles.moveTimeCol}>
-                    {pair.whiteTimeTakenMs != null && pair.whiteTimeTakenMs > 0 && (
-                      <div className={styles.moveTimePair}>
-                        <div className={styles.moveTimeBarTrack}>
-                          <div
-                            className={styles.moveTimeBarFill}
-                            style={{ width: `${whitePct}%` }}
-                          />
+                    {pair.whiteTimeTakenMs != null &&
+                      pair.whiteTimeTakenMs > 0 && (
+                        <div className={styles.moveTimePair}>
+                          <div className={styles.moveTimeBarTrack}>
+                            <div
+                              className={styles.moveTimeBarFill}
+                              style={{ width: `${whitePct}%` }}
+                            />
+                          </div>
+                          <span
+                            className={`${styles.moveTimeNum} ${getTimeSpeedClass(pair.whiteTimeTakenMs)}`}
+                          >
+                            {formatMoveTime(pair.whiteTimeTakenMs)}
+                          </span>
                         </div>
-                        <span className={`${styles.moveTimeNum} ${getTimeSpeedClass(pair.whiteTimeTakenMs)}`}>
-                          {formatMoveTime(pair.whiteTimeTakenMs)}
-                        </span>
-                      </div>
-                    )}
-                    {pair.blackTimeTakenMs != null && pair.blackTimeTakenMs > 0 && (
-                      <div className={styles.moveTimePair}>
-                        <div className={styles.moveTimeBarTrack}>
-                          <div
-                            className={styles.moveTimeBarFill}
-                            style={{ width: `${blackPct}%` }}
-                          />
+                      )}
+                    {pair.blackTimeTakenMs != null &&
+                      pair.blackTimeTakenMs > 0 && (
+                        <div className={styles.moveTimePair}>
+                          <div className={styles.moveTimeBarTrack}>
+                            <div
+                              className={styles.moveTimeBarFill}
+                              style={{ width: `${blackPct}%` }}
+                            />
+                          </div>
+                          <span
+                            className={`${styles.moveTimeNum} ${getTimeSpeedClass(pair.blackTimeTakenMs)}`}
+                          >
+                            {formatMoveTime(pair.blackTimeTakenMs)}
+                          </span>
                         </div>
-                        <span className={`${styles.moveTimeNum} ${getTimeSpeedClass(pair.blackTimeTakenMs)}`}>
-                          {formatMoveTime(pair.blackTimeTakenMs)}
-                        </span>
-                      </div>
-                    )}
+                      )}
                   </div>
                 </div>
               );
@@ -282,13 +304,17 @@ export function MoveHistoryPanel({
             {gameState?.player1Rating && (
               <div className={styles.infoRow}>
                 <span className={styles.infoKey}>White ELO</span>
-                <span className={styles.infoVal}>{gameState.player1Rating}</span>
+                <span className={styles.infoVal}>
+                  {gameState.player1Rating}
+                </span>
               </div>
             )}
             {gameState?.player2Rating && (
               <div className={styles.infoRow}>
                 <span className={styles.infoKey}>Black ELO</span>
-                <span className={styles.infoVal}>{gameState.player2Rating}</span>
+                <span className={styles.infoVal}>
+                  {gameState.player2Rating}
+                </span>
               </div>
             )}
           </div>
@@ -309,7 +335,6 @@ export function MoveHistoryPanel({
 
       {/* ── Always-visible bottom controls ───────────────────────────── */}
       <div className={styles.panelControls}>
-
         {/* Game Review button — only after game ends, not for spectators */}
         {isGameOver && !isSpectator && (
           <button type="button" className={styles.reviewBtn}>
@@ -320,7 +345,11 @@ export function MoveHistoryPanel({
 
         {/* Analyse — only for spectators after game ends */}
         {isGameOver && isSpectator && onAnalyse && (
-          <button type="button" className={styles.actionBtnFull} onClick={onAnalyse}>
+          <button
+            type="button"
+            className={styles.actionBtnFull}
+            onClick={onAnalyse}
+          >
             <Search size={13} />
             Analyse Game
           </button>
@@ -328,7 +357,11 @@ export function MoveHistoryPanel({
 
         {/* New Game — only after game ends, not for spectators */}
         {isGameOver && !isSpectator && (
-          <button type="button" className={styles.actionBtnFull} onClick={onNewGame}>
+          <button
+            type="button"
+            className={styles.actionBtnFull}
+            onClick={onNewGame}
+          >
             <Plus size={13} />
             New Game
           </button>
@@ -381,8 +414,8 @@ export function MoveHistoryPanel({
                 !isMyTurn
                   ? "You can only offer a draw on your turn"
                   : isDrawOfferPending
-                  ? "Draw offer pending"
-                  : "Offer a draw"
+                    ? "Draw offer pending"
+                    : "Offer a draw"
               }
               type="button"
             >
@@ -390,11 +423,19 @@ export function MoveHistoryPanel({
               Draw
             </button>
             {canAbort ? (
-              <button onClick={onAbort} className={styles.resignBtn} type="button">
+              <button
+                onClick={onAbort}
+                className={styles.resignBtn}
+                type="button"
+              >
                 Abort
               </button>
             ) : (
-              <button onClick={onResign} className={styles.resignBtn} type="button">
+              <button
+                onClick={onResign}
+                className={styles.resignBtn}
+                type="button"
+              >
                 <Flag size={14} />
                 Resign
               </button>

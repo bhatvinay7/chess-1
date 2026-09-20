@@ -20,7 +20,10 @@ export async function sendOtpEmail(to: string, otp: string): Promise<void> {
   });
 }
 
-export async function sendPasswordResetEmail(to: string, otp: string): Promise<void> {
+export async function sendPasswordResetEmail(
+  to: string,
+  otp: string,
+): Promise<void> {
   await transporter.sendMail({
     from: process.env.SMTP_FROM! || '"Rooky" <noreply@rooky.com>',
     to,

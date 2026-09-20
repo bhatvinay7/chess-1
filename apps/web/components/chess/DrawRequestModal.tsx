@@ -14,7 +14,11 @@ interface DrawRequestModalProps {
   onDecline: () => void;
 }
 
-export function DrawRequestModal({ offer, onAccept, onDecline }: DrawRequestModalProps) {
+export function DrawRequestModal({
+  offer,
+  onAccept,
+  onDecline,
+}: DrawRequestModalProps) {
   const src = offer.profile_image_url || DEFAULT_AVATAR;
 
   return (
@@ -48,11 +52,19 @@ export function DrawRequestModal({ offer, onAccept, onDecline }: DrawRequestModa
             <p className={styles.offerSubtext}>{offer.message}</p>
 
             <div className={styles.actions}>
-              <button className={styles.btnAccept} onClick={onAccept} type="button">
+              <button
+                className={styles.btnAccept}
+                onClick={onAccept}
+                type="button"
+              >
                 <Check size={16} />
                 Accept
               </button>
-              <button className={styles.btnDecline} onClick={onDecline} type="button">
+              <button
+                className={styles.btnDecline}
+                onClick={onDecline}
+                type="button"
+              >
                 <X size={16} />
                 Decline
               </button>

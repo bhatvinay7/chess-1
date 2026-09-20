@@ -11,7 +11,11 @@ interface ResumeGameModalProps {
   onNewGame: () => void;
 }
 
-export function ResumeGameModal({ pendingGame, onResume, onNewGame }: ResumeGameModalProps) {
+export function ResumeGameModal({
+  pendingGame,
+  onResume,
+  onNewGame,
+}: ResumeGameModalProps) {
   const timeLabel = pendingGame.time_slot
     ? pendingGame.time_slot.replace("+", " + ") + " min"
     : "Active game";
@@ -55,7 +59,8 @@ export function ResumeGameModal({ pendingGame, onResume, onNewGame }: ResumeGame
           {/* Header */}
           <div
             style={{
-              background: "linear-gradient(to bottom, rgba(93,171,58,0.18), rgba(10,18,8,0))",
+              background:
+                "linear-gradient(to bottom, rgba(93,171,58,0.18), rgba(10,18,8,0))",
               borderBottom: "1px solid rgba(93,171,58,0.15)",
               padding: "22px 24px 18px",
               textAlign: "center",
@@ -159,8 +164,14 @@ export function ResumeGameModal({ pendingGame, onResume, onNewGame }: ResumeGame
                 gap: "8px",
                 transition: "filter 0.15s ease",
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1.1)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.filter = "brightness(1)"; }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.filter =
+                  "brightness(1.1)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.filter =
+                  "brightness(1)";
+              }}
             >
               <Swords size={16} />
               Resume Game
@@ -185,8 +196,14 @@ export function ResumeGameModal({ pendingGame, onResume, onNewGame }: ResumeGame
                 gap: "8px",
                 transition: "background 0.15s ease",
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(93,171,58,0.08)"; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = "rgba(10,18,8,0.5)"; }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  "rgba(93,171,58,0.08)";
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.background =
+                  "rgba(10,18,8,0.5)";
+              }}
             >
               <PlusCircle size={16} />
               New Game

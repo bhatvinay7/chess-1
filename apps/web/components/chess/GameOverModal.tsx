@@ -2,7 +2,15 @@
 
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Crown, X, RotateCcw, Swords, Trophy, Loader2, Check } from "lucide-react";
+import {
+  Crown,
+  X,
+  RotateCcw,
+  Swords,
+  Trophy,
+  Loader2,
+  Check,
+} from "lucide-react";
 import styles from "./GameOverModal.module.css";
 import type { GameResult } from "../../hooks/useGameResult";
 import type { RematchStatus } from "../../hooks/useSocket/useGameRoom";
@@ -33,14 +41,21 @@ interface GameOverModalProps {
   onDeclineRematch: (userId: string, opponentId: string) => void;
 }
 
-
-function AvatarCard({ player, isWinner }: { player: Player; isWinner: boolean }) {
+function AvatarCard({
+  player,
+  isWinner,
+}: {
+  player: Player;
+  isWinner: boolean;
+}) {
   const src = player.profileImageUrl || DEFAULT_AVATAR;
 
   return (
     <div className={styles.avatarCard}>
       <div className={styles.avatarWrap}>
-        <div className={`${styles.avatarImg} ${isWinner ? styles.avatarImgWinner : ""}`}>
+        <div
+          className={`${styles.avatarImg} ${isWinner ? styles.avatarImgWinner : ""}`}
+        >
           <img src={src} alt={player.name} crossOrigin="anonymous" />
         </div>
 
@@ -102,7 +117,10 @@ function ActionButtons({
     if (timeLeft <= 0) return;
     const id = setInterval(() => {
       setTimeLeft((t) => {
-        if (t <= 1) { clearInterval(id); return 0; }
+        if (t <= 1) {
+          clearInterval(id);
+          return 0;
+        }
         return t - 1;
       });
     }, 1000);
@@ -127,7 +145,9 @@ function ActionButtons({
     return (
       <div className={styles.actions}>
         <div className={styles.incomingBanner}>
-          <span className={styles.incomingText}>{fromName} wants a rematch</span>
+          <span className={styles.incomingText}>
+            {fromName} wants a rematch
+          </span>
           <div className={styles.incomingBtns}>
             <button
               className={styles.btnAccept}
@@ -214,7 +234,11 @@ export function GameOverModal({
   const opponentWon = didLocalPlayerWin === false;
 
   const score = isDraw ? "½ - ½" : localWon ? "1 - 0" : "0 - 1";
-  const winnerText = isDraw ? "Draw" : localWon ? currentPlayer.name : opponent.name;
+  const winnerText = isDraw
+    ? "Draw"
+    : localWon
+      ? currentPlayer.name
+      : opponent.name;
 
   return (
     <AnimatePresence>
@@ -232,7 +256,12 @@ export function GameOverModal({
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 22 }}
         >
-          <button className={styles.closeBtn} onClick={onNewGame} type="button" aria-label="Close">
+          <button
+            className={styles.closeBtn}
+            onClick={onNewGame}
+            type="button"
+            aria-label="Close"
+          >
             <X size={20} color="#ffffff" />
           </button>
 

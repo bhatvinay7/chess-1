@@ -2,11 +2,20 @@ import { Request, Response } from "express";
 import { prisma } from "@repo/postgres-db";
 import { sendOtpEmail } from "../../services/mailService.js";
 import { signToken } from "../../utils/middleware.commonfie.js";
-import { buildOtpKey, generateOtp, isValidEmail, storeOtp, consumeOtp } from "../../utils/otp.js";
+import {
+  buildOtpKey,
+  generateOtp,
+  isValidEmail,
+  storeOtp,
+  consumeOtp,
+} from "../../utils/otp.js";
 
 const otpKey = (email: string) => buildOtpKey("admin_otp", email);
 
-export async function requestAdminOtp(req: Request, res: Response): Promise<void> {
+export async function requestAdminOtp(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const { email } = req.body as { email?: string };
 
   if (!email || !isValidEmail(email)) {
@@ -14,7 +23,9 @@ export async function requestAdminOtp(req: Request, res: Response): Promise<void
     return;
   }
 
-  const user = await prisma.user.findUnique({ where: { email } }).catch(() => null);
+  const user = await prisma.user
+    .findUnique({ where: { email } })
+    .catch(() => null);
 
   if (!user || !user.isAdmin) {
     res.status(401).json({ message: "No admin account found for this email" });
@@ -27,15 +38,25 @@ export async function requestAdminOtp(req: Request, res: Response): Promise<void
     await storeOtp(otpKey(email), code);
     console.log(`[Admin Auth] Attempting to send OTP email to ${email}...`);
     sendOtpEmail(email, code)
-      .then(() => console.log(`[Admin Auth] OTP email successfully sent to ${email}`))
-      .catch((err) => console.error(`[Admin Auth] Background email send failed to ${email}:`, err));
+      .then(() =>
+        console.log(`[Admin Auth] OTP email successfully sent to ${email}`),
+      )
+      .catch((err) =>
+        console.error(
+          `[Admin Auth] Background email send failed to ${email}:`,
+          err,
+        ),
+      );
     res.json({ message: "OTP sent to your email" });
   } catch {
     res.status(500).json({ message: "Failed to send OTP. Please try again." });
   }
 }
 
-export async function verifyAdminOtp(req: Request, res: Response): Promise<void> {
+export async function verifyAdminOtp(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const { email, otp } = req.body as { email?: string; otp?: string };
 
   if (!email || !otp) {

@@ -1,6 +1,10 @@
 import React from "react";
 import { CheckCircle2, Loader2, Brain } from "lucide-react";
-import type { MoveQuality, MoveEvaluation, TopMove } from "../../hooks/useAnalysis";
+import type {
+  MoveQuality,
+  MoveEvaluation,
+  TopMove,
+} from "../../hooks/useAnalysis";
 import { QUALITY } from "./constants";
 import { EngineMovesPanel } from "./EngineMovesPanel";
 import styles from "./Analysis.module.css";
@@ -8,7 +12,11 @@ import styles from "./Analysis.module.css";
 function QualityDot({ quality }: { quality: MoveQuality }) {
   const q = QUALITY[quality];
   return (
-    <span className={styles.qualityDot} style={{ background: q.bg, color: q.color }} title={q.label}>
+    <span
+      className={styles.qualityDot}
+      style={{ background: q.bg, color: q.color }}
+      title={q.label}
+    >
       {q.symbol}
     </span>
   );
@@ -17,7 +25,11 @@ function QualityDot({ quality }: { quality: MoveQuality }) {
 interface Props {
   alreadyAnalyzed: boolean;
   isAnalyzing: boolean;
-  analysisResult: { moves: MoveEvaluation[]; whiteAccuracy: number; blackAccuracy: number } | null;
+  analysisResult: {
+    moves: MoveEvaluation[];
+    whiteAccuracy: number;
+    blackAccuracy: number;
+  } | null;
   analysisProgress: { current: number; total: number };
   currentTopMoves: TopMove[];
   currentPly: number;
@@ -28,10 +40,21 @@ interface Props {
 }
 
 export function AnalysisPanel({
-  alreadyAnalyzed, isAnalyzing, analysisResult, analysisProgress,
-  currentTopMoves, currentPly, movePairs, startAnalysis, goToMove, moveListRef,
+  alreadyAnalyzed,
+  isAnalyzing,
+  analysisResult,
+  analysisProgress,
+  currentTopMoves,
+  currentPly,
+  movePairs,
+  startAnalysis,
+  goToMove,
+  moveListRef,
 }: Props) {
-  const pct = analysisProgress.total > 0 ? (analysisProgress.current / analysisProgress.total) * 100 : 0;
+  const pct =
+    analysisProgress.total > 0
+      ? (analysisProgress.current / analysisProgress.total) * 100
+      : 0;
 
   return (
     <>
@@ -43,10 +66,24 @@ export function AnalysisPanel({
             : "Already analysed"}
         </div>
       ) : !analysisResult ? (
-        <button className={styles.analyzeBtn} onClick={startAnalysis} disabled={isAnalyzing}>
-          {isAnalyzing
-            ? <><Loader2 size={13} style={{ animation: "spin 0.7s linear infinite" }} /> Analysing… {analysisProgress.current}/{analysisProgress.total}</>
-            : <><Brain size={13} /> Analyse Game</>}
+        <button
+          className={styles.analyzeBtn}
+          onClick={startAnalysis}
+          disabled={isAnalyzing}
+        >
+          {isAnalyzing ? (
+            <>
+              <Loader2
+                size={13}
+                style={{ animation: "spin 0.7s linear infinite" }}
+              />{" "}
+              Analysing… {analysisProgress.current}/{analysisProgress.total}
+            </>
+          ) : (
+            <>
+              <Brain size={13} /> Analyse Game
+            </>
+          )}
         </button>
       ) : null}
 
@@ -56,13 +93,18 @@ export function AnalysisPanel({
         </div>
       )}
 
-      {currentTopMoves.length > 0 && <EngineMovesPanel topMoves={currentTopMoves} label="Engine" />}
+      {currentTopMoves.length > 0 && (
+        <EngineMovesPanel topMoves={currentTopMoves} label="Engine" />
+      )}
 
       <div className={styles.moveListSection} ref={moveListRef}>
         <div className={styles.moveListLabel}>Moves</div>
 
         {!analysisResult && !isAnalyzing && !alreadyAnalyzed && (
-          <div className={styles.loadingState} style={{ flexDirection: "column" }}>
+          <div
+            className={styles.loadingState}
+            style={{ flexDirection: "column" }}
+          >
             <Brain size={26} style={{ color: "var(--text-muted)" }} />
             <span>Click &quot;Analyse Game&quot; to review moves</span>
           </div>
@@ -86,7 +128,9 @@ export function AnalysisPanel({
                 <QualityDot quality={white.quality} />
                 <span className={styles.moveSan}>{white.moveSan}</span>
               </div>
-            ) : <div className={styles.moveCell} />}
+            ) : (
+              <div className={styles.moveCell} />
+            )}
             {black ? (
               <div
                 data-ply={black.ply}
@@ -96,7 +140,9 @@ export function AnalysisPanel({
                 <QualityDot quality={black.quality} />
                 <span className={styles.moveSan}>{black.moveSan}</span>
               </div>
-            ) : <div className={styles.moveCell} />}
+            ) : (
+              <div className={styles.moveCell} />
+            )}
           </div>
         ))}
       </div>

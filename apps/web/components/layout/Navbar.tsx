@@ -40,9 +40,9 @@ export default function Navbar() {
   };
 
   const navItems = [
-    { href: "/arena",   label: "Arena",   icon: <Swords  size={16} /> },
+    { href: "/arena", label: "Arena", icon: <Swords size={16} /> },
     { href: "/history", label: "History", icon: <History size={16} /> },
-    { href: "/profile", label: "Profile", icon: <User    size={16} /> },
+    { href: "/profile", label: "Profile", icon: <User size={16} /> },
   ];
 
   return (
@@ -120,7 +120,10 @@ export default function Navbar() {
 
       {/* Mobile menu drawer */}
       {mobileOpen && (
-        <div className={styles.mobileOverlay} onClick={() => setMobileOpen(false)}>
+        <div
+          className={styles.mobileOverlay}
+          onClick={() => setMobileOpen(false)}
+        >
           <div
             className={styles.mobileDrawer}
             onClick={(e) => e.stopPropagation()}
@@ -152,19 +155,33 @@ export default function Navbar() {
 
             <div className={styles.mobileAuthActions}>
               {isAdmin ? (
-                <button onClick={handleAdminLogout} className={`${styles.btnOutline} ${styles.mobileAuthBtn}`}>
+                <button
+                  onClick={handleAdminLogout}
+                  className={`${styles.btnOutline} ${styles.mobileAuthBtn}`}
+                >
                   Sign Out
                 </button>
               ) : isLoggedIn ? (
-                <button onClick={handleUserLogout} className={`${styles.btnOutline} ${styles.mobileAuthBtn}`}>
+                <button
+                  onClick={handleUserLogout}
+                  className={`${styles.btnOutline} ${styles.mobileAuthBtn}`}
+                >
                   Logout
                 </button>
               ) : (
                 <>
-                  <Link href="/auth/login" className={`${styles.btnOutline} ${styles.mobileAuthBtn}`} onClick={() => setMobileOpen(false)}>
+                  <Link
+                    href="/auth/login"
+                    className={`${styles.btnOutline} ${styles.mobileAuthBtn}`}
+                    onClick={() => setMobileOpen(false)}
+                  >
                     Log In
                   </Link>
-                  <Link href="/auth/signup" className={`${styles.btnPrimary} ${styles.mobileAuthBtn}`} onClick={() => setMobileOpen(false)}>
+                  <Link
+                    href="/auth/signup"
+                    className={`${styles.btnPrimary} ${styles.mobileAuthBtn}`}
+                    onClick={() => setMobileOpen(false)}
+                  >
                     Sign Up
                   </Link>
                 </>

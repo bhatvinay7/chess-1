@@ -29,7 +29,10 @@ function gameName(timeControl: string): string {
   return "Classical";
 }
 
-function resultForUser(game: { status: string; winnerId: string | null }, userId: string): "WIN" | "LOSS" | "DRAW" | "ABANDONED" {
+function resultForUser(
+  game: { status: string; winnerId: string | null },
+  userId: string,
+): "WIN" | "LOSS" | "DRAW" | "ABANDONED" {
   if (game.status === "DRAW") return "DRAW";
   if (game.status === "ABANDONED") return "ABANDONED";
   if (!game.winnerId) return "DRAW";
@@ -38,7 +41,10 @@ function resultForUser(game: { status: string; winnerId: string | null }, userId
 
 export async function getGameById(req: Request, res: Response): Promise<void> {
   const userId = getUserId(req);
-  if (!userId) { res.status(401).json({ message: "Unauthorized" }); return; }
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
   const { gameId } = req.params;
 
@@ -50,14 +56,21 @@ export async function getGameById(req: Request, res: Response): Promise<void> {
         status: { notIn: ["WAITING", "ACTIVE"] },
       },
       include: {
-        whitePlayer: { select: { id: true, username: true, profileImageUrl: true } },
-        blackPlayer: { select: { id: true, username: true, profileImageUrl: true } },
+        whitePlayer: {
+          select: { id: true, username: true, profileImageUrl: true },
+        },
+        blackPlayer: {
+          select: { id: true, username: true, profileImageUrl: true },
+        },
         analysis: true,
         _count: { select: { moves: true } },
       },
     });
 
-    if (!game) { res.status(404).json({ message: "Game not found" }); return; }
+    if (!game) {
+      res.status(404).json({ message: "Game not found" });
+      return;
+    }
 
     const isWhite = game.whitePlayerId === userId;
 
@@ -99,24 +112,43 @@ export async function getGameById(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function saveGameAnalysis(req: Request, res: Response): Promise<void> {
+export async function saveGameAnalysis(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const userId = getUserId(req);
-  if (!userId) { res.status(401).json({ message: "Unauthorized" }); return; }
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
   const { gameId } = req.params;
-  const { whiteAccuracy, blackAccuracy } = req.body as { whiteAccuracy: number; blackAccuracy: number };
+  const { whiteAccuracy, blackAccuracy } = req.body as {
+    whiteAccuracy: number;
+    blackAccuracy: number;
+  };
 
   if (typeof whiteAccuracy !== "number" || typeof blackAccuracy !== "number") {
-    res.status(400).json({ message: "whiteAccuracy and blackAccuracy are required numbers" });
+    res
+      .status(400)
+      .json({
+        message: "whiteAccuracy and blackAccuracy are required numbers",
+      });
     return;
   }
 
   try {
     const game = await prisma.game.findFirst({
-      where: { id: gameId, OR: [{ whitePlayerId: userId }, { blackPlayerId: userId }] },
+      where: {
+        id: gameId,
+        OR: [{ whitePlayerId: userId }, { blackPlayerId: userId }],
+      },
       include: { analysis: true },
     });
-    if (!game) { res.status(404).json({ message: "Game not found" }); return; }
+    if (!game) {
+      res.status(404).json({ message: "Game not found" });
+      return;
+    }
 
     // If already reviewed, return the existing data without overwriting
     if (game.analysis?.reviewedAt) {
@@ -130,11 +162,17 @@ export async function saveGameAnalysis(req: Request, res: Response): Promise<voi
       return;
     }
 
-    const averageAccuracy = Math.round(((whiteAccuracy + blackAccuracy) / 2) * 10) / 10;
+    const averageAccuracy =
+      Math.round(((whiteAccuracy + blackAccuracy) / 2) * 10) / 10;
 
     await prisma.gameAnalysis.upsert({
       where: { gameId: game.id },
-      update: { whiteAccuracy, blackAccuracy, averageAccuracy, reviewedAt: new Date() },
+      update: {
+        whiteAccuracy,
+        blackAccuracy,
+        averageAccuracy,
+        reviewedAt: new Date(),
+      },
       create: {
         gameId: game.id,
         whiteAccuracy,
@@ -158,9 +196,17 @@ function filterWhere(filter: HistoryFilter, userId: string) {
     case "wins":
       return { winnerId: userId };
     case "losses":
-      return { NOT: { winnerId: userId }, winnerId: { not: null as string | null } };
+      return {
+        NOT: { winnerId: userId },
+        winnerId: { not: null as string | null },
+      };
     case "draws":
-      return { OR: [{ status: "DRAW" as const }, { winnerId: null, status: { not: "ABANDONED" as const } }] };
+      return {
+        OR: [
+          { status: "DRAW" as const },
+          { winnerId: null, status: { not: "ABANDONED" as const } },
+        ],
+      };
     case "rated":
       return { isRated: true };
     default:
@@ -168,7 +214,10 @@ function filterWhere(filter: HistoryFilter, userId: string) {
   }
 }
 
-export async function getMyGameHistory(req: Request, res: Response): Promise<void> {
+export async function getMyGameHistory(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const userId = getUserId(req);
   if (!userId) {
     res.status(401).json({ message: "Unauthorized" });
@@ -178,7 +227,10 @@ export async function getMyGameHistory(req: Request, res: Response): Promise<voi
   await sendGameHistoryForUser(req, res, userId);
 }
 
-export async function getUserGameHistory(req: Request, res: Response): Promise<void> {
+export async function getUserGameHistory(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const currentUserId = getAuthenticatedUserId(req);
   if (!currentUserId) {
     res.status(401).json({ message: "Unauthorized" });
@@ -204,11 +256,14 @@ export async function getUserGameHistory(req: Request, res: Response): Promise<v
   await sendGameHistoryForUser(req, res, userId);
 }
 
-async function sendGameHistoryForUser(req: Request, res: Response, userId: string): Promise<void> {
-
-  const limit  = Math.min(Number(req.query.limit ?? 8) || 8, 100);
-  const page   = Math.max(1, Number(req.query.page ?? 1) || 1);
-  const skip   = (page - 1) * limit;
+async function sendGameHistoryForUser(
+  req: Request,
+  res: Response,
+  userId: string,
+): Promise<void> {
+  const limit = Math.min(Number(req.query.limit ?? 8) || 8, 100);
+  const page = Math.max(1, Number(req.query.page ?? 1) || 1);
+  const skip = (page - 1) * limit;
   const filter = (req.query.filter as HistoryFilter | undefined) ?? "all";
 
   const baseWhere = {
@@ -228,22 +283,44 @@ async function sendGameHistoryForUser(req: Request, res: Response, userId: strin
         const keyExists = await redisClient.exists(cacheKey);
         if (keyExists) {
           const cached = await redisClient.lRange(cacheKey, 0, limit - 1);
-          const items  = cached.map((s) => JSON.parse(s));
+          const items = cached.map((s) => JSON.parse(s));
 
           // Counts are cheap queries (no joins) — still hit DB.
-          const [total, countAll, countWins, countLosses, countDraws, countRated] = await Promise.all([
+          const [
+            total,
+            countAll,
+            countWins,
+            countLosses,
+            countDraws,
+            countRated,
+          ] = await Promise.all([
             prisma.game.count({ where }),
             prisma.game.count({ where: baseWhere }),
-            prisma.game.count({ where: { ...baseWhere, ...filterWhere("wins",   userId) } }),
-            prisma.game.count({ where: { ...baseWhere, ...filterWhere("losses", userId) } }),
-            prisma.game.count({ where: { ...baseWhere, ...filterWhere("draws",  userId) } }),
-            prisma.game.count({ where: { ...baseWhere, ...filterWhere("rated",  userId) } }),
+            prisma.game.count({
+              where: { ...baseWhere, ...filterWhere("wins", userId) },
+            }),
+            prisma.game.count({
+              where: { ...baseWhere, ...filterWhere("losses", userId) },
+            }),
+            prisma.game.count({
+              where: { ...baseWhere, ...filterWhere("draws", userId) },
+            }),
+            prisma.game.count({
+              where: { ...baseWhere, ...filterWhere("rated", userId) },
+            }),
           ]);
 
-          const reviewedGames = items.filter((g: any) => g.analysis?.reviewedAt || g.analysis?.averageAccuracy != null).length;
-          const decisiveGames = items.filter((g: any) => g.result === "WIN" || g.result === "LOSS").length;
-          const wins          = items.filter((g: any) => g.result === "WIN").length;
-          const accuracies    = items.map((g: any) => g.analysis?.averageAccuracy).filter((v: any): v is number => typeof v === "number");
+          const reviewedGames = items.filter(
+            (g: any) =>
+              g.analysis?.reviewedAt || g.analysis?.averageAccuracy != null,
+          ).length;
+          const decisiveGames = items.filter(
+            (g: any) => g.result === "WIN" || g.result === "LOSS",
+          ).length;
+          const wins = items.filter((g: any) => g.result === "WIN").length;
+          const accuracies = items
+            .map((g: any) => g.analysis?.averageAccuracy)
+            .filter((v: any): v is number => typeof v === "number");
 
           res.json({
             games: items,
@@ -251,14 +328,28 @@ async function sendGameHistoryForUser(req: Request, res: Response, userId: strin
             page,
             limit,
             totalPages: Math.ceil(total / limit),
-            filterCounts: { all: countAll, wins: countWins, losses: countLosses, draws: countDraws, rated: countRated },
+            filterCounts: {
+              all: countAll,
+              wins: countWins,
+              losses: countLosses,
+              draws: countDraws,
+              rated: countRated,
+            },
             summary: {
               totalGames: countAll,
-              winRate: decisiveGames > 0 ? Math.round((wins / decisiveGames) * 1000) / 10 : 0,
+              winRate:
+                decisiveGames > 0
+                  ? Math.round((wins / decisiveGames) * 1000) / 10
+                  : 0,
               reviewedGames,
-              averageAccuracy: accuracies.length > 0
-                ? Math.round((accuracies.reduce((s: number, v: number) => s + v, 0) / accuracies.length) * 10) / 10
-                : null,
+              averageAccuracy:
+                accuracies.length > 0
+                  ? Math.round(
+                      (accuracies.reduce((s: number, v: number) => s + v, 0) /
+                        accuracies.length) *
+                        10,
+                    ) / 10
+                  : null,
             },
           });
           return;
@@ -268,15 +359,27 @@ async function sendGameHistoryForUser(req: Request, res: Response, userId: strin
       }
     }
 
-    const [games, total, countAll, countWins, countLosses, countDraws, countRated] = await Promise.all([
+    const [
+      games,
+      total,
+      countAll,
+      countWins,
+      countLosses,
+      countDraws,
+      countRated,
+    ] = await Promise.all([
       prisma.game.findMany({
         where,
         orderBy: [{ endedAt: "desc" }, { createdAt: "desc" }],
         take: limit,
         skip,
         include: {
-          whitePlayer: { select: { id: true, username: true, profileImageUrl: true } },
-          blackPlayer: { select: { id: true, username: true, profileImageUrl: true } },
+          whitePlayer: {
+            select: { id: true, username: true, profileImageUrl: true },
+          },
+          blackPlayer: {
+            select: { id: true, username: true, profileImageUrl: true },
+          },
           gameState: true,
           analysis: true,
           _count: { select: { moves: true } },
@@ -284,22 +387,36 @@ async function sendGameHistoryForUser(req: Request, res: Response, userId: strin
       }),
       prisma.game.count({ where }),
       prisma.game.count({ where: baseWhere }),
-      prisma.game.count({ where: { ...baseWhere, ...filterWhere("wins",   userId) } }),
-      prisma.game.count({ where: { ...baseWhere, ...filterWhere("losses", userId) } }),
-      prisma.game.count({ where: { ...baseWhere, ...filterWhere("draws",  userId) } }),
-      prisma.game.count({ where: { ...baseWhere, ...filterWhere("rated",  userId) } }),
+      prisma.game.count({
+        where: { ...baseWhere, ...filterWhere("wins", userId) },
+      }),
+      prisma.game.count({
+        where: { ...baseWhere, ...filterWhere("losses", userId) },
+      }),
+      prisma.game.count({
+        where: { ...baseWhere, ...filterWhere("draws", userId) },
+      }),
+      prisma.game.count({
+        where: { ...baseWhere, ...filterWhere("rated", userId) },
+      }),
     ]);
 
     type GameRow = (typeof games)[number];
     const items = games.map((game: GameRow) => {
       const isWhite = game.whitePlayerId === userId;
 
-      const playerRating        = isWhite ? game.whiteRating       : game.blackRating;
-      const opponentRating      = isWhite ? game.blackRating       : game.whiteRating;
-      const playerRatingAfter   = isWhite ? game.whiteRatingAfter  : game.blackRatingAfter;
-      const opponentRatingAfter = isWhite ? game.blackRatingAfter  : game.whiteRatingAfter;
-      const playerDelta         = (isWhite ? game.whiteRatingGain  : game.blackRatingGain) ?? 0;
-      const opponentDelta       = (isWhite ? game.blackRatingGain  : game.whiteRatingGain) ?? 0;
+      const playerRating = isWhite ? game.whiteRating : game.blackRating;
+      const opponentRating = isWhite ? game.blackRating : game.whiteRating;
+      const playerRatingAfter = isWhite
+        ? game.whiteRatingAfter
+        : game.blackRatingAfter;
+      const opponentRatingAfter = isWhite
+        ? game.blackRatingAfter
+        : game.whiteRatingAfter;
+      const playerDelta =
+        (isWhite ? game.whiteRatingGain : game.blackRatingGain) ?? 0;
+      const opponentDelta =
+        (isWhite ? game.blackRatingGain : game.whiteRatingGain) ?? 0;
 
       return {
         id: game.id,
@@ -316,11 +433,20 @@ async function sendGameHistoryForUser(req: Request, res: Response, userId: strin
         isRated: game.isRated,
         moveCount: game._count.moves,
         playerColor: isWhite ? "white" : "black",
-        player: { id: userId, rating: playerRating, ratingAfter: playerRatingAfter, ratingDelta: playerDelta },
+        player: {
+          id: userId,
+          rating: playerRating,
+          ratingAfter: playerRatingAfter,
+          ratingDelta: playerDelta,
+        },
         opponent: {
           id: isWhite ? game.blackPlayer?.id : game.whitePlayer.id,
-          username: isWhite ? game.blackPlayer?.username : game.whitePlayer.username,
-          profileImageUrl: isWhite ? game.blackPlayer?.profileImageUrl : game.whitePlayer.profileImageUrl,
+          username: isWhite
+            ? game.blackPlayer?.username
+            : game.whitePlayer.username,
+          profileImageUrl: isWhite
+            ? game.blackPlayer?.profileImageUrl
+            : game.whitePlayer.profileImageUrl,
           rating: opponentRating,
           ratingAfter: opponentRatingAfter,
           ratingDelta: opponentDelta,
@@ -352,17 +478,32 @@ async function sendGameHistoryForUser(req: Request, res: Response, userId: strin
     if (useCache && items.length > 0) {
       try {
         await redisClient.del(cacheKey);
-        await redisClient.rPush(cacheKey, items.slice(0, GAMES_CACHE_LIMIT).map((g: (typeof items)[number]) => JSON.stringify(g)));
-      } catch { /* ignore cache write errors */ }
+        await redisClient.rPush(
+          cacheKey,
+          items
+            .slice(0, GAMES_CACHE_LIMIT)
+            .map((g: (typeof items)[number]) => JSON.stringify(g)),
+        );
+      } catch {
+        /* ignore cache write errors */
+      }
     }
 
     type Item = (typeof items)[number];
-    const reviewedGames = items.filter((game: Item) => game.analysis?.reviewedAt || game.analysis?.averageAccuracy != null).length;
-    const decisiveGames = items.filter((game: Item) => game.result === "WIN" || game.result === "LOSS").length;
-    const wins          = items.filter((game: Item) => game.result === "WIN").length;
+    const reviewedGames = items.filter(
+      (game: Item) =>
+        game.analysis?.reviewedAt || game.analysis?.averageAccuracy != null,
+    ).length;
+    const decisiveGames = items.filter(
+      (game: Item) => game.result === "WIN" || game.result === "LOSS",
+    ).length;
+    const wins = items.filter((game: Item) => game.result === "WIN").length;
     const averageAccuracyValues = items
       .map((game: Item) => game.analysis?.averageAccuracy)
-      .filter((value: number | null | undefined): value is number => typeof value === "number");
+      .filter(
+        (value: number | null | undefined): value is number =>
+          typeof value === "number",
+      );
 
     res.json({
       games: items,
@@ -370,14 +511,31 @@ async function sendGameHistoryForUser(req: Request, res: Response, userId: strin
       page,
       limit,
       totalPages: Math.ceil(total / limit),
-      filterCounts: { all: countAll, wins: countWins, losses: countLosses, draws: countDraws, rated: countRated },
+      filterCounts: {
+        all: countAll,
+        wins: countWins,
+        losses: countLosses,
+        draws: countDraws,
+        rated: countRated,
+      },
       summary: {
         totalGames: countAll,
-        winRate: decisiveGames > 0 ? Math.round((wins / decisiveGames) * 1000) / 10 : 0,
+        winRate:
+          decisiveGames > 0
+            ? Math.round((wins / decisiveGames) * 1000) / 10
+            : 0,
         reviewedGames,
-        averageAccuracy: averageAccuracyValues.length > 0
-          ? Math.round((averageAccuracyValues.reduce((sum: number, value: number) => sum + value, 0) / averageAccuracyValues.length) * 10) / 10
-          : null,
+        averageAccuracy:
+          averageAccuracyValues.length > 0
+            ? Math.round(
+                (averageAccuracyValues.reduce(
+                  (sum: number, value: number) => sum + value,
+                  0,
+                ) /
+                  averageAccuracyValues.length) *
+                  10,
+              ) / 10
+            : null,
       },
     });
   } catch (error) {
@@ -386,9 +544,15 @@ async function sendGameHistoryForUser(req: Request, res: Response, userId: strin
   }
 }
 
-export async function getRatingHistory(req: Request, res: Response): Promise<void> {
+export async function getRatingHistory(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const userId = getUserId(req);
-  if (!userId) { res.status(401).json({ message: "Unauthorized" }); return; }
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
   try {
     const games = await prisma.game.findMany({
@@ -411,11 +575,16 @@ export async function getRatingHistory(req: Request, res: Response): Promise<voi
     type RatingRow = (typeof games)[number];
     const points = games
       .map((g: RatingRow) => {
-        const rating = g.whitePlayerId === userId ? g.whiteRatingAfter : g.blackRatingAfter;
+        const rating =
+          g.whitePlayerId === userId ? g.whiteRatingAfter : g.blackRatingAfter;
         if (rating == null) return null;
         return { date: (g.endedAt ?? g.createdAt).toISOString(), rating };
       })
-      .filter((p: { date: string; rating: number } | null): p is { date: string; rating: number } => p !== null);
+      .filter(
+        (
+          p: { date: string; rating: number } | null,
+        ): p is { date: string; rating: number } => p !== null,
+      );
 
     res.json({ points });
   } catch (error) {
@@ -432,9 +601,15 @@ function parseTimeControlCategory(tc: string): "BULLET" | "BLITZ" | "RAPID" {
   return "RAPID";
 }
 
-export async function getRatingHistoryByCategory(req: Request, res: Response): Promise<void> {
+export async function getRatingHistoryByCategory(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const userId = getUserId(req);
-  if (!userId) { res.status(401).json({ message: "Unauthorized" }); return; }
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
   try {
     const games = await prisma.game.findMany({
@@ -462,10 +637,14 @@ export async function getRatingHistoryByCategory(req: Request, res: Response): P
     };
 
     for (const g of games) {
-      const rating = g.whitePlayerId === userId ? g.whiteRatingAfter : g.blackRatingAfter;
+      const rating =
+        g.whitePlayerId === userId ? g.whiteRatingAfter : g.blackRatingAfter;
       if (rating == null) continue;
       const cat = parseTimeControlCategory(g.timeControl);
-      result[cat]!.push({ date: (g.endedAt ?? g.createdAt).toISOString(), rating });
+      result[cat]!.push({
+        date: (g.endedAt ?? g.createdAt).toISOString(),
+        rating,
+      });
     }
 
     res.json(result);

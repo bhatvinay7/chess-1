@@ -1,7 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
-import { getGameHistory, getRatingHistory, getRatingHistoryByCategory, getUserGameHistory, type HistoryFilter } from "../app/lib/api/games";
+import {
+  getGameHistory,
+  getRatingHistory,
+  getRatingHistoryByCategory,
+  getUserGameHistory,
+  type HistoryFilter,
+} from "../app/lib/api/games";
 
-export const useGameHistory = (page: number, limit = 8, filter: HistoryFilter = "all") => {
+export const useGameHistory = (
+  page: number,
+  limit = 8,
+  filter: HistoryFilter = "all",
+) => {
   return useQuery({
     queryKey: ["game-history", page, limit, filter],
     queryFn: () => getGameHistory(page, limit, filter),

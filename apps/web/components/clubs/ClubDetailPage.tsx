@@ -20,11 +20,7 @@ export default function ClubDetailPage() {
   }
 
   if (error || !club) {
-    return (
-      <div className={styles.empty}>
-        Club not found.
-      </div>
-    );
+    return <div className={styles.empty}>Club not found.</div>;
   }
 
   return <ClubProfile club={club} />;

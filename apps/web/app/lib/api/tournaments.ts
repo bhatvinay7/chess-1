@@ -43,8 +43,12 @@ export interface TournamentRoundsResponse {
   data: { rounds: TournamentRoundDetail[] };
 }
 
-export async function fetchTournamentRounds(id: string): Promise<TournamentRoundsResponse> {
-  const { data } = await axiosInstance.get<TournamentRoundsResponse>(`/tournaments/${id}/rounds`);
+export async function fetchTournamentRounds(
+  id: string,
+): Promise<TournamentRoundsResponse> {
+  const { data } = await axiosInstance.get<TournamentRoundsResponse>(
+    `/tournaments/${id}/rounds`,
+  );
   return data;
 }
 
@@ -109,59 +113,86 @@ export interface TournamentResponse {
 export async function fetchTournaments(
   filters?: TournamentFilters & { statuses?: string },
   page = 1,
-  pageSize = 100
+  pageSize = 100,
 ): Promise<TournamentsResponse> {
   const params: Record<string, string> = {
     page: String(page),
     pageSize: String(pageSize),
   };
   if (filters?.statuses) params.statuses = filters.statuses;
-  else if (filters?.status && filters.status !== "ALL") params.status = filters.status;
+  else if (filters?.status && filters.status !== "ALL")
+    params.status = filters.status;
   if (filters?.type && filters.type !== "ALL") params.type = filters.type;
-  if (filters?.accessType && filters.accessType !== "ALL") params.accessType = filters.accessType;
+  if (filters?.accessType && filters.accessType !== "ALL")
+    params.accessType = filters.accessType;
 
-  const { data } = await axiosInstance.get<TournamentsResponse>("/tournaments", { params });
+  const { data } = await axiosInstance.get<TournamentsResponse>(
+    "/tournaments",
+    { params },
+  );
   return data;
 }
 
 export async function fetchMyTournaments(): Promise<TournamentsResponse> {
-  const { data } = await axiosInstance.get<TournamentsResponse>("/tournaments/my");
+  const { data } =
+    await axiosInstance.get<TournamentsResponse>("/tournaments/my");
   return data;
 }
 
 export async function fetchTournament(id: string): Promise<TournamentResponse> {
-  const { data } = await axiosInstance.get<TournamentResponse>(`/tournaments/${id}`);
+  const { data } = await axiosInstance.get<TournamentResponse>(
+    `/tournaments/${id}`,
+  );
   return data;
 }
 
 export async function createTournament(
-  payload: CreateTournamentPayload
+  payload: CreateTournamentPayload,
 ): Promise<TournamentResponse> {
-  const { data } = await axiosInstance.post<TournamentResponse>("/tournaments", payload);
+  const { data } = await axiosInstance.post<TournamentResponse>(
+    "/tournaments",
+    payload,
+  );
   return data;
 }
 
-export async function joinTournament(id: string): Promise<{ success: boolean; message: string }> {
+export async function joinTournament(
+  id: string,
+): Promise<{ success: boolean; message: string }> {
   const { data } = await axiosInstance.post(`/tournaments/${id}/join`);
   return data;
 }
 
-export async function leaveTournament(id: string): Promise<{ success: boolean; message: string }> {
+export async function leaveTournament(
+  id: string,
+): Promise<{ success: boolean; message: string }> {
   const { data } = await axiosInstance.post(`/tournaments/${id}/leave`);
   return data;
 }
 
-export async function deleteTournament(id: string): Promise<{ success: boolean; message: string }> {
+export async function deleteTournament(
+  id: string,
+): Promise<{ success: boolean; message: string }> {
   const { data } = await axiosInstance.delete(`/tournaments/${id}`);
   return data;
 }
 
-export async function fetchMyTournamentGame(id: string): Promise<{ success: boolean; gameId: string | null }> {
-  const { data } = await axiosInstance.get<{ success: boolean; gameId: string | null }>(`/tournaments/${id}/my-game`);
+export async function fetchMyTournamentGame(
+  id: string,
+): Promise<{ success: boolean; gameId: string | null }> {
+  const { data } = await axiosInstance.get<{
+    success: boolean;
+    gameId: string | null;
+  }>(`/tournaments/${id}/my-game`);
   return data;
 }
 
-export async function triggerManualRound(id: string): Promise<{ success: boolean; message: string }> {
-  const { data } = await axiosInstance.post<{ success: boolean; message: string }>(`/tournaments/${id}/manual-trigger`);
+export async function triggerManualRound(
+  id: string,
+): Promise<{ success: boolean; message: string }> {
+  const { data } = await axiosInstance.post<{
+    success: boolean;
+    message: string;
+  }>(`/tournaments/${id}/manual-trigger`);
   return data;
 }

@@ -35,7 +35,9 @@ export default function FriendsPage() {
         <div className={styles.stack}>
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <span className={styles.sectionTitle}><Search size={16} /> Find players</span>
+              <span className={styles.sectionTitle}>
+                <Search size={16} /> Find players
+              </span>
             </div>
             <label className={styles.searchBox}>
               <Search size={16} />
@@ -49,17 +51,24 @@ export default function FriendsPage() {
 
             <div className={styles.list} style={{ marginTop: "0.75rem" }}>
               {query.trim().length < 2 && (
-                <div className={styles.empty}>Type at least 2 characters to search players.</div>
+                <div className={styles.empty}>
+                  Type at least 2 characters to search players.
+                </div>
               )}
               {query.trim().length >= 2 && search.isLoading && (
                 <div className={styles.empty}>Searching players...</div>
               )}
-              {query.trim().length >= 2 && !search.isLoading && (search.data ?? []).length === 0 && (
-                <div className={styles.empty}>No matching players found.</div>
-              )}
+              {query.trim().length >= 2 &&
+                !search.isLoading &&
+                (search.data ?? []).length === 0 && (
+                  <div className={styles.empty}>No matching players found.</div>
+                )}
               {(search.data ?? []).map((result) => (
                 <UserMiniCard key={result.id} user={result}>
-                  <FriendActionButton userId={result.id} status={result.friendshipStatus} />
+                  <FriendActionButton
+                    userId={result.id}
+                    status={result.friendshipStatus}
+                  />
                 </UserMiniCard>
               ))}
             </div>
@@ -67,7 +76,9 @@ export default function FriendsPage() {
 
           <section className={styles.section}>
             <div className={styles.sectionHeader}>
-              <span className={styles.sectionTitle}><Send size={16} /> Sent requests</span>
+              <span className={styles.sectionTitle}>
+                <Send size={16} /> Sent requests
+              </span>
               <span className={styles.count}>{outgoing.data?.length ?? 0}</span>
             </div>
 
@@ -77,7 +88,9 @@ export default function FriendsPage() {
             <div className={styles.list}>
               {(outgoing.data ?? []).map((request) => (
                 <UserMiniCard key={request.id} user={request.user}>
-                  <span className={styles.statusPill}><Clock3 size={14} /> Pending</span>
+                  <span className={styles.statusPill}>
+                    <Clock3 size={14} /> Pending
+                  </span>
                 </UserMiniCard>
               ))}
             </div>
@@ -86,7 +99,9 @@ export default function FriendsPage() {
 
         <div className={styles.stack}>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionTitle}><Users size={16} /> Network</span>
+            <span className={styles.sectionTitle}>
+              <Users size={16} /> Network
+            </span>
           </div>
           <FriendsPanel />
         </div>

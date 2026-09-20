@@ -24,7 +24,9 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://chesscounty.life"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://chesscounty.life",
+  ),
   applicationName: "Rooky",
   title: "Rooky",
   description:

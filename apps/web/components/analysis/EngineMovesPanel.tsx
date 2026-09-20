@@ -13,13 +13,20 @@ interface Props {
 export function EngineMovesPanel({ topMoves, label }: Props) {
   return (
     <div className={styles.engineSection}>
-      <div className={styles.sectionLabel}><Cpu size={9} /> {label}</div>
+      <div className={styles.sectionLabel}>
+        <Cpu size={9} /> {label}
+      </div>
       <div className={styles.engineMoves}>
         {topMoves.map((tm) => {
           const rc = RANK_COLORS[(tm.rank - 1) as 0 | 1 | 2] ?? "#e8c44a";
           return (
             <div key={tm.rank} className={styles.engineMove}>
-              <span className={styles.engineMoveRank} style={{ background: `${rc}28`, color: rc }}>{tm.rank}</span>
+              <span
+                className={styles.engineMoveRank}
+                style={{ background: `${rc}28`, color: rc }}
+              >
+                {tm.rank}
+              </span>
               <span className={styles.engineMoveSan}>{tm.moveSan}</span>
               <span className={styles.engineMoveEval}>{engineEvalStr(tm)}</span>
             </div>

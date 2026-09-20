@@ -43,7 +43,13 @@ import styles from "./SideNav.module.css";
 
 /* ── Share popup ─────────────────────────────────────────────────────────── */
 
-function SharePopup({ onClose, offset }: { onClose: () => void; offset: number }) {
+function SharePopup({
+  onClose,
+  offset,
+}: {
+  onClose: () => void;
+  offset: number;
+}) {
   const [copied, setCopied] = useState(false);
   const url = typeof window !== "undefined" ? window.location.href : "";
 
@@ -71,8 +77,18 @@ function SharePopup({ onClose, offset }: { onClose: () => void; offset: number }
               value={url}
               onFocus={(e) => e.target.select()}
             />
-            <button className={styles.shareCopyBtn} onClick={handleCopy} type="button">
-              {copied ? "Copied!" : <><Copy size={12} /> Copy</>}
+            <button
+              className={styles.shareCopyBtn}
+              onClick={handleCopy}
+              type="button"
+            >
+              {copied ? (
+                "Copied!"
+              ) : (
+                <>
+                  <Copy size={12} /> Copy
+                </>
+              )}
             </button>
           </div>
           <p className={styles.shareNote}>
@@ -87,41 +103,45 @@ function SharePopup({ onClose, offset }: { onClose: () => void; offset: number }
 /* ── Nav links ───────────────────────────────────────────────────────────── */
 
 const PLAY_LINKS = [
-  { href: "/arena",        label: "Play",        icon: <Swords   size={17} /> },
-  { href: "/arena/bot",    label: "vs Bot",      icon: <Bot      size={17} /> },
-  { href: "/arena/coach",  label: "Coach",       icon: <BookOpen size={17} /> },
-  { href: "/tournament",   label: "Tournament",  icon: <Trophy   size={17} /> },
-  { href: "/watch",        label: "Watch",       icon: <Eye      size={17} /> },
-  { href: "/clubs",        label: "Clubs",       icon: <Shield   size={17} /> },
-  { href: "/history",      label: "History",     icon: <History  size={17} /> },
-  { href: "/profile",      label: "Profile",     icon: <User     size={17} /> },
-  { href: "/friends",      label: "Friends",     icon: <Users    size={17} /> },
+  { href: "/arena", label: "Play", icon: <Swords size={17} /> },
+  { href: "/arena/bot", label: "vs Bot", icon: <Bot size={17} /> },
+  { href: "/arena/coach", label: "Coach", icon: <BookOpen size={17} /> },
+  { href: "/tournament", label: "Tournament", icon: <Trophy size={17} /> },
+  { href: "/watch", label: "Watch", icon: <Eye size={17} /> },
+  { href: "/clubs", label: "Clubs", icon: <Shield size={17} /> },
+  { href: "/history", label: "History", icon: <History size={17} /> },
+  { href: "/profile", label: "Profile", icon: <User size={17} /> },
+  { href: "/friends", label: "Friends", icon: <Users size={17} /> },
 ];
 
 const SETTINGS_ITEMS = [
-  { id: "board-pieces",   label: "Board & Pieces", icon: <LayoutGrid size={17} /> },
-  { id: "gameplay",       label: "Gameplay",       icon: <Gamepad2   size={17} /> },
-  { id: "profile",        label: "Profile",        icon: <User       size={17} /> },
-  { id: "interface",      label: "Interface",      icon: <Monitor    size={17} /> },
-  { id: "social",         label: "Social",         icon: <Users      size={17} /> },
-  { id: "coach",          label: "Coach",          icon: <BookOpen   size={17} /> },
-  { id: "notifications",  label: "Notifications",  icon: <Bell       size={17} /> },
-  { id: "account",        label: "Account",        icon: <Lock       size={17} /> },
-  { id: "membership",     label: "Membership",     icon: <Crown      size={17} /> },
-  { id: "accessibility",  label: "Accessibility",  icon: <Eye        size={17} /> },
+  {
+    id: "board-pieces",
+    label: "Board & Pieces",
+    icon: <LayoutGrid size={17} />,
+  },
+  { id: "gameplay", label: "Gameplay", icon: <Gamepad2 size={17} /> },
+  { id: "profile", label: "Profile", icon: <User size={17} /> },
+  { id: "interface", label: "Interface", icon: <Monitor size={17} /> },
+  { id: "social", label: "Social", icon: <Users size={17} /> },
+  { id: "coach", label: "Coach", icon: <BookOpen size={17} /> },
+  { id: "notifications", label: "Notifications", icon: <Bell size={17} /> },
+  { id: "account", label: "Account", icon: <Lock size={17} /> },
+  { id: "membership", label: "Membership", icon: <Crown size={17} /> },
+  { id: "accessibility", label: "Accessibility", icon: <Eye size={17} /> },
 ];
 
 /* ── Main SideNav ─────────────────────────────────────────────────────────── */
 
 export default function SideNav() {
-  const pathname       = usePathname();
-  const searchParams   = useSearchParams();
-  const dispatch       = useDispatch<AppDispatch>();
-  const openPanel      = useSelector((s: RootState) => s.sidebar.openPanel);
-  const mobileNavOpen  = useSelector((s: RootState) => s.sidebar.mobileNavOpen);
-  const collapsed      = useSelector((s: RootState) => s.sidebar.collapsed);
-  const darkUI         = useSelector((s: RootState) => s.sidebar.darkUI);
-  const { user, logout }  = useAuth(null);
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const dispatch = useDispatch<AppDispatch>();
+  const openPanel = useSelector((s: RootState) => s.sidebar.openPanel);
+  const mobileNavOpen = useSelector((s: RootState) => s.sidebar.mobileNavOpen);
+  const collapsed = useSelector((s: RootState) => s.sidebar.collapsed);
+  const darkUI = useSelector((s: RootState) => s.sidebar.darkUI);
+  const { user, logout } = useAuth(null);
   const { data: profile } = useProfile(user?.id);
   const { unreadCount, fetchNotifications } = useNotifications();
   const [showGearMenu, setShowGearMenu] = useState(false);
@@ -139,15 +159,17 @@ export default function SideNav() {
   const isSettings = pathname.startsWith("/settings");
   const activeSection = searchParams.get("section") ?? "board-pieces";
 
-  const handleClose       = () => dispatch(closeSidebarPanel());
+  const handleClose = () => dispatch(closeSidebarPanel());
   const handleMobileClose = () => dispatch(closeMobileNav());
 
   const navClass = [
     styles.sidenav,
     mobileNavOpen ? styles.sidenavMobileOpen : "",
-    collapsed     ? styles.sidenavCollapsed  : "",
-    darkUI        ? styles.sidenavDark       : "",
-  ].filter(Boolean).join(" ");
+    collapsed ? styles.sidenavCollapsed : "",
+    darkUI ? styles.sidenavDark : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <>
@@ -156,10 +178,14 @@ export default function SideNav() {
       )}
 
       <nav className={navClass}>
-
         {/* ── Logo ── */}
         <div className={styles.logoHeader}>
-          <Link href="/" className={styles.logo} onClick={handleMobileClose} title="Rooky">
+          <Link
+            href="/"
+            className={styles.logo}
+            onClick={handleMobileClose}
+            title="Rooky"
+          >
             <span className={styles.logoMark}>♜</span>
             <span className={styles.logoText}>Rooky</span>
           </Link>
@@ -184,7 +210,9 @@ export default function SideNav() {
               onClick={handleMobileClose}
               title="Back to Play"
             >
-              <span className={styles.navIcon}><ArrowLeft size={17} /></span>
+              <span className={styles.navIcon}>
+                <ArrowLeft size={17} />
+              </span>
               <span className={styles.navItemLabel}>Back to Play</span>
             </Link>
 
@@ -212,10 +240,12 @@ export default function SideNav() {
               {PLAY_LINKS.map(({ href, label, icon }) => {
                 const active =
                   href === "/arena"
-                    ? pathname === "/arena" || (pathname.startsWith("/arena/") && !pathname.startsWith("/arena/bot"))
+                    ? pathname === "/arena" ||
+                      (pathname.startsWith("/arena/") &&
+                        !pathname.startsWith("/arena/bot"))
                     : href === "/arena/bot"
-                    ? pathname.startsWith("/arena/bot")
-                    : pathname === href;
+                      ? pathname.startsWith("/arena/bot")
+                      : pathname === href;
                 return (
                   <Link
                     key={href}
@@ -242,7 +272,9 @@ export default function SideNav() {
                 onClick={() => dispatch(toggleSidebarPanel("share"))}
                 title="Share"
               >
-                <span className={styles.navIcon}><Share2 size={17} /></span>
+                <span className={styles.navIcon}>
+                  <Share2 size={17} />
+                </span>
                 <span className={styles.navItemLabel}>Share</span>
               </button>
             </div>
@@ -254,16 +286,27 @@ export default function SideNav() {
 
         {/* ── User row / auth buttons ── */}
         {user === undefined ? (
-          <div className={styles.authSection} style={{ opacity: 0, pointerEvents: "none" }}>
-            <Link href="#" className={styles.authBtnOutline}><span className={styles.navItemLabel}>Loading</span></Link>
+          <div
+            className={styles.authSection}
+            style={{ opacity: 0, pointerEvents: "none" }}
+          >
+            <Link href="#" className={styles.authBtnOutline}>
+              <span className={styles.navItemLabel}>Loading</span>
+            </Link>
           </div>
         ) : user ? (
           <div className={styles.userSection}>
             <div className={styles.userRow}>
               <div className={styles.userAvatar} title={user.username}>
-                {profile?.profileImageUrl
-                  ? <img src={profile.profileImageUrl} alt={user.username} crossOrigin="anonymous" />
-                  : user.username.charAt(0).toUpperCase()}
+                {profile?.profileImageUrl ? (
+                  <img
+                    src={profile.profileImageUrl}
+                    alt={user.username}
+                    crossOrigin="anonymous"
+                  />
+                ) : (
+                  user.username.charAt(0).toUpperCase()
+                )}
               </div>
               <div className={styles.userMeta}>
                 <span className={styles.userName}>
@@ -277,10 +320,18 @@ export default function SideNav() {
           </div>
         ) : (
           <div className={styles.authSection}>
-            <Link href="/auth/login" className={styles.authBtnOutline} title="Sign In">
+            <Link
+              href="/auth/login"
+              className={styles.authBtnOutline}
+              title="Sign In"
+            >
               <span className={styles.navItemLabel}>Sign In</span>
             </Link>
-            <Link href="/auth/signup" className={styles.authBtnPrimary} title="Sign Up">
+            <Link
+              href="/auth/signup"
+              className={styles.authBtnPrimary}
+              title="Sign Up"
+            >
               <span className={styles.navItemLabel}>Sign Up</span>
             </Link>
           </div>
@@ -288,18 +339,35 @@ export default function SideNav() {
 
         {/* ── Bottom icon bar ── */}
         <div className={styles.iconBar}>
-          <Link href="/friends" className={styles.iconBarBtn} title="Friends" aria-label="Friends">
+          <Link
+            href="/friends"
+            className={styles.iconBarBtn}
+            title="Friends"
+            aria-label="Friends"
+          >
             <Users size={16} />
           </Link>
 
-          <button type="button" className={styles.iconBarBtn} title="Messages" aria-label="Messages">
+          <button
+            type="button"
+            className={styles.iconBarBtn}
+            title="Messages"
+            aria-label="Messages"
+          >
             <Mail size={16} />
             <span className={styles.iconBadge}>1</span>
           </button>
 
-          <Link href="/notifications" className={styles.iconBarBtn} title="Notifications" aria-label="Notifications">
+          <Link
+            href="/notifications"
+            className={styles.iconBarBtn}
+            title="Notifications"
+            aria-label="Notifications"
+          >
             <Bell size={16} />
-            {unreadCount > 0 && <span className={styles.iconBadge}>{unreadCount}</span>}
+            {unreadCount > 0 && (
+              <span className={styles.iconBadge}>{unreadCount}</span>
+            )}
           </Link>
 
           <div className={styles.iconBarGearWrap}>
@@ -328,7 +396,9 @@ export default function SideNav() {
       </nav>
 
       {/* ── Share popup ── */}
-      {openPanel === "share" && <SharePopup onClose={handleClose} offset={collapsed ? 56 : 220} />}
+      {openPanel === "share" && (
+        <SharePopup onClose={handleClose} offset={collapsed ? 56 : 220} />
+      )}
     </>
   );
 }

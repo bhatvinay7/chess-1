@@ -4,27 +4,27 @@ import { useState, useEffect, useCallback } from "react";
 import { useSocket } from "./useSocket/socketConnection";
 
 export interface LiveGamePlayer {
-  id:           string | null;
-  username:     string;
-  rating:       number;
+  id: string | null;
+  username: string;
+  rating: number;
   profileImage: string | null;
 }
 
 export interface LiveGame {
-  gameId:         string;
-  gameState:      string;
-  player1:        LiveGamePlayer;
-  player2:        LiveGamePlayer;
-  whitePlayerId:  string | null;
-  blackPlayerId:  string | null;
-  timeSlot:       string;
-  isRated:        boolean;
+  gameId: string;
+  gameState: string;
+  player1: LiveGamePlayer;
+  player2: LiveGamePlayer;
+  whitePlayerId: string | null;
+  blackPlayerId: string | null;
+  timeSlot: string;
+  isRated: boolean;
   spectatorCount: number;
 }
 
 export function useWatchList(enabled: boolean) {
   const { socket } = useSocket();
-  const [games,   setGames]   = useState<LiveGame[]>([]);
+  const [games, setGames] = useState<LiveGame[]>([]);
   const [loading, setLoading] = useState(false);
 
   const refresh = useCallback(() => {

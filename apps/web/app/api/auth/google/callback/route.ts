@@ -4,11 +4,13 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const credential = formData.get("credential");
-    
+
     if (!credential) {
-      return NextResponse.redirect(new URL("/auth/login?error=GoogleAuthFailed", req.url));
+      return NextResponse.redirect(
+        new URL("/auth/login?error=GoogleAuthFailed", req.url),
+      );
     }
-    
+
     // We pass the token to the client via sessionStorage so it doesn't appear in the URL history
     // and then redirect to a processing page that completes the login flow.
     const html = `
@@ -26,11 +28,13 @@ export async function POST(req: Request) {
         </body>
       </html>
     `;
-    
+
     return new NextResponse(html, {
       headers: { "Content-Type": "text/html" },
     });
   } catch (err) {
-    return NextResponse.redirect(new URL("/auth/login?error=GoogleAuthFailed", req.url));
+    return NextResponse.redirect(
+      new URL("/auth/login?error=GoogleAuthFailed", req.url),
+    );
   }
 }

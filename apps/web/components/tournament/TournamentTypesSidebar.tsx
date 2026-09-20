@@ -89,7 +89,11 @@ interface Props {
   onCreateClick: () => void;
 }
 
-export default function TournamentTypesSidebar({ selected, onSelect, onCreateClick }: Props) {
+export default function TournamentTypesSidebar({
+  selected,
+  onSelect,
+  onCreateClick,
+}: Props) {
   return (
     <aside className={styles.sidebar}>
       <div className={styles.label}>Formats</div>
@@ -103,7 +107,11 @@ export default function TournamentTypesSidebar({ selected, onSelect, onCreateCli
               type="button"
               className={`${styles.typeItem} ${active ? styles.typeItemActive : ""}`}
               onClick={() => onSelect(t.id)}
-              style={active ? ({ "--type-color": t.color } as React.CSSProperties) : undefined}
+              style={
+                active
+                  ? ({ "--type-color": t.color } as React.CSSProperties)
+                  : undefined
+              }
             >
               <span
                 className={styles.typeIcon}
@@ -116,10 +124,7 @@ export default function TournamentTypesSidebar({ selected, onSelect, onCreateCli
                 <span className={styles.typeSub}>{t.sublabel}</span>
               </span>
               {active && (
-                <span
-                  className={styles.typeSymbol}
-                  style={{ color: t.color }}
-                >
+                <span className={styles.typeSymbol} style={{ color: t.color }}>
                   {t.symbol}
                 </span>
               )}
@@ -130,7 +135,11 @@ export default function TournamentTypesSidebar({ selected, onSelect, onCreateCli
 
       <div className={styles.divider} />
 
-      <button type="button" className={styles.createBtn} onClick={onCreateClick}>
+      <button
+        type="button"
+        className={styles.createBtn}
+        onClick={onCreateClick}
+      >
         <Plus size={15} />
         <span>New Tournament</span>
       </button>

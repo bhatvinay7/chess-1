@@ -22,7 +22,7 @@ export interface MoveResponse {
   turn: string;
   is_game_over: boolean;
   /** Seconds remaining on white's clock */
-  black_player_left_time: number,
+  black_player_left_time: number;
   white_player_left_time: number;
   /** Seconds remaining on black's clock */
 
@@ -46,10 +46,7 @@ export interface ChessMoveServiceClient extends grpc.Client {
   ProcessMove(
     request: MoveRequest,
     metadata: grpc.Metadata,
-    callback: (
-      error: grpc.ServiceError | null,
-      response: MoveResponse,
-    ) => void,
+    callback: (error: grpc.ServiceError | null, response: MoveResponse) => void,
   ): grpc.ClientUnaryCall;
 
   RegisterSpectatedGame(

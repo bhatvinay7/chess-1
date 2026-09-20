@@ -56,11 +56,11 @@ export function PlayChessMenu({ onPlayOnline }: PlayChessMenuProps) {
   const st = makeStyles(darkUI);
 
   const handleClick = (key: string) => {
-    if (key === "online")     onPlayOnline();
-    if (key === "bots")       router.push("/arena/bot");
-    if (key === "coach")      router.push("/arena/coach");
+    if (key === "online") onPlayOnline();
+    if (key === "bots") router.push("/arena/bot");
+    if (key === "coach") router.push("/arena/coach");
     if (key === "tournament") router.push("/tournament");
-    if (key === "friend")     router.push("/arena/invite");
+    if (key === "friend") router.push("/arena/invite");
   };
 
   return (
@@ -84,14 +84,17 @@ export function PlayChessMenu({ onPlayOnline }: PlayChessMenuProps) {
             }}
             onMouseEnter={(e) => {
               if (m.active) {
-                (e.currentTarget as HTMLButtonElement).style.background =
-                  darkUI ? "rgba(124,163,95,0.12)" : "rgba(0,0,0,0.06)";
+                (e.currentTarget as HTMLButtonElement).style.background = darkUI
+                  ? "rgba(124,163,95,0.12)"
+                  : "rgba(0,0,0,0.06)";
                 (e.currentTarget as HTMLButtonElement).style.borderColor =
                   darkUI ? "rgba(124,163,95,0.28)" : "rgba(0,0,0,0.22)";
               }
             }}
             onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = darkUI ? "#121212" : "rgba(0,0,0,0.04)";
+              (e.currentTarget as HTMLButtonElement).style.background = darkUI
+                ? "#121212"
+                : "rgba(0,0,0,0.04)";
               (e.currentTarget as HTMLButtonElement).style.borderColor = darkUI
                 ? "rgba(124,163,95,0.1)"
                 : "rgba(0,0,0,0.12)";
@@ -121,16 +124,16 @@ export function PlayChessMenu({ onPlayOnline }: PlayChessMenuProps) {
 }
 
 function makeStyles(dark: boolean): Record<string, React.CSSProperties> {
-  const titleColor  = dark ? "#e8f5d8"              : "#0a0a0a";
-  const itemTitle   = dark ? "#c8e6a8"              : "#111";
-  const itemDesc    = dark ? "#6a8a58"              : "#444";
-  const itemArrow   = dark ? "#3e5535"              : "#666";
-  const itemBg      = dark ? "#121212" : "rgba(0,0,0,0.04)";
-  const itemBorder  = dark ? "rgba(124,163,95,0.1)"   : "rgba(0,0,0,0.12)";
-  const emojiBg     = dark ? "rgba(124,163,95,0.1)"   : "rgba(0,0,0,0.06)";
-  const dividerColor= dark ? "rgba(124,163,95,0.13)"  : "rgba(0,0,0,0.10)";
-  const footerColor = dark ? "#7fa568"              : "#333";
-  const dotColor    = dark ? "#3e5535"              : "#aaa";
+  const titleColor = dark ? "#e8f5d8" : "#0a0a0a";
+  const itemTitle = dark ? "#c8e6a8" : "#111";
+  const itemDesc = dark ? "#6a8a58" : "#444";
+  const itemArrow = dark ? "#3e5535" : "#666";
+  const itemBg = dark ? "#121212" : "rgba(0,0,0,0.04)";
+  const itemBorder = dark ? "rgba(124,163,95,0.1)" : "rgba(0,0,0,0.12)";
+  const emojiBg = dark ? "rgba(124,163,95,0.1)" : "rgba(0,0,0,0.06)";
+  const dividerColor = dark ? "rgba(124,163,95,0.13)" : "rgba(0,0,0,0.10)";
+  const footerColor = dark ? "#7fa568" : "#333";
+  const dotColor = dark ? "#3e5535" : "#aaa";
 
   return {
     root: {

@@ -33,11 +33,18 @@ export class TournamentHandler {
     );
   }
 
-  private async onTournamentView(tournamentId: string, userId?: string): Promise<void> {
+  private async onTournamentView(
+    tournamentId: string,
+    userId?: string,
+  ): Promise<void> {
     try {
       // ── Tick 1: rounds index + player's active game pointer ──────────────────
       const [roundEntries, activeGameId] = await Promise.all([
-        redisClient.zRangeWithScores(`tournament:${tournamentId}:rounds`, 0, -1),
+        redisClient.zRangeWithScores(
+          `tournament:${tournamentId}:rounds`,
+          0,
+          -1,
+        ),
         userId ? getActiveGameId(userId) : Promise.resolve(null),
       ]);
 
@@ -50,18 +57,25 @@ export class TournamentHandler {
         return;
       }
 
-      const latestRound  = roundEntries.at(-1)!;
+      const latestRound = roundEntries.at(-1)!;
       const latestRoundId = latestRound.value;
 
       // ── Tick 2: check liveness + fetch group indices + game state in parallel ─
       // If round:state is empty, sync-worker has cleared it → tournament completed.
-      const [liveCheck, gameFields, ...groupEntriesPerRound] = await Promise.all([
-        redisClient.hLen(`tournament:round:${latestRoundId}:state`),
-        activeGameId ? redisClient.hGetAll(`game:state:${activeGameId}`) : Promise.resolve<Record<string, string>>({}),
-        ...roundEntries.map(({ value: roundId }) =>
-          redisClient.zRangeWithScores(`tournament:${tournamentId}:round:${roundId}:groups`, 0, -1),
-        ),
-      ]);
+      const [liveCheck, gameFields, ...groupEntriesPerRound] =
+        await Promise.all([
+          redisClient.hLen(`tournament:round:${latestRoundId}:state`),
+          activeGameId
+            ? redisClient.hGetAll(`game:state:${activeGameId}`)
+            : Promise.resolve<Record<string, string>>({}),
+          ...roundEntries.map(({ value: roundId }) =>
+            redisClient.zRangeWithScores(
+              `tournament:${tournamentId}:round:${roundId}:groups`,
+              0,
+              -1,
+            ),
+          ),
+        ]);
 
       const isLive = liveCheck > 0;
 
@@ -80,48 +94,79 @@ export class TournamentHandler {
       const allRoundIds = roundEntries.map((e) => e.value);
 
       const [groupStateMaps, roundStateMaps] = await Promise.all([
-        Promise.all(allGroupIds.map((gid) => redisClient.hGetAll(`tournament:group:${gid}:state`))),
-        Promise.all(allRoundIds.map((rid) => redisClient.hGetAll(`tournament:round:${rid}:state`))),
+        Promise.all(
+          allGroupIds.map((gid) =>
+            redisClient.hGetAll(`tournament:group:${gid}:state`),
+          ),
+        ),
+        Promise.all(
+          allRoundIds.map((rid) =>
+            redisClient.hGetAll(`tournament:round:${rid}:state`),
+          ),
+        ),
       ]);
 
       // ── Build response ─────────────────────────────────────────────────────────
       let groupStateIdx = 0;
       const myPastGames: unknown[] = [];
 
-      const rounds = roundEntries.map(({ value: roundId, score: roundNumber }, rIdx) => {
-        const groupEntries = groupEntriesPerRound[rIdx] ?? [];
+      const rounds = roundEntries.map(
+        ({ value: roundId, score: roundNumber }, rIdx) => {
+          const groupEntries = groupEntriesPerRound[rIdx] ?? [];
 
-        const groups = groupEntries.map(({ value: groupId, score: groupNumber }) => {
-          const stateMap = groupStateMaps[groupStateIdx++] ?? {};
+          const groups = groupEntries.map(
+            ({ value: groupId, score: groupNumber }) => {
+              const stateMap = groupStateMaps[groupStateIdx++] ?? {};
 
-          // Collect the current player's game entries across all groups
-          if (userId && stateMap[userId]) {
-            try {
-              const ps = JSON.parse(stateMap[userId]);
-              if (Array.isArray(ps.games)) myPastGames.push(...ps.games);
-            } catch { /* malformed — skip */ }
-          }
+              // Collect the current player's game entries across all groups
+              if (userId && stateMap[userId]) {
+                try {
+                  const ps = JSON.parse(stateMap[userId]);
+                  if (Array.isArray(ps.games)) myPastGames.push(...ps.games);
+                } catch {
+                  /* malformed — skip */
+                }
+              }
 
-          const standings = Object.values(stateMap)
-            .map((v) => { try { return JSON.parse(v); } catch { return null; } })
+              const standings = Object.values(stateMap)
+                .map((v) => {
+                  try {
+                    return JSON.parse(v);
+                  } catch {
+                    return null;
+                  }
+                })
+                .filter(Boolean)
+                .sort((a: any, b: any) => b.score - a.score);
+
+              return { groupId, groupNumber, standings };
+            },
+          );
+
+          const roundStateMap = roundStateMaps[rIdx] ?? {};
+          const roundStandings = Object.values(roundStateMap)
+            .map((v) => {
+              try {
+                return JSON.parse(v);
+              } catch {
+                return null;
+              }
+            })
             .filter(Boolean)
-            .sort((a: any, b: any) => b.score - a.score);
+            .sort((a: any, b: any) => b.groupScore - a.groupScore);
 
-          return { groupId, groupNumber, standings };
-        });
-
-        const roundStateMap = roundStateMaps[rIdx] ?? {};
-        const roundStandings = Object.values(roundStateMap)
-          .map((v) => { try { return JSON.parse(v); } catch { return null; } })
-          .filter(Boolean)
-          .sort((a: any, b: any) => b.groupScore - a.groupScore);
-
-        return { roundId, roundNumber, groups, roundStandings };
-      });
+          return { roundId, roundNumber, groups, roundStandings };
+        },
+      );
 
       // My live game (verify it belongs to this tournament)
-      let myLiveGame: (Record<string, string> & { gameId: string }) | null = null;
-      if (activeGameId && Object.keys(gameFields).length > 0 && gameFields.tournament_id === tournamentId) {
+      let myLiveGame: (Record<string, string> & { gameId: string }) | null =
+        null;
+      if (
+        activeGameId &&
+        Object.keys(gameFields).length > 0 &&
+        gameFields.tournament_id === tournamentId
+      ) {
         myLiveGame = { gameId: activeGameId, ...gameFields };
       }
 
@@ -133,7 +178,10 @@ export class TournamentHandler {
         myPastGames,
       });
     } catch (err) {
-      console.error(`[tournament:view] Error for tournament ${tournamentId}:`, err);
+      console.error(
+        `[tournament:view] Error for tournament ${tournamentId}:`,
+        err,
+      );
       this.socket.emit("tournament:error", {
         tournamentId,
         message: "Failed to fetch tournament data",

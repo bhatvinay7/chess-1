@@ -26,9 +26,12 @@ declare global {
             notification?: (notification: {
               isNotDisplayed: () => boolean;
               isSkippedMoment: () => boolean;
-            }) => void
+            }) => void,
           ) => void;
-          renderButton: (parent: HTMLElement, options: Record<string, unknown>) => void;
+          renderButton: (
+            parent: HTMLElement,
+            options: Record<string, unknown>,
+          ) => void;
         };
       };
     };
@@ -81,7 +84,7 @@ export function GoogleAuthButton({ mode = "login" }: GoogleAuthButtonProps) {
       const error = err as { response?: { data?: { message?: string } } };
       setErrorMsg(
         error.response?.data?.message ||
-          "Google authentication failed. Please check your credentials or try again."
+          "Google authentication failed. Please check your credentials or try again.",
       );
     } finally {
       setLoading(false);
@@ -89,7 +92,8 @@ export function GoogleAuthButton({ mode = "login" }: GoogleAuthButtonProps) {
   };
 
   useEffect(() => {
-    if (!scriptLoaded || !window.google?.accounts?.id || !buttonRef.current) return;
+    if (!scriptLoaded || !window.google?.accounts?.id || !buttonRef.current)
+      return;
 
     window.google.accounts.id.initialize({
       client_id: clientId,
@@ -111,20 +115,35 @@ export function GoogleAuthButton({ mode = "login" }: GoogleAuthButtonProps) {
   }, [scriptLoaded, clientId, mode]);
 
   return (
-    <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem" }}>
-      <div 
-        ref={buttonRef} 
-        style={{ 
-          display: "flex", 
+    <div
+      style={{
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: "0.5rem",
+      }}
+    >
+      <div
+        ref={buttonRef}
+        style={{
+          display: "flex",
           justifyContent: "center",
           width: "100%",
           opacity: loading ? 0.5 : 1,
           pointerEvents: loading ? "none" : "auto",
-        }} 
+        }}
       />
 
       {loading && (
-        <p style={{ fontSize: "0.8rem", color: "#a0a0a0", textAlign: "center", margin: 0 }}>
+        <p
+          style={{
+            fontSize: "0.8rem",
+            color: "#a0a0a0",
+            textAlign: "center",
+            margin: 0,
+          }}
+        >
           Signing in with Google...
         </p>
       )}

@@ -1,7 +1,7 @@
 // This is a foundational test file for ws-server socket interactions.
 
-describe('WebSocket Server', () => {
-  it('should pass a dummy test to ensure jest config is correct', () => {
+describe("WebSocket Server", () => {
+  it("should pass a dummy test to ensure jest config is correct", () => {
     expect(true).toBe(true);
   });
 

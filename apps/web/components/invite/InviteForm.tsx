@@ -73,7 +73,9 @@ export default function InviteForm({ onSend, actionLoading, error }: Props) {
       setSuccess("Invitation sent successfully!");
       setScheduledTime("");
     } catch (err: any) {
-      setLocalError(err.response?.data?.message || "Failed to send invitation.");
+      setLocalError(
+        err.response?.data?.message || "Failed to send invitation.",
+      );
     }
   };
 
@@ -114,7 +116,9 @@ export default function InviteForm({ onSend, actionLoading, error }: Props) {
             friends
               .filter((f) => {
                 if (debouncedFriendSearch.length > 0) {
-                  return f.user.username.toLowerCase().includes(debouncedFriendSearch.toLowerCase());
+                  return f.user.username
+                    .toLowerCase()
+                    .includes(debouncedFriendSearch.toLowerCase());
                 }
                 return f.user.id === selectedFriend;
               })
@@ -182,7 +186,9 @@ export default function InviteForm({ onSend, actionLoading, error }: Props) {
                 className={`${styles.chip} ${active ? styles.chipActive : ""}`}
                 style={{ flex: 1 }}
               >
-                <span style={{ fontSize: "1rem", marginRight: "0.3rem" }}>{mode.emoji}</span>
+                <span style={{ fontSize: "1rem", marginRight: "0.3rem" }}>
+                  {mode.emoji}
+                </span>
                 {mode.label}
               </button>
             );
@@ -207,7 +213,9 @@ export default function InviteForm({ onSend, actionLoading, error }: Props) {
                 onClick={() => setColor(c.value)}
                 className={`${styles.chip} ${active ? styles.chipActive : ""}`}
               >
-                <span style={{ fontSize: "1rem", marginRight: "0.3rem" }}>{c.emoji}</span>
+                <span style={{ fontSize: "1rem", marginRight: "0.3rem" }}>
+                  {c.emoji}
+                </span>
                 {c.label}
               </button>
             );
@@ -229,7 +237,8 @@ export default function InviteForm({ onSend, actionLoading, error }: Props) {
       {/* Send */}
       <div className={styles.summaryBar}>
         <div className={styles.summaryText}>
-          {timeControl} • {gameMode === "chess960" ? "Chess960" : "Standard"} • {color}
+          {timeControl} • {gameMode === "chess960" ? "Chess960" : "Standard"} •{" "}
+          {color}
         </div>
         <button
           className={styles.sendBtn}

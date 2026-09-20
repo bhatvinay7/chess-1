@@ -8,7 +8,8 @@ export const mongoPrisma =
     log: ["query"],
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.mongoPrisma = mongoPrisma;
+if (process.env.NODE_ENV !== "production")
+  globalForPrisma.mongoPrisma = mongoPrisma;
 
 if (process.env.NODE_ENV === "test") {
   (mongoPrisma as any).$transaction = async (cb: any) => {
@@ -30,9 +31,12 @@ export async function ensureTtlIndex() {
     });
     console.log("[MongoDB] TTL index on Notification.createdAt ensured.");
   } catch (error) {
-    console.error("[MongoDB] Failed to ensure TTL index on Notification:", error);
+    console.error(
+      "[MongoDB] Failed to ensure TTL index on Notification:",
+      error,
+    );
   }
-  
+
   try {
     await mongoPrisma.$runCommandRaw({
       createIndexes: "Invitation",

@@ -52,10 +52,19 @@ export async function getClub(req: Request, res: Response): Promise<void> {
     const club = await prisma.club.findUnique({
       where: { id: clubId },
       include: {
-        creator: { select: { id: true, username: true, profileImageUrl: true } },
+        creator: {
+          select: { id: true, username: true, profileImageUrl: true },
+        },
         members: {
           include: {
-            user: { select: { id: true, username: true, profileImageUrl: true, rating: true } },
+            user: {
+              select: {
+                id: true,
+                username: true,
+                profileImageUrl: true,
+                rating: true,
+              },
+            },
           },
           orderBy: { joinedAt: "asc" },
         },
@@ -81,7 +90,12 @@ export async function listClubs(req: Request, res: Response): Promise<void> {
 
   try {
     const where = search
-      ? { OR: [{ name: { contains: search, mode: "insensitive" as const } }, { description: { contains: search, mode: "insensitive" as const } }] }
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" as const } },
+            { description: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
       : {};
 
     const [clubs, total] = await Promise.all([
@@ -124,7 +138,9 @@ export async function updateClub(req: Request, res: Response): Promise<void> {
     });
 
     if (!membership || !["ADMIN", "COORDINATOR"].includes(membership.role)) {
-      res.status(403).json({ message: "Only admin or coordinator can update club" });
+      res
+        .status(403)
+        .json({ message: "Only admin or coordinator can update club" });
       return;
     }
 
@@ -143,7 +159,10 @@ export async function updateClub(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function requestJoinClub(req: Request, res: Response): Promise<void> {
+export async function requestJoinClub(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const clubId = s(req.params.clubId);
   const { userId } = req.body as { userId?: string };
 
@@ -181,13 +200,21 @@ export async function requestJoinClub(req: Request, res: Response): Promise<void
   }
 }
 
-export async function handleJoinRequest(req: Request, res: Response): Promise<void> {
-  const clubId    = s(req.params.clubId);
+export async function handleJoinRequest(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const clubId = s(req.params.clubId);
   const requestId = s(req.params.requestId);
-  const { action, adminId } = req.body as { action?: "accept" | "reject"; adminId?: string };
+  const { action, adminId } = req.body as {
+    action?: "accept" | "reject";
+    adminId?: string;
+  };
 
   if (!action || !adminId || !["accept", "reject"].includes(action)) {
-    res.status(400).json({ message: "action (accept|reject) and adminId are required" });
+    res
+      .status(400)
+      .json({ message: "action (accept|reject) and adminId are required" });
     return;
   }
 
@@ -196,11 +223,15 @@ export async function handleJoinRequest(req: Request, res: Response): Promise<vo
       where: { clubId_userId: { clubId, userId: adminId } },
     });
     if (!membership || !["ADMIN", "COORDINATOR"].includes(membership.role)) {
-      res.status(403).json({ message: "Not authorised to manage join requests" });
+      res
+        .status(403)
+        .json({ message: "Not authorised to manage join requests" });
       return;
     }
 
-    const joinRequest = await prisma.clubJoinRequest.findUnique({ where: { id: requestId } });
+    const joinRequest = await prisma.clubJoinRequest.findUnique({
+      where: { id: requestId },
+    });
     if (!joinRequest || joinRequest.clubId !== clubId) {
       res.status(404).json({ message: "Request not found" });
       return;
@@ -256,7 +287,10 @@ export async function removeMember(req: Request, res: Response): Promise<void> {
   }
 }
 
-export async function sendCoordinatorInvite(req: Request, res: Response): Promise<void> {
+export async function sendCoordinatorInvite(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const clubId = s(req.params.clubId);
   const { invitedUserId, invitedById } = req.body as {
     invitedUserId?: string;
@@ -264,7 +298,9 @@ export async function sendCoordinatorInvite(req: Request, res: Response): Promis
   };
 
   if (!invitedUserId || !invitedById) {
-    res.status(400).json({ message: "invitedUserId and invitedById are required" });
+    res
+      .status(400)
+      .json({ message: "invitedUserId and invitedById are required" });
     return;
   }
 
@@ -273,7 +309,9 @@ export async function sendCoordinatorInvite(req: Request, res: Response): Promis
       where: { clubId_userId: { clubId, userId: invitedById } },
     });
     if (!adminMembership || adminMembership.role !== "ADMIN") {
-      res.status(403).json({ message: "Only admin can send coordinator invites" });
+      res
+        .status(403)
+        .json({ message: "Only admin can send coordinator invites" });
       return;
     }
 
@@ -289,19 +327,33 @@ export async function sendCoordinatorInvite(req: Request, res: Response): Promis
   }
 }
 
-export async function handleCoordinatorInvite(req: Request, res: Response): Promise<void> {
-  const clubId   = s(req.params.clubId);
+export async function handleCoordinatorInvite(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const clubId = s(req.params.clubId);
   const inviteId = s(req.params.inviteId);
-  const { action, userId } = req.body as { action?: "accept" | "reject"; userId?: string };
+  const { action, userId } = req.body as {
+    action?: "accept" | "reject";
+    userId?: string;
+  };
 
   if (!action || !userId || !["accept", "reject"].includes(action)) {
-    res.status(400).json({ message: "action (accept|reject) and userId are required" });
+    res
+      .status(400)
+      .json({ message: "action (accept|reject) and userId are required" });
     return;
   }
 
   try {
-    const invite = await prisma.clubCoordinatorInvite.findUnique({ where: { id: inviteId } });
-    if (!invite || invite.clubId !== clubId || invite.invitedUserId !== userId) {
+    const invite = await prisma.clubCoordinatorInvite.findUnique({
+      where: { id: inviteId },
+    });
+    if (
+      !invite ||
+      invite.clubId !== clubId ||
+      invite.invitedUserId !== userId
+    ) {
       res.status(404).json({ message: "Invite not found" });
       return;
     }
@@ -325,39 +377,50 @@ export async function handleCoordinatorInvite(req: Request, res: Response): Prom
   }
 }
 
-export async function getMyAdminClubs(req: Request, res: Response): Promise<void> {
+export async function getMyAdminClubs(
+  req: Request,
+  res: Response,
+): Promise<void> {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) {
-    res.status(401).json({ message: 'Unauthorized' });
+  if (!authHeader?.startsWith("Bearer ")) {
+    res.status(401).json({ message: "Unauthorized" });
     return;
   }
 
   let userId: string;
   try {
-    const { verifyToken } = await import('../../utils/middleware.commonfie.js');
+    const { verifyToken } = await import("../../utils/middleware.commonfie.js");
     userId = verifyToken(authHeader.slice(7)).userId;
   } catch {
-    res.status(401).json({ message: 'Invalid token' });
+    res.status(401).json({ message: "Invalid token" });
     return;
   }
 
   try {
     const memberships = await prisma.clubMember.findMany({
-      where: { userId, role: 'ADMIN' },
+      where: { userId, role: "ADMIN" },
       include: {
         club: {
-          select: { id: true, name: true, imageUrl: true, _count: { select: { members: true } } },
+          select: {
+            id: true,
+            name: true,
+            imageUrl: true,
+            _count: { select: { members: true } },
+          },
         },
       },
     });
     res.json(memberships.map((m: (typeof memberships)[number]) => m.club));
   } catch {
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 }
 
-export async function getJoinRequests(req: Request, res: Response): Promise<void> {
-  const clubId  = s(req.params.clubId);
+export async function getJoinRequests(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const clubId = s(req.params.clubId);
   const adminId = req.query.adminId as string | undefined;
 
   if (!adminId) {
@@ -376,7 +439,16 @@ export async function getJoinRequests(req: Request, res: Response): Promise<void
 
     const requests = await prisma.clubJoinRequest.findMany({
       where: { clubId, status: "PENDING" },
-      include: { user: { select: { id: true, username: true, profileImageUrl: true, rating: true } } },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            profileImageUrl: true,
+            rating: true,
+          },
+        },
+      },
       orderBy: { createdAt: "asc" },
     });
 

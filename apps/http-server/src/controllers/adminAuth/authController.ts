@@ -9,9 +9,13 @@ export async function adminCreate(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const existing = await prisma.user.findUnique({ where: { email } }).catch(() => null);
+  const existing = await prisma.user
+    .findUnique({ where: { email } })
+    .catch(() => null);
   if (existing) {
-    res.status(409).json({ message: "An account with this email already exists" });
+    res
+      .status(409)
+      .json({ message: "An account with this email already exists" });
     return;
   }
 
@@ -21,7 +25,13 @@ export async function adminCreate(req: Request, res: Response): Promise<void> {
     const admin = await prisma.user.create({
       data: { username, email, isAdmin: true },
     });
-    res.status(201).json({ message: "Admin created", username: admin.username, email: admin.email });
+    res
+      .status(201)
+      .json({
+        message: "Admin created",
+        username: admin.username,
+        email: admin.email,
+      });
   } catch {
     res.status(500).json({ message: "Internal server error" });
   }

@@ -1,10 +1,28 @@
-import type { SpanExporter, SpanProcessor } from '@opentelemetry/sdk-trace-base';
-import type { NodeSDK } from '@opentelemetry/sdk-node';
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import { SpanKind } from '@opentelemetry/api';
+import type {
+  SpanExporter,
+  SpanProcessor,
+} from "@opentelemetry/sdk-trace-base";
+import type { NodeSDK } from "@opentelemetry/sdk-node";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { SpanKind } from "@opentelemetry/api";
 export { SpanKind };
-export function initTelemetry(serviceName: string, options?: { traceExporter?: SpanExporter; spanProcessors?: SpanProcessor[] }): NodeSDK | undefined;
+export function initTelemetry(
+  serviceName: string,
+  options?: { traceExporter?: SpanExporter; spanProcessors?: SpanProcessor[] },
+): NodeSDK | undefined;
 export function currentCarrier(): Record<string, string>;
-export function withTracePayload<T extends object>(payload: T): T & { _trace_context: Record<string, string> };
-export function withSpan<T>(name: string, kind: SpanKind, operation: () => T | Promise<T>, carrier?: Record<string, string>, attributes?: Record<string, string | number | boolean>): Promise<T>;
-export function httpTracing(req: IncomingMessage, res: ServerResponse, next: () => void): void;
+export function withTracePayload<T extends object>(
+  payload: T,
+): T & { _trace_context: Record<string, string> };
+export function withSpan<T>(
+  name: string,
+  kind: SpanKind,
+  operation: () => T | Promise<T>,
+  carrier?: Record<string, string>,
+  attributes?: Record<string, string | number | boolean>,
+): Promise<T>;
+export function httpTracing(
+  req: IncomingMessage,
+  res: ServerResponse,
+  next: () => void,
+): void;

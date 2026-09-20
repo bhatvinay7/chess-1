@@ -4,7 +4,14 @@ import { useMemo } from "react";
 import type { Chess } from "chess.js";
 import type { GameRoomState } from "./useSocket/useGameRoom";
 
-const SERVER_GAME_OVER_STATES = new Set(["GAME_OVER", "CHECKMATE", "DRAW", "STALEMATE", "TIMEOUT", "RESIGN"]);
+const SERVER_GAME_OVER_STATES = new Set([
+  "GAME_OVER",
+  "CHECKMATE",
+  "DRAW",
+  "STALEMATE",
+  "TIMEOUT",
+  "RESIGN",
+]);
 
 interface GameResultInput {
   game: Chess;
@@ -45,7 +52,8 @@ export function useGameResult({
 
     // Server-reported game over covers timeouts and other server-resolved endings.
     const serverGameOver =
-      !!gameState?.gameState && SERVER_GAME_OVER_STATES.has(gameState.gameState);
+      !!gameState?.gameState &&
+      SERVER_GAME_OVER_STATES.has(gameState.gameState);
     const isGameOver = chessGameOver || serverGameOver;
 
     // Winner determination: prefer chess.js (checkmate), fall back to server winnerId (timeout).
@@ -71,10 +79,12 @@ export function useGameResult({
     let resultLabel = "Game Over";
     if (isCheckmate) resultLabel = "Checkmate";
     else if (game.isStalemate()) resultLabel = "Stalemate";
-    else if (game.isInsufficientMaterial()) resultLabel = "Insufficient Material";
+    else if (game.isInsufficientMaterial())
+      resultLabel = "Insufficient Material";
     else if (game.isThreefoldRepetition()) resultLabel = "Threefold Repetition";
     else if (chessIsDraw) resultLabel = "Draw";
-    else if (serverGameOver && gameState?.gameState === "RESIGN") resultLabel = "Resignation";
+    else if (serverGameOver && gameState?.gameState === "RESIGN")
+      resultLabel = "Resignation";
     else if (serverGameOver && gameState?.winnerId) resultLabel = "Timeout";
     else if (serverGameOver) resultLabel = "Draw";
 
@@ -108,5 +118,15 @@ export function useGameResult({
       isRated: gameState?.isRated ?? false,
       timeSlot: gameState?.time_slot ?? "",
     };
-  }, [game, gameState?.gameState, gameState?.winnerId, gameState?.isRated, gameState?.time_slot, isWhite, myRating, opponentRating, userId]);
+  }, [
+    game,
+    gameState?.gameState,
+    gameState?.winnerId,
+    gameState?.isRated,
+    gameState?.time_slot,
+    isWhite,
+    myRating,
+    opponentRating,
+    userId,
+  ]);
 }

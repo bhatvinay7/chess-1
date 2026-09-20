@@ -12,7 +12,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 export { startGrpcServer } from "./server.js";
-export { createGrpcClient, processMoveGrpc, registerSpectatedGameGrpc } from "./client.js";
+export {
+  createGrpcClient,
+  processMoveGrpc,
+  registerSpectatedGameGrpc,
+} from "./client.js";
 export type {
   MoveRequest,
   MoveResponse,

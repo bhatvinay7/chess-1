@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import type { CSSProperties } from "react";
 import { Chess, Square, Move } from "chess.js";
 import type { Arrow } from "react-chessboard";
-import {useChessTimer} from "@/hooks/useClockTime"
+import { useChessTimer } from "@/hooks/useClockTime";
 import type {
   GameMovePayload,
   GameRoomState,
@@ -47,7 +47,10 @@ function isPromotionNeeded(game: Chess, from: string, to: string): boolean {
   const piece = game.get(from as Square);
   if (!piece || piece.type !== "p") return false;
   const rank = to[1];
-  return (piece.color === "w" && rank === "8") || (piece.color === "b" && rank === "1");
+  return (
+    (piece.color === "w" && rank === "8") ||
+    (piece.color === "b" && rank === "1")
+  );
 }
 
 export function pairMoves(moves: string[]): MovePair[] {
@@ -58,7 +61,10 @@ export function pairMoves(moves: string[]): MovePair[] {
   return pairs;
 }
 
-function pairMovesWithTiming(sans: string[], movesHistory: GameMovePayload[]): MovePair[] {
+function pairMovesWithTiming(
+  sans: string[],
+  movesHistory: GameMovePayload[],
+): MovePair[] {
   const pairs: MovePair[] = [];
   for (let i = 0; i < sans.length; i += 2) {
     pairs.push({
@@ -96,13 +102,11 @@ export function getCapturedPieces(
           type: moveResult.captured,
         });
       }
-    } catch {
-    }
+    } catch {}
   });
 
   return capturedPieces;
 }
-
 
 export function useChessGame({
   movesHistory,
@@ -117,28 +121,40 @@ export function useChessGame({
 }: UseChessGameInput) {
   const [game, setGame] = useState<Chess>(new Chess());
   const [fen, setFen] = useState<string>(() => new Chess().fen());
-  const [displayedFen, setDisplayedFen] = useState<string>(() => new Chess().fen());
+  const [displayedFen, setDisplayedFen] = useState<string>(() =>
+    new Chess().fen(),
+  );
   const [moveHistory, setMoveHistory] = useState<string[]>([]);
   const [currentMoveIdx, setCurrentMoveIdx] = useState<number>(-1);
   const [moveFrom, setMoveFrom] = useState<string | null>(null);
-  const [optionSquares, setOptionSquares] = useState<Record<string, CSSProperties>>({});
+  const [optionSquares, setOptionSquares] = useState<
+    Record<string, CSSProperties>
+  >({});
   const [hintArrow, setHintArrow] = useState<Arrow[]>([]);
-  const [pendingPromotion, setPendingPromotion] = useState<PendingPromotion | null>(null);
+  const [pendingPromotion, setPendingPromotion] =
+    useState<PendingPromotion | null>(null);
   const moveScrollRef = useRef<HTMLDivElement>(null);
-  const prevLastMoveKeyRef = useRef<string>('');
-  const prevLastMoveFenRef = useRef<string>('');
+  const prevLastMoveKeyRef = useRef<string>("");
+  const prevLastMoveFenRef = useRef<string>("");
   const normalMoveSoundRef = useRef<HTMLAudioElement | null>(null);
   const captureSoundRef = useRef<HTMLAudioElement | null>(null);
   const checkSoundRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    normalMoveSoundRef.current = new Audio('/normalMove.mp3');
-    captureSoundRef.current = new Audio('/capture.mp3');
-    checkSoundRef.current = new Audio('/check.mp3');
+    normalMoveSoundRef.current = new Audio("/normalMove.mp3");
+    captureSoundRef.current = new Audio("/capture.mp3");
+    checkSoundRef.current = new Audio("/check.mp3");
   }, []);
-   
-    const {displayWhiteTime,
-    displayBlackTime,
-    syncTimeFromOutside}=useChessTimer(gameState?.time_slot ?? "",gameState?.whitePlayerLeftTime.toString() ?? "",gameState?.blackPlayerLeftTime.toString() ?? "",activeGameId,game,onTimeout,gameState?.leftGameStartTime)
+
+  const { displayWhiteTime, displayBlackTime, syncTimeFromOutside } =
+    useChessTimer(
+      gameState?.time_slot ?? "",
+      gameState?.whitePlayerLeftTime.toString() ?? "",
+      gameState?.blackPlayerLeftTime.toString() ?? "",
+      activeGameId,
+      game,
+      onTimeout,
+      gameState?.leftGameStartTime,
+    );
   const movesHistoryRef = useRef(movesHistory);
   const prevMovesLengthRef = useRef(-1);
   useEffect(() => {
@@ -154,16 +170,16 @@ export function useChessGame({
         const safeFen = toSafeFen(initialFenStr);
         const newGame =
           !safeFen || safeFen === "startpos" ? new Chess() : new Chess(safeFen);
-        
-        // Only set fenStr if we're not immediately going to replay moves, 
+
+        // Only set fenStr if we're not immediately going to replay moves,
         // or just rely on the replay loop to set it correctly.
-        // Actually, if we have movesHistory, we'll replay it. If we don't, 
+        // Actually, if we have movesHistory, we'll replay it. If we don't,
         // we should show currentFen.
         if (movesHistory.length === 0) {
-            const safeCurrentFen = toSafeFen(fenStr);
-            if (safeCurrentFen && safeCurrentFen !== "startpos") {
-                newGame.load(safeCurrentFen);
-            }
+          const safeCurrentFen = toSafeFen(fenStr);
+          if (safeCurrentFen && safeCurrentFen !== "startpos") {
+            newGame.load(safeCurrentFen);
+          }
         }
         setGame(newGame);
         setFen(newGame.fen());
@@ -192,23 +208,32 @@ export function useChessGame({
     // (e.g. timeTakenMs added by handleMoveResult) vs. genuine new moves
     // or newly confirmed FENs from the server.
     const lastEntry = movesHistory[movesHistory.length - 1];
-    const lastMoveKey = lastEntry ? `${lastEntry.move.from}${lastEntry.move.to}` : '';
-    const lastNewFen = lastEntry?.newFen || '';
-    
+    const lastMoveKey = lastEntry
+      ? `${lastEntry.move.from}${lastEntry.move.to}`
+      : "";
+    const lastNewFen = lastEntry?.newFen || "";
+
     const prevLastKey = prevLastMoveKeyRef.current;
     const prevLastFen = prevLastMoveFenRef.current;
-    
+
     prevLastMoveKeyRef.current = lastMoveKey;
     prevLastMoveFenRef.current = lastNewFen;
 
-    if (movesHistory.length === prevLen && lastMoveKey === prevLastKey && lastNewFen === prevLastFen) {
+    if (
+      movesHistory.length === prevLen &&
+      lastMoveKey === prevLastKey &&
+      lastNewFen === prevLastFen
+    ) {
       // Only metadata changed (timeTakenMs populated) — no board update needed.
       return;
     }
 
     const initialFenStr = gameState?.initialFen || "startpos";
     const safeInitialFen = toSafeFen(initialFenStr);
-    const replayGame = !safeInitialFen || safeInitialFen === "startpos" ? new Chess() : new Chess(safeInitialFen);
+    const replayGame =
+      !safeInitialFen || safeInitialFen === "startpos"
+        ? new Chess()
+        : new Chess(safeInitialFen);
     const sans: string[] = [];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let lastMoveResult: any = null;
@@ -278,11 +303,18 @@ export function useChessGame({
     if (currentMoveIdx === -1) {
       const initialFenStr = gameState?.initialFen || "startpos";
       const safeInitialFen = toSafeFen(initialFenStr);
-      setDisplayedFen(!safeInitialFen || safeInitialFen === "startpos" ? new Chess().fen() : new Chess(safeInitialFen).fen());
+      setDisplayedFen(
+        !safeInitialFen || safeInitialFen === "startpos"
+          ? new Chess().fen()
+          : new Chess(safeInitialFen).fen(),
+      );
     } else if (currentMoveIdx >= 0 && currentMoveIdx < movesHistory.length) {
       const initialFenStr = gameState?.initialFen || "startpos";
       const safeInitialFen = toSafeFen(initialFenStr);
-      const replayGame = !safeInitialFen || safeInitialFen === "startpos" ? new Chess() : new Chess(safeInitialFen);
+      const replayGame =
+        !safeInitialFen || safeInitialFen === "startpos"
+          ? new Chess()
+          : new Chess(safeInitialFen);
       let currentFen = replayGame.fen();
 
       for (let i = 0; i <= currentMoveIdx; i++) {
@@ -342,7 +374,6 @@ export function useChessGame({
     }
   }, [invalidMove]);
 
-
   const getMoveOptions = useCallback(
     (square: string): boolean => {
       const moves = game.moves({
@@ -379,7 +410,12 @@ export function useChessGame({
     if (legalMoves.length === 0) return null;
 
     const pieceValue: Record<string, number> = {
-      p: 1, n: 3, b: 3, r: 5, q: 9, k: 0,
+      p: 1,
+      n: 3,
+      b: 3,
+      r: 5,
+      q: 9,
+      k: 0,
     };
 
     // 1. Best capture
@@ -435,7 +471,11 @@ export function useChessGame({
     const mv = movesHistory[currentMoveIdx]?.move;
     if (!mv) return [];
     return [
-      { startSquare: mv.from, endSquare: mv.to, color: "rgba(59, 130, 246, 0.65)" },
+      {
+        startSquare: mv.from,
+        endSquare: mv.to,
+        color: "rgba(59, 130, 246, 0.65)",
+      },
     ];
   })();
 
@@ -455,7 +495,7 @@ export function useChessGame({
       }
 
       const testGame = new Chess(game.fen());
-      
+
       let localMoveSucceeded = false;
       try {
         if (isPromotionNeeded(game, moveFrom, square)) {
@@ -474,7 +514,11 @@ export function useChessGame({
           return;
         }
 
-        const moveResult = testGame.move({ from: moveFrom, to: square, promotion: "q" });
+        const moveResult = testGame.move({
+          from: moveFrom,
+          to: square,
+          promotion: "q",
+        });
         if (moveResult) {
           setGame(testGame);
           setDisplayedFen(testGame.fen());
@@ -488,12 +532,20 @@ export function useChessGame({
         if (gameState?.gameMode !== "chess960") return false;
         const fromPiece = game.get(moveFrom as Square);
         const toPiece = game.get(square as Square);
-        return fromPiece?.type === 'k' && toPiece?.type === 'r' && fromPiece.color === toPiece.color;
+        return (
+          fromPiece?.type === "k" &&
+          toPiece?.type === "r" &&
+          fromPiece.color === toPiece.color
+        );
       })();
 
       // If it succeeded, or if it's chess960 castling (which fails locally), send to server.
       if (localMoveSucceeded || isCastlingAttempt) {
-        sendMove(activeGameId, user.id, { from: moveFrom, to: square, promotion: "q" });
+        sendMove(activeGameId, user.id, {
+          from: moveFrom,
+          to: square,
+          promotion: "q",
+        });
         setMoveFrom(null);
         setOptionSquares({});
         return;
@@ -526,24 +578,30 @@ export function useChessGame({
   );
 
   const canDragPiece = useCallback(
-    ({ piece }: { isSparePiece: boolean; piece: { pieceType: string }; square: string | null }) => {
+    ({
+      piece,
+    }: {
+      isSparePiece: boolean;
+      piece: { pieceType: string };
+      square: string | null;
+    }) => {
       // Allow only the player's own pieces to be dragged
       const pieceColor = piece.pieceType[0];
-      const myColor = isWhite ? 'w' : 'b';
+      const myColor = isWhite ? "w" : "b";
       if (pieceColor !== myColor) return false;
 
       // In Chess960, if it is not the user's turn, do not allow dragging the King or Rook
       // to prevent castling premove glitches.
       if (!isUserTurn && gameState?.gameMode === "chess960") {
         const type = piece.pieceType[1]?.toLowerCase();
-        if (type === 'k' || type === 'r') {
+        if (type === "k" || type === "r") {
           return false;
         }
       }
 
       return true;
     },
-    [isUserTurn, gameState?.gameMode, isWhite]
+    [isUserTurn, gameState?.gameMode, isWhite],
   );
 
   const handleDrop = useCallback(
@@ -559,7 +617,11 @@ export function useChessGame({
       if (isPromotionNeeded(game, sourceSquare, targetSquare)) {
         try {
           const checkGame = new Chess(game.fen());
-          checkGame.move({ from: sourceSquare, to: targetSquare, promotion: "q" });
+          checkGame.move({
+            from: sourceSquare,
+            to: targetSquare,
+            promotion: "q",
+          });
           setPendingPromotion({
             from: sourceSquare,
             to: targetSquare,
@@ -576,7 +638,11 @@ export function useChessGame({
       const testGame = new Chess(game.fen());
       let localMoveSucceeded = false;
       try {
-        const moveResult = testGame.move({ from: sourceSquare, to: targetSquare, promotion });
+        const moveResult = testGame.move({
+          from: sourceSquare,
+          to: targetSquare,
+          promotion,
+        });
         if (moveResult) {
           setGame(testGame);
           setDisplayedFen(testGame.fen());
@@ -590,12 +656,20 @@ export function useChessGame({
         if (gameState?.gameMode !== "chess960") return false;
         const fromPiece = game.get(sourceSquare as Square);
         const toPiece = game.get(targetSquare as Square);
-        return fromPiece?.type === 'k' && toPiece?.type === 'r' && fromPiece.color === toPiece.color;
+        return (
+          fromPiece?.type === "k" &&
+          toPiece?.type === "r" &&
+          fromPiece.color === toPiece.color
+        );
       })();
 
       // If it succeeded, or if it's chess960 castling (which fails locally), send to server.
       if (localMoveSucceeded || isCastlingAttempt) {
-        sendMove(activeGameId, user.id, { from: sourceSquare, to: targetSquare, promotion });
+        sendMove(activeGameId, user.id, {
+          from: sourceSquare,
+          to: targetSquare,
+          promotion,
+        });
         setOptionSquares({});
         setMoveFrom(null);
         return true;
@@ -640,7 +714,10 @@ export function useChessGame({
 
   const resetInspection = () => setHintArrow([]);
 
-  const handleFirstMove = () => { setCurrentMoveIdx(-1); resetInspection(); };
+  const handleFirstMove = () => {
+    setCurrentMoveIdx(-1);
+    resetInspection();
+  };
   const handlePreviousMove = () => {
     setCurrentMoveIdx((prev) => Math.max(-1, prev - 1));
     resetInspection();
@@ -649,8 +726,14 @@ export function useChessGame({
     setCurrentMoveIdx((prev) => Math.min(moveHistory.length - 1, prev + 1));
     resetInspection();
   };
-  const handleLastMove = () => { setCurrentMoveIdx(moveHistory.length - 1); resetInspection(); };
-  const handleSelectMove = (index: number) => { setCurrentMoveIdx(index); resetInspection(); };
+  const handleLastMove = () => {
+    setCurrentMoveIdx(moveHistory.length - 1);
+    resetInspection();
+  };
+  const handleSelectMove = (index: number) => {
+    setCurrentMoveIdx(index);
+    resetInspection();
+  };
 
   // ── Derived data ────────────────────────────────────────────────────────────
 

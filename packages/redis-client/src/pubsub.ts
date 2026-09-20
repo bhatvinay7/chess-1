@@ -16,9 +16,9 @@ class RedisPubSubClient {
     this.pub = createClient({
       url: sanitizeUrl(process.env.REDIS_URL),
       socket: {
-      connectTimeout: 10000,
-      keepAlive: true
-  }
+        connectTimeout: 10000,
+        keepAlive: true,
+      },
     }) as RedisClientType;
     this.sub = this.pub.duplicate() as RedisClientType;
   }

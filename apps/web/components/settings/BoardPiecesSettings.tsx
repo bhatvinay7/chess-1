@@ -9,9 +9,9 @@ import styles from "./SettingsPage.module.css";
 // 8×3 board preview — rows 6,7,8; all 8 columns
 // null = empty square
 const PREVIEW_LAYOUT: (string | null)[][] = [
-  ["♜", null, "♝", "♛", "♚", "♝", null, "♜"],  // rank 8 (black pieces)
-  ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],  // rank 7 (black pawns)
-  [null, null, null, null, null, null, null, null],  // rank 6 (empty)
+  ["♜", null, "♝", "♛", "♚", "♝", null, "♜"], // rank 8 (black pieces)
+  ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"], // rank 7 (black pawns)
+  [null, null, null, null, null, null, null, null], // rank 6 (empty)
 ];
 
 const RANK_LABELS = ["8", "7", "6"];
@@ -31,7 +31,10 @@ interface BoardPiecesSettingsProps {
   settings: AppSettings;
   savedThemeId: string;
   onSaveBoardTheme: (id: string) => void;
-  onUpdateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
+  onUpdateSetting: <K extends keyof AppSettings>(
+    key: K,
+    value: AppSettings[K],
+  ) => void;
 }
 
 export function BoardPiecesSettings({
@@ -105,7 +108,11 @@ export function BoardPiecesSettings({
                     </div>
                     {isSelected && (
                       <div className={styles.themeDotCheck}>
-                        <CheckCircle2 size={13} color="#81b64c" fill="rgba(0,0,0,0.4)" />
+                        <CheckCircle2
+                          size={13}
+                          color="#81b64c"
+                          fill="rgba(0,0,0,0.4)"
+                        />
                       </div>
                     )}
                   </button>
@@ -144,12 +151,14 @@ export function BoardPiecesSettings({
                                 fontSize: "1.15rem",
                                 lineHeight: 1,
                                 userSelect: "none",
-                                color: piece === piece.toLowerCase()
-                                  ? "#1a1a1a"
-                                  : "#ffffff",
-                                textShadow: piece === piece.toLowerCase()
-                                  ? "0 1px 2px rgba(255,255,255,0.4)"
-                                  : "0 1px 2px rgba(0,0,0,0.5)",
+                                color:
+                                  piece === piece.toLowerCase()
+                                    ? "#1a1a1a"
+                                    : "#ffffff",
+                                textShadow:
+                                  piece === piece.toLowerCase()
+                                    ? "0 1px 2px rgba(255,255,255,0.4)"
+                                    : "0 1px 2px rgba(0,0,0,0.5)",
                               }}
                             >
                               {piece}
@@ -161,7 +170,10 @@ export function BoardPiecesSettings({
                   </div>
                 ))}
                 {/* File labels row */}
-                <div className={styles.boardPreviewRow} style={{ marginTop: 0 }}>
+                <div
+                  className={styles.boardPreviewRow}
+                  style={{ marginTop: 0 }}
+                >
                   <div className={styles.boardPreviewRankLabel} />
                   {FILE_LABELS.map((f) => (
                     <div
@@ -257,7 +269,12 @@ export function BoardPiecesSettings({
               key={ps.id}
               type="button"
               className={`${styles.pieceStyleCard} ${settings.pieceStyle === ps.id ? styles.pieceStyleCardActive : ""}`}
-              onClick={() => onUpdateSetting("pieceStyle", ps.id as AppSettings["pieceStyle"])}
+              onClick={() =>
+                onUpdateSetting(
+                  "pieceStyle",
+                  ps.id as AppSettings["pieceStyle"],
+                )
+              }
             >
               <div className={styles.pieceStylePreview}>
                 <span style={{ fontSize: "2rem" }}>♔</span>

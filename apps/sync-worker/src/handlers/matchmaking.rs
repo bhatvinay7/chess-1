@@ -36,6 +36,9 @@ pub async fn handle_matchmaking(
         return Ok(());
     }
 
-    println!("[matchmaking] Game {} matched, delaying DB insert until completion.", game_id);
+    println!(
+        "[matchmaking] Game {} matched, delaying DB insert until completion.",
+        game_id
+    );
     Ok(())
 }

@@ -20,7 +20,7 @@ export async function storeOtp(key: string, code: string): Promise<void> {
 
 export async function consumeOtp(
   key: string,
-  code: string
+  code: string,
 ): Promise<{ valid: boolean; expired: boolean }> {
   const stored = await redis.get(key);
   if (!stored) return { valid: false, expired: true };

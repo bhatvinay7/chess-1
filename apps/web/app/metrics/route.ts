@@ -7,7 +7,8 @@ export function GET(): Response {
   const now = process.hrtime.bigint();
   const cpu = process.cpuUsage(lastCpu);
   const elapsedMicros = Number(now - lastSample) / 1_000;
-  const cpuPercent = elapsedMicros > 0 ? ((cpu.user + cpu.system) / elapsedMicros) * 100 : 0;
+  const cpuPercent =
+    elapsedMicros > 0 ? ((cpu.user + cpu.system) / elapsedMicros) * 100 : 0;
   lastCpu = process.cpuUsage();
   lastSample = now;
 
