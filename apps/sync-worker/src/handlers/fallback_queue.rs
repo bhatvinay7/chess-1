@@ -1,6 +1,5 @@
 use crate::types::GameResultEntry;
 use bb8_redis::{bb8, RedisConnectionManager};
-use redis::AsyncCommands;
 use std::collections::HashMap;
 use std::time::Duration;
 use tokio::time::sleep;
@@ -30,7 +29,7 @@ async fn process_fallback_queue(redis_pool: &RedisPool) -> Result<(), Box<dyn st
     };
 
     let current_ms = now_ms();
-    
+
     // Get all game IDs with score <= current_ms
     let expired_games: Vec<String> = redis::cmd("ZRANGEBYSCORE")
         .arg("game:fallback:queue")
@@ -78,13 +77,28 @@ async fn process_fallback_queue(redis_pool: &RedisPool) -> Result<(), Box<dyn st
 
         let p1_id = game_state.get("player1_id").cloned().unwrap_or_default();
         let p2_id = game_state.get("player2_id").cloned().unwrap_or_default();
-        let w_id = game_state.get("white_player_id").cloned().unwrap_or_default();
-        let b_id = game_state.get("black_player_id").cloned().unwrap_or_default();
-        
-        let initial_time = game_state.get("time_slot").and_then(|s| s.parse::<u32>().ok()).unwrap_or(600);
-        let white_left = game_state.get("white_player_left_time").and_then(|s| s.parse::<u32>().ok()).unwrap_or(initial_time);
-        let black_left = game_state.get("black_player_left_time").and_then(|s| s.parse::<u32>().ok()).unwrap_or(initial_time);
-        
+        let w_id = game_state
+            .get("white_player_id")
+            .cloned()
+            .unwrap_or_default();
+        let b_id = game_state
+            .get("black_player_id")
+            .cloned()
+            .unwrap_or_default();
+
+        let initial_time = game_state
+            .get("time_slot")
+            .and_then(|s| s.parse::<u32>().ok())
+            .unwrap_or(600);
+        let white_left = game_state
+            .get("white_player_left_time")
+            .and_then(|s| s.parse::<u32>().ok())
+            .unwrap_or(initial_time);
+        let black_left = game_state
+            .get("black_player_left_time")
+            .and_then(|s| s.parse::<u32>().ok())
+            .unwrap_or(initial_time);
+
         let winner_id = if white_left < black_left {
             Some(b_id.clone())
         } else if black_left < white_left {
@@ -120,7 +134,7 @@ async fn process_fallback_queue(redis_pool: &RedisPool) -> Result<(), Box<dyn st
         let mut pipe = redis::pipe();
         pipe.atomic();
         pipe.zrem("game:fallback:queue", &game_id);
-        
+
         if !p1_id.is_empty() {
             pipe.zrem(format!("matchmaking:gameId:{}", p1_id), &game_id);
             pipe.zrem(format!("user:active:games:{}", p1_id), &game_id);
@@ -129,7 +143,7 @@ async fn process_fallback_queue(redis_pool: &RedisPool) -> Result<(), Box<dyn st
             pipe.zrem(format!("matchmaking:gameId:{}", p2_id), &game_id);
             pipe.zrem(format!("user:active:games:{}", p2_id), &game_id);
         }
-        
+
         let _: () = pipe.query_async(&mut *conn).await.unwrap_or(());
         println!("[fallback_worker] Processed abandoned game {}", game_id);
     }

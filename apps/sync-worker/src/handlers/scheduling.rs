@@ -240,7 +240,7 @@ pub async fn add_to_schedule(
     let info_key = format!("game:schedule:info:{user_id}");
     let info_json =
         format!(r#"{{"gameId":"{game_id}","startTime":{start_ms},"endTime":{end_ms}}}"#);
-    
+
     let mut pipe = redis::pipe();
     pipe.atomic();
     pipe.hset(&info_key, game_id, &info_json);
