@@ -19,11 +19,15 @@ export async function getActiveGameId(userId: string): Promise<string | null> {
 
   for (const entry of futureEntries) {
     const [gid] = entry.split(":");
-    // For online matchmaking, any game whose endMs > nowMs is active.
-    // There are no future-scheduled online games, so no startMs check is needed.
-    // This also avoids bugs caused by ms-level clock skew between Rust matchmaker and Node server.
-    activeOnlineGame = gid || entry || null;
-    break;
+    const gameIdToCheck = gid || entry;
+    if (gameIdToCheck) {
+      const exists = await redisClient.exists(`game:state:${gameIdToCheck}`);
+      if (exists) {
+        activeOnlineGame = gameIdToCheck;
+        break;
+      }
+      // If ghost, let cleanup happen later (e.g. onJoinArena or hasOverlappingGame).
+    }
   }
 
   // For RR double-headers both games are in user:active:games upfront.
