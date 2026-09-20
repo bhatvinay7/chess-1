@@ -1,4 +1,5 @@
 #![allow(non_snake_case)]
+#![allow(clippy::result_large_err)]
 
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
