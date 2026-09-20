@@ -149,6 +149,7 @@ export async function exceptRematch(
         .xAdd("matchmaking:queue", "*", { payload: JSON.stringify(matchData) })
         .zAdd(userKey1, [{ score: endSec, value: zsetVal }])
         .zAdd(userKey2, [{ score: endSec, value: zsetVal }])
+        .zAdd("game:fallback:queue", [{ score: endSec * 1000, value: newGameId }])
         .del(dataKey)
         .exec();
 

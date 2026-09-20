@@ -240,10 +240,13 @@ pub async fn add_to_schedule(
     let info_key = format!("game:schedule:info:{user_id}");
     let info_json =
         format!(r#"{{"gameId":"{game_id}","startTime":{start_ms},"endTime":{end_ms}}}"#);
-    let _: () = conn
-        .hset(&info_key, game_id, &info_json)
-        .await
-        .unwrap_or(());
+    
+    let mut pipe = redis::pipe();
+    pipe.atomic();
+    pipe.hset(&info_key, game_id, &info_json);
+    pipe.zadd("game:fallback:queue", game_id, end_ms);
+
+    let _: () = pipe.query_async(&mut *conn).await.unwrap_or(());
 }
 
 /// Add a game to `user:active:games:{userId}`.

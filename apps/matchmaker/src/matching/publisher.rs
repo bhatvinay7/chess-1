@@ -114,6 +114,7 @@ pub async fn publish_match<C: ConnectionLike + Send>(
     pipe.hset_multiple(&game_key, &hset_data);
     pipe.zadd(&p1_game_key, &zset_val, end_ms);
     pipe.zadd(&p2_game_key, &zset_val, end_ms);
+    pipe.zadd("game:fallback:queue", &match_payload.game_id, end_ms);
     pipe.xadd("matchmaking:queue", "*", &[("payload", &match_json_str)]);
     pipe.publish("game:matchmaking:started", &match_json_str);
     pipe.publish("game:created", &match_payload.game_id);

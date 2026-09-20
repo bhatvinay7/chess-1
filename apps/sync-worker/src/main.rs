@@ -194,6 +194,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         run_manual_trigger_listener(redis_url_clone, pool6, db6, rabbitmq_pubsub).await;
     });
 
+    // ── Task 7: Fallback Queue Processor ─────────────────────────────────────
+    let pool7 = redis_pool.clone();
+    let t_fallback = tokio::spawn(async move {
+        sync_worker::handlers::fallback_queue::run_fallback_worker(pool7).await;
+    });
+
     println!("[sync-worker] All tasks running.");
     let _ = tokio::join!(
         t_matchmaking,
@@ -201,7 +207,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         t_mm_recovery,
         t_gr_recovery,
         t_tournament,
-        t_pubsub
+        t_pubsub,
+        t_fallback
     );
 
     Ok(())
