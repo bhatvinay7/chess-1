@@ -18,6 +18,7 @@ import type {
 import { DrawHandler }       from "./events/handlers/draw.handler.js";
 import { RematchHandler }    from "./events/handlers/rematch.handler.js";
 import { ResignHandler }     from "./events/handlers/resign.handler.js";
+import { AbortHandler }      from "./events/handlers/abort.handler.js";
 import { SpectateHandler }   from "./events/handlers/spectate.handler.js";
 import { TournamentHandler } from "./events/handlers/tournament.handler.js";
 import { GameHandler }       from "./events/handlers/game.handler.js";
@@ -212,6 +213,7 @@ export class WebSocketServer {
       new GameHandler(this.io, socket, this.grpcClient).register();
       new DrawHandler(this.io, socket).register();
       new ResignHandler(this.io, socket).register();
+      new AbortHandler(this.io, socket).register();
       new RematchHandler(this.io, socket).register();
       new SpectateHandler(this.io, socket, this.grpcClient).register();
       new TournamentHandler(this.io, socket).register();

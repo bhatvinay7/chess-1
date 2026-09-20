@@ -187,7 +187,8 @@ export function SpectatorBoard({ gameId }: SpectatorBoardProps) {
   React.useEffect(() => {
     if (!serverTimes) return;
     syncTimeFromOutside(serverTimes.white, serverTimes.black);
-  }, [serverTimes, syncTimeFromOutside]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serverTimes]);
 
   // Derive white/black player info from the game state
   const isP1White = spectateState?.whitePlayerId === spectateState?.player1Id;

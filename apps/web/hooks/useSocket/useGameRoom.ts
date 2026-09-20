@@ -375,6 +375,14 @@ export function useGameRoom() {
     [socket],
   );
 
+  const abort = useCallback(
+    (userId: string, gameId: string): void => {
+      if (!socket) return;
+      socket.emit("abort_game", { userId, gameId });
+    },
+    [socket],
+  );
+
   // Emitted when the user explicitly leaves a finished game (New Game / Rematch).
   // Passes the specific gameId so the server only removes the key if it still
   // points to that game — prevents accidentally clobbering a new match assignment.
@@ -490,6 +498,7 @@ export function useGameRoom() {
     dismissActiveGame,
     sendMove,
     resign,
+    abort,
     leaveGame,
     drawOffer,
     drawNotice,
