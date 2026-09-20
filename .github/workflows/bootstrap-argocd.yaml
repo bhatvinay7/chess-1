@@ -225,13 +225,66 @@ jobs:
           NEXT_PUBLIC_SOCKET_URL: ${{ secrets.NEXT_PUBLIC_SOCKET_URL }}
           NEXT_PUBLIC_USE_REMOTE_STOCKFISH: ${{ secrets.NEXT_PUBLIC_USE_REMOTE_STOCKFISH }}
         run: |
-          python3 scripts/seal-secrets.py
+          if [ -z "$GHCR_TOKEN" ]; then
+            echo "Error: GHCR_TOKEN is not set in the production environment."
+            exit 1
+          fi
+
+          if [ -z "$SEALED_SECRETS_CERT_FILE" ] || [ ! -f "$SEALED_SECRETS_CERT_FILE" ]; then
+            echo "Error: Sealed secrets certificate is missing."
+            exit 1
+          fi
+
+          mkdir -p apps
+
+          # Generate Backend Secrets
+          kubectl create secret generic backend-secrets \
+            --from-literal=CLOUDFLARE_R2_SECRET_ACCESS_KEY="$CLOUDFLARE_R2_SECRET_ACCESS_KEY" \
+            --from-literal=CLOUDINARY_API_KEY="$CLOUDINARY_API_KEY" \
+            --from-literal=CLOUDINARY_API_SECRET="$CLOUDINARY_API_SECRET" \
+            --from-literal=CLOUDINARY_CLOUD_NAME="$CLOUDINARY_CLOUD_NAME" \
+            --from-literal=DATABASE_URL="$DATABASE_URL" \
+            --from-literal=GRPC_SERVER_URL="$GRPC_SERVER_URL" \
+            --from-literal=INVITATION_ENCRYPTION_KEY="$INVITATION_ENCRYPTION_KEY" \
+            --from-literal=MONGO_DB_URL="$MONGO_DB_URL" \
+            --from-literal=REDIS_URL="$REDIS_URL" \
+            --from-literal=RABBITMQ_URL="$RABBITMQ_URL" \
+            --from-literal=SMTP_HOST="$SMTP_HOST" \
+            --from-literal=SMTP_PORT="$SMTP_PORT" \
+            --from-literal=SMTP_SECURE="$SMTP_SECURE" \
+            --from-literal=SMTP_USER="$SMTP_USER" \
+            --from-literal=SMTP_PASS="$SMTP_PASS" \
+            --from-literal=SMTP_FROM="$SMTP_FROM" \
+            --from-literal=REPLICATION_URL="$REPLICATION_URL" \
+            --from-literal=SLOT_NAME="$SLOT_NAME" \
+            --from-literal=PUBLICATION="$PUBLICATION" \
+            --from-literal=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+            --from-literal=GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+            --from-literal=CLIENT_URL="$CLIENT_URL" \
+            --dry-run=client -o yaml | kubeseal --cert "$SEALED_SECRETS_CERT_FILE" --format yaml > apps/sealed-backend-secrets.yaml
+            
+          # Generate Frontend Secrets
+          kubectl create secret generic frontend-secrets \
+            --from-literal=GOOGLE_CLIENT_ID="$GOOGLE_CLIENT_ID" \
+            --from-literal=GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET" \
+            --from-literal=NEXT_PUBLIC_API_URL="$NEXT_PUBLIC_API_URL" \
+            --from-literal=NEXT_PUBLIC_SOCKET_URL="$NEXT_PUBLIC_SOCKET_URL" \
+            --from-literal=NEXT_PUBLIC_R2_PUBLIC_URL="$NEXT_PUBLIC_R2_PUBLIC_URL" \
+            --from-literal=NEXT_PUBLIC_USE_REMOTE_STOCKFISH="$NEXT_PUBLIC_USE_REMOTE_STOCKFISH" \
+            --dry-run=client -o yaml | kubeseal --cert "$SEALED_SECRETS_CERT_FILE" --format yaml > apps/sealed-frontend-secrets.yaml
+
+          # Generate a read-only GHCR pull secret for the application pods.
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username="$GHCR_USERNAME" \
+            --docker-password="$GHCR_TOKEN" \
+            --dry-run=client -o yaml | kubeseal --cert "$SEALED_SECRETS_CERT_FILE" --format yaml > apps/ghcr-secret.yaml
 
       - name: Commit and push GitOps change
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add apps/sealed-backend-secrets.yaml apps/sealed-frontend-secrets.yaml apps/ghcr-secret.yaml scripts/seal-secrets.py
+          git add apps/sealed-backend-secrets.yaml apps/sealed-frontend-secrets.yaml apps/ghcr-secret.yaml
           git diff --cached --quiet && exit 0
           git commit -m "chore(secrets): seal secrets"
           for attempt in 1 2 3; do
