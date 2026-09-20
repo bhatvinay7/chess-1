@@ -10,7 +10,7 @@ export class SocketService {
 
   connect(userId: string): void {
     if (typeof window === "undefined") return;
-    if (this.socket?.connected) return;
+    if (this.socket) return;
 
     this.socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8080", {
       transports: ["websocket"],
