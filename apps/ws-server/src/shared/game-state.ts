@@ -33,14 +33,21 @@ export async function getActiveGameId(userId: string): Promise<string | null> {
   // For RR double-headers both games are in user:active:games upfront.
   // Game 2 has a future start_ms score; filter to score ≤ now so it stays
   // invisible until release_rr_paired_game updates its score to now_ms.
-  const active = await redisClient.zRange(
+  const activeTournamentEntries = await redisClient.zRange(
     `user:active:games:${userId}`,
     nowMs, // max (upper bound when REV=true)
     0, // min
-    { BY: "SCORE", REV: true, LIMIT: { offset: 0, count: 1 } },
+    { BY: "SCORE", REV: true },
   );
-  if (active.length > 0) {
-    activeTournamentGame = active[0] ?? null;
+
+  for (const tGameId of activeTournamentEntries) {
+    if (tGameId) {
+      const exists = await redisClient.exists(`game:state:${tGameId}`);
+      if (exists) {
+        activeTournamentGame = tGameId;
+        break;
+      }
+    }
   }
 
   return activeTournamentGame || activeOnlineGame;
@@ -64,6 +71,8 @@ export async function removeGameFromSchedule(
     if (target) {
       await redisClient.zRem(`matchmaking:gameId:${userId}`, target);
     }
+    // Also remove from tournament schedule ZSET to prevent ghost tournament games
+    await redisClient.zRem(`user:active:games:${userId}`, gameId);
   } catch (err) {
     console.error(`[removeGameFromSchedule] Error for ${userId}:`, err);
   }
