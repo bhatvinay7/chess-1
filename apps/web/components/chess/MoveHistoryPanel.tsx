@@ -136,6 +136,7 @@ export function MoveHistoryPanel({
   onAnalyse,
 }: MoveHistoryPanelProps) {
   const [activeTab, setActiveTab] = useState<TabId>("moves");
+  const [showResignConfirm, setShowResignConfirm] = useState(false);
 
   const maxMs = useMemo(() => {
     let max = 1;
@@ -150,6 +151,40 @@ export function MoveHistoryPanel({
 
   return (
     <section className={styles.movePanel} aria-label="Move history">
+      {/* ── Abort Popup at top right ─────────────────────────────────── */}
+      {!isGameOver && !isSpectator && canAbort && (
+        <div
+          style={{
+            position: "fixed",
+            top: "24px",
+            right: "24px",
+            zIndex: 9999,
+          }}
+        >
+          <button
+            onClick={onAbort}
+            style={{
+              padding: "12px 24px",
+              backgroundColor: "#e06060",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "bold",
+              cursor: "pointer",
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "1rem",
+            }}
+            type="button"
+          >
+            <RotateCcw size={18} />
+            {abortCountdown >= 0 ? `Abort (${abortCountdown}s)` : "Abort Game"}
+          </button>
+        </div>
+      )}
+
       {/* ── Tab bar ──────────────────────────────────────────────────── */}
       <div className={styles.tabBar}>
         {TAB_LABELS.map(({ id, label }) => (
@@ -424,17 +459,34 @@ export function MoveHistoryPanel({
               <Handshake size={14} />
               Draw
             </button>
-            {canAbort ? (
-              <button
-                onClick={onAbort}
-                className={styles.resignBtn}
-                type="button"
-              >
-                {abortCountdown >= 0 ? `Abort (${abortCountdown}s)` : "Abort"}
-              </button>
+            {canAbort ? null : showResignConfirm ? (
+              <div style={{ display: "flex", gap: "0.45rem", flex: 1 }}>
+                <button
+                  onClick={() => {
+                    setShowResignConfirm(false);
+                    onResign();
+                  }}
+                  className={styles.resignBtn}
+                  type="button"
+                  style={{
+                    backgroundColor: "rgba(224,96,96,0.15)",
+                    color: "#e08888",
+                    borderColor: "rgba(224,96,96,0.6)",
+                  }}
+                >
+                  Yes
+                </button>
+                <button
+                  onClick={() => setShowResignConfirm(false)}
+                  className={styles.resignBtn}
+                  type="button"
+                >
+                  No
+                </button>
+              </div>
             ) : (
               <button
-                onClick={onResign}
+                onClick={() => setShowResignConfirm(true)}
                 className={styles.resignBtn}
                 type="button"
               >

@@ -10,6 +10,7 @@ import {
   Trophy,
   Loader2,
   Check,
+  Search,
 } from "lucide-react";
 import styles from "./GameOverModal.module.css";
 import type { GameResult } from "../../hooks/useGameResult";
@@ -39,6 +40,7 @@ interface GameOverModalProps {
   onRematchRequest: (userId: string, opponentId: string) => void;
   onAcceptRematch: (userId: string, opponentId: string) => void;
   onDeclineRematch: (userId: string, opponentId: string) => void;
+  onAnalyse?: () => void;
 }
 
 function AvatarCard({
@@ -99,6 +101,7 @@ function ActionButtons({
   onRematchRequest,
   onAcceptRematch,
   onDeclineRematch,
+  onAnalyse,
 }: {
   userId: string;
   opponentId: string;
@@ -109,6 +112,7 @@ function ActionButtons({
   onRematchRequest: (userId: string, opponentId: string) => void;
   onAcceptRematch: (userId: string, opponentId: string) => void;
   onDeclineRematch: (userId: string, opponentId: string) => void;
+  onAnalyse?: () => void;
 }) {
   const [timeLeft, setTimeLeft] = useState(REMATCH_WINDOW_SEC);
 
@@ -131,6 +135,21 @@ function ActionButtons({
   if (isTournament) {
     return (
       <div className={styles.actions}>
+        {onAnalyse && (
+          <button
+            className={styles.btnNewGame}
+            onClick={onAnalyse}
+            type="button"
+            style={{
+              marginRight: "0.5rem",
+              backgroundColor: "#3a5230",
+              borderColor: "#536b47",
+            }}
+          >
+            <Search size={16} />
+            Analyse
+          </button>
+        )}
         <button className={styles.btnNewGame} onClick={onNewGame} type="button">
           <RotateCcw size={16} />
           Back to Lobby
@@ -166,6 +185,21 @@ function ActionButtons({
             </button>
           </div>
         </div>
+        {onAnalyse && (
+          <button
+            className={styles.btnNewGame}
+            onClick={onAnalyse}
+            type="button"
+            style={{
+              marginBottom: "0.5rem",
+              backgroundColor: "#3a5230",
+              borderColor: "#536b47",
+            }}
+          >
+            <Search size={16} />
+            Analyse
+          </button>
+        )}
         <button className={styles.btnNewGame} onClick={onNewGame} type="button">
           <RotateCcw size={16} />
           New Game
@@ -182,7 +216,27 @@ function ActionButtons({
           <Loader2 size={16} className={styles.spinnerIcon} />
           Waiting…
         </button>
-        <button className={styles.btnNewGame} onClick={onNewGame} type="button">
+        {onAnalyse && (
+          <button
+            className={styles.btnNewGame}
+            onClick={onAnalyse}
+            type="button"
+            style={{
+              marginTop: "0.5rem",
+              backgroundColor: "#3a5230",
+              borderColor: "#536b47",
+            }}
+          >
+            <Search size={16} />
+            Analyse
+          </button>
+        )}
+        <button
+          className={styles.btnNewGame}
+          onClick={onNewGame}
+          type="button"
+          style={{ marginTop: "0.5rem" }}
+        >
           <RotateCcw size={16} />
           New Game
         </button>
@@ -203,7 +257,27 @@ function ActionButtons({
         Rematch
         {canRematch && <span className={styles.timerBadge}>{timeLeft}</span>}
       </button>
-      <button className={styles.btnNewGame} onClick={onNewGame} type="button">
+      {onAnalyse && (
+        <button
+          className={styles.btnNewGame}
+          onClick={onAnalyse}
+          type="button"
+          style={{
+            marginTop: "0.5rem",
+            backgroundColor: "#3a5230",
+            borderColor: "#536b47",
+          }}
+        >
+          <Search size={16} />
+          Analyse
+        </button>
+      )}
+      <button
+        className={styles.btnNewGame}
+        onClick={onNewGame}
+        type="button"
+        style={{ marginTop: "0.5rem" }}
+      >
         <RotateCcw size={16} />
         New Game
       </button>
@@ -226,6 +300,7 @@ export function GameOverModal({
   onRematchRequest,
   onAcceptRematch,
   onDeclineRematch,
+  onAnalyse,
 }: GameOverModalProps) {
   const { didLocalPlayerWin, resultLabel } = result;
 
@@ -287,6 +362,7 @@ export function GameOverModal({
               onRematchRequest={onRematchRequest}
               onAcceptRematch={onAcceptRematch}
               onDeclineRematch={onDeclineRematch}
+              onAnalyse={onAnalyse}
             />
           </div>
         </motion.div>
